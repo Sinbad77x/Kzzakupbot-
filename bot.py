@@ -37,6 +37,12 @@ def get_public_tenders():
                     link_elem = row.find('a')
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     
+                    # Извлекаем точную ссылку на лот из тега <a>, если она есть
+                    tender_link = "https://goszakup.gov.kz/ru/search/announce"
+                    if link_elem and link_elem.has_attr('href'):
+                        href = link_elem['href']
+                        tender_link = href if href.startswith('http') else f"https://goszakup.gov.kz{href}"
+                    
                     raw_text = cols[1].text.strip().replace('\n', ' ')
                     title = " ".join(raw_text.split())
                     
@@ -51,7 +57,8 @@ def get_public_tenders():
                         'title': title,
                         'organizer': organizer,
                         'sum': sum_val,
-                        'category': category
+                        'category': category,
+                        'link': tender_link
                     })
         return tenders
     except Exception as e:
@@ -71,16 +78,16 @@ def send_to_telegram():
             f"📝 **Предмет закупки:** {t['title']}\n"
             f"🏢 **Заказчик/Организатор:** {t['organizer']}\n"
             f"💰 **Сумма:** `{t['sum']} ₸`\n\n"
-            f"🔗 [Открыть объявление на портале](https://goszakup.gov.kz/ru/search/announce)"
+            f"🔗 [Открыть этот лот на портале]({t['link']})"
         )
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         payload = {
             "chat_id": CHAT_ID,
             "text": msg,
-            "parse_mode": "Markdown"
+            "parse_mode": "Markdown",
+            "disable_web_page_preview": True
         }
         requests.post(url, json=payload)
 
 if __name__ == "__main__":
     send_to_telegram()
-                    
