@@ -7,18 +7,8 @@ CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
 
-def get_category_icon(title):
-    title_lower = title.lower()
-    if any(w in title_lower for w in ['it', 'программ', 'компьютер', 'сайт', 'по икт', 'поу', 'связь']):
-        return "💻 IT и Оргтехника"
-    elif any(w in title_lower for w in ['медицин', 'лекарств', 'больниц', 'фарм', 'препарат']):
-        return "🏥 Медицина и Здоровье"
-    elif any(w in title_lower for w in ['строй', 'ремонт', 'здани', 'сооружен', 'дорог', 'жилищ']):
-        return "🏗️ Строительство и Недвижимость"
-    elif any(w in title_lower for w in ['обучен', 'учебы', 'школ', 'курс', 'услуг']):
-        return "📚 Услуги и Обучение"
-    else:
-        return "📦 Общая закупка"
+# 🔍 Ваши ключевые слова для точной фильтрации (добавляйте или меняйте на свои)
+KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен']
 
 def get_public_tenders():
     headers = {
@@ -31,17 +21,11 @@ def get_public_tenders():
             soup = BeautifulSoup(response.text, 'html.parser')
             rows = soup.select('table.table tbody tr')
             
-            for row in rows[:3]:
+            for row in rows:
                 cols = row.find_all('td')
                 if len(cols) >= 4:
                     link_elem = row.find('a')
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
-                    
-                    # Извлекаем точную ссылку на лот из тега <a>, если она есть
-                    tender_link = "https://goszakup.gov.kz/ru/search/announce"
-                    if link_elem and link_elem.has_attr('href'):
-                        href = link_elem['href']
-                        tender_link = href if href.startswith('http') else f"https://goszakup.gov.kz{href}"
                     
                     raw_text = cols[1].text.strip().replace('\n', ' ')
                     title = " ".join(raw_text.split())
@@ -50,17 +34,17 @@ def get_public_tenders():
                     organizer = " ".join(organizer.split())
                     
                     sum_val = cols[3].text.strip()
-                    category = get_category_icon(title)
                     
-                    tenders.append({
-                        'num': anno_num,
-                        'title': title,
-                        'organizer': organizer,
-                        'sum': sum_val,
-                        'category': category,
-                        'link': tender_link
-                    })
-        return tenders
+                    # Проверка: если в названии есть хоть одно ключевое слово из списка
+                    title_lower = title.lower()
+                    if any(kw in title_lower for kw in KEYWORDS):
+                        tenders.append({
+                            'num': anno_num,
+                            'title': title,
+                            'organizer': organizer,
+                            'sum': sum_val
+                        })
+        return tenders[:5]  # Отправляем до 5 подходящих лотов за раз
     except Exception as e:
         print(f"Ошибка парсинга: {e}")
         return []
@@ -68,17 +52,17 @@ def get_public_tenders():
 def send_to_telegram():
     tenders = get_public_tenders()
     if not tenders:
-        print("Лоты не найдены.")
+        print("Новых лотов по вашим ключевым словам не найдено.")
         return
 
     for t in tenders:
         msg = (
-            f"📌 **Новый лот РК** [{t['category']}]\n\n"
+            f"🎯 **Найден целевой тендер!**\n\n"
             f"🔹 **№ лота:** `{t['num']}`\n"
             f"📝 **Предмет закупки:** {t['title']}\n"
             f"🏢 **Заказчик/Организатор:** {t['organizer']}\n"
             f"💰 **Сумма:** `{t['sum']} ₸`\n\n"
-            f"🔗 [Открыть этот лот на портале]({t['link']})"
+            f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
         )
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         payload = {
