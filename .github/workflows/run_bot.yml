@@ -2,8 +2,8 @@ name: Run Kzzakupbot
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # Запуск каждые 3 часа
-  workflow_dispatch:        # Возможность запустить вручную кнопкой
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
 
 jobs:
   run-bot:
@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,4 +29,3 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python bot.py
-          
