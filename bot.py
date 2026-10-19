@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 from bs4 import BeautifulSoup
 
@@ -7,7 +8,6 @@ CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
 
-# 🔍 Ваши ключевые слова для точной фильтрации (добавляйте или меняйте на свои)
 KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен']
 
 def get_public_tenders():
@@ -35,7 +35,6 @@ def get_public_tenders():
                     
                     sum_val = cols[3].text.strip()
                     
-                    # Проверка: если в названии есть хоть одно ключевое слово из списка
                     title_lower = title.lower()
                     if any(kw in title_lower for kw in KEYWORDS):
                         tenders.append({
@@ -44,7 +43,7 @@ def get_public_tenders():
                             'organizer': organizer,
                             'sum': sum_val
                         })
-        return tenders[:5]  # Отправляем до 5 подходящих лотов за раз
+        return tenders[:5]
     except Exception as e:
         print(f"Ошибка парсинга: {e}")
         return []
@@ -74,4 +73,13 @@ def send_to_telegram():
         requests.post(url, json=payload)
 
 if __name__ == "__main__":
-    send_to_telegram()
+    print("Бот запущен и работает в фоновом режиме...")
+    while True:
+        try:
+            send_to_telegram()
+        except Exception as e:
+            print(f"Ошибка в цикле: {e}")
+        
+        # Проверять каждые 2 часа (7200 секунд), чтобы не нагружать сайт и Render
+        time.sleep(7200)
+                    
