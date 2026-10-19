@@ -37,22 +37,12 @@ def get_public_tenders():
                     link_elem = row.find('a')
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     
-                    # Пытаемся вытащить ID из атрибута href ссылки на объявление
+                    # Извлекаем точную ссылку на лот из тега <a>, если она есть
                     tender_link = "https://goszakup.gov.kz/ru/search/announce"
                     if link_elem and link_elem.has_attr('href'):
                         href = link_elem['href']
-                        # Если в ссылке содержится ID объявления, формируем прямую ссылку
-                        if 'announce/index' in href or 'show' in href:
-                            tender_link = href if href.startswith('http') else f"https://goszakup.gov.kz{href}"
-                        else:
-                            # Альтернативный поиск ссылки в строке
-                            links = row.find_all('a', href=True)
-                            for l in links:
-                                if 'announce' in l['href']:
-                                    h = l['href']
-                                    tender_link = h if h.startswith('http') else f"https://goszakup.gov.kz{h}"
-                                    break
-
+                        tender_link = href if href.startswith('http') else f"https://goszakup.gov.kz{href}"
+                    
                     raw_text = cols[1].text.strip().replace('\n', ' ')
                     title = " ".join(raw_text.split())
                     
@@ -101,4 +91,3 @@ def send_to_telegram():
 
 if __name__ == "__main__":
     send_to_telegram()
-                                
