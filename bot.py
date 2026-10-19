@@ -1,14 +1,27 @@
 import os
 import time
+import threading
 import requests
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from bs4 import BeautifulSoup
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+PORT = int(os.environ.get("PORT", 10000))
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
-
 KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен']
+
+# Заглушка веб-сервера, чтобы Render был доволен и не выключал приложение
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Kzzakupbot is running!")
+
+def run_server():
+    server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
+    server.serve_forever()
 
 def get_public_tenders():
     headers = {
@@ -72,14 +85,19 @@ def send_to_telegram():
         }
         requests.post(url, json=payload)
 
-if __name__ == "__main__":
+def bot_loop():
     print("Бот запущен и работает в фоновом режиме...")
     while True:
         try:
             send_to_telegram()
         except Exception as e:
             print(f"Ошибка в цикле: {e}")
-        
-        # Проверять каждые 2 часа (7200 секунд), чтобы не нагружать сайт и Render
         time.sleep(7200)
-                    
+
+if __name__ == "__main__":
+    # Запускаем веб-сервер в отдельном потоке (нужно для Render)
+    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread.start()
+    
+    # Запускаем бесконечный цикл бота
+    bot_loop()
