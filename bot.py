@@ -9,14 +9,14 @@ URL = "https://goszakup.gov.kz/ru/search/announce"
 
 def get_category_icon(title):
     title_lower = title.lower()
-    if any(w in title_lower for w in ['it', 'программ', 'компьютер', 'сайт', 'по икт', 'поу']):
+    if any(w in title_lower for w in ['it', 'программ', 'компьютер', 'сайт', 'по икт', 'поу', 'связь']):
         return "💻 IT и Оргтехника"
-    elif any(w in title_lower for w in ['медицин', 'лекарств', 'больниц', 'фарм']):
+    elif any(w in title_lower for w in ['медицин', 'лекарств', 'больниц', 'фарм', 'препарат']):
         return "🏥 Медицина и Здоровье"
-    elif any(w in title_lower for w in ['строй', 'ремонт', 'здани', 'сооружен', 'дорог']):
-        return "🏗️ Строительство и Ремонт"
-    elif any(w in title_lower for w in ['обучен', 'учебы', 'школ', 'курс', 'управлен']):
-        return "📚 Образование и Услуги"
+    elif any(w in title_lower for w in ['строй', 'ремонт', 'здани', 'сооружен', 'дорог', 'жилищ']):
+        return "🏗️ Строительство и Недвижимость"
+    elif any(w in title_lower for w in ['обучен', 'учебы', 'школ', 'курс', 'услуг']):
+        return "📚 Услуги и Обучение"
     else:
         return "📦 Общая закупка"
 
@@ -34,9 +34,15 @@ def get_public_tenders():
             for row in rows[:3]:
                 cols = row.find_all('td')
                 if len(cols) >= 4:
-                    anno_num = cols[0].text.strip()
-                    title = cols[1].text.strip()
-                    organizer = cols[2].text.strip()
+                    link_elem = row.find('a')
+                    anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
+                    
+                    raw_text = cols[1].text.strip().replace('\n', ' ')
+                    title = " ".join(raw_text.split())
+                    
+                    organizer = cols[2].text.strip().replace('\n', ' ')
+                    organizer = " ".join(organizer.split())
+                    
                     sum_val = cols[3].text.strip()
                     category = get_category_icon(title)
                     
@@ -49,7 +55,7 @@ def get_public_tenders():
                     })
         return tenders
     except Exception as e:
-        print(f"Ошибка: {e}")
+        print(f"Ошибка парсинга: {e}")
         return []
 
 def send_to_telegram():
@@ -60,12 +66,12 @@ def send_to_telegram():
 
     for t in tenders:
         msg = (
-            f"📌 **Новый тендер РК** [{t['category']}]\n\n"
+            f"📌 **Новый лот РК** [{t['category']}]\n\n"
             f"🔹 **№ лота:** `{t['num']}`\n"
-            f"📝 **Что закупают:** {t['title']}\n"
-            f"🏢 **Заказчик:** {t['organizer']}\n"
-            f"💰 **Сумма:** `{t['sum']}`\n\n"
-            f"🔗 [Открыть на портале Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
+            f"📝 **Предмет закупки:** {t['title']}\n"
+            f"🏢 **Заказчик/Организатор:** {t['organizer']}\n"
+            f"💰 **Сумма:** `{t['sum']} ₸`\n\n"
+            f"🔗 [Открыть объявление на портале](https://goszakup.gov.kz/ru/search/announce)"
         )
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         payload = {
