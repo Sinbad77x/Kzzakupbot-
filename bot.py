@@ -32,7 +32,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Портал Мониторинга Госзакупок, Маркетплейсов и Бизнес-Банков РК</title>
+    <title>Kzzakupbot — Портал Мониторинга Госзакупок, Обучения и Бизнес-Банков РК</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -298,22 +298,6 @@ HTML_PAGE = """<!DOCTYPE html>
             color: var(--accent);
         }
 
-        .comp-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        .comp-table th, .comp-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 14px;
-        }
-        .comp-table th {
-            background: rgba(15, 23, 42, 0.6);
-            color: var(--accent);
-        }
-
         footer {
             margin-top: auto;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -341,8 +325,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <main class="container">
         <section class="hero">
-            <h1>Умный Мониторинг, Банки и Маркетплейсы РК</h1>
-            <p>Госзакупки, продажи через Kaspi, цифровые гарантии Freedom, счета в Halyk и BCC — все бизнес-инструменты в одном месте.</p>
+            <h1>Умный Мониторинг, Обучение и Банки РК</h1>
+            <p>Автоматический поиск лотов, бесплатные курсы по тендерам, цифровые гарантии и маркетплейсы — все в одном месте.</p>
             <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
                 <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
             </a>
@@ -372,16 +356,55 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 2. БАНКИ И ФИНАНСОВЫЕ СЕРВИСЫ ДЛЯ БИЗНЕСА -->
+            <!-- 2. БЕСПЛАТНОЕ ОБУЧЕНИЕ И БАЗА ЗНАНИЙ -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <h3>Бесплатное обучение тендерам и продажам в РК</h3>
+                <p>Базовые курсы, официальные видеоинструкции площадок и разборы законов:</p>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Центр электронных финансов (ЦЭФ)</h4>
+                        <span>Официальный YouTube-канал Goszakup.gov.kz — инструкции по NCALayer, ЭЦП, актам и договорам</span>
+                    </div>
+                    <a href="https://www.youtube.com/@goszakupgovkz_cef" target="_blank" class="resource-btn">Смотреть YouTube <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Инструкции «Самрук-Казына» (zakup.sk.kz)</h4>
+                        <span>Текстовые руководства и видео по ПКО, реестру товаропроизводителей и конкурсам</span>
+                    </div>
+                    <a href="https://zakup.sk.kz" target="_blank" class="resource-btn">zakup.sk.kz <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Курс «Основы Госзакупок РК» (Skills Enbek)</h4>
+                        <span>Государственный бесплатный онлайн-курс №460 с выдачей сертификата</span>
+                    </div>
+                    <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="resource-btn">Пройти курс <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Omarket.kz для поставщиков</h4>
+                        <span>Видеоинструкции по быстрой выкладке товаров и заключению прямых сделок</span>
+                    </div>
+                    <a href="https://omarket.kz" target="_blank" class="resource-btn">omarket.kz <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <!-- 3. БАНКИ И ФИНАНСЫ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-building-columns"></i></div>
-                <h3>Финансовые экосистемы и банки для предпринимателей РК</h3>
-                <p>Открытие счетов, тендерные гарантии и расчетно-кассовое обслуживание:</p>
+                <h3>Финансовые экосистемы и банки для предпринимателей</h3>
+                <p>Открытие счетов, цифровые тендерные гарантии и банковское обслуживание:</p>
 
                 <div class="resource-item">
                     <div class="resource-info">
                         <h4>Freedom Bank (Фридом)</h4>
-                        <span>Цифровые тендерные гарантии и онлайн-финансирование для бизнеса</span>
+                        <span>Онлайн-выдача цифровых тендерных гарантий и финансирование</span>
                     </div>
                     <a href="https://bankffin.kz" target="_blank" class="resource-btn">bankffin.kz <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
@@ -389,7 +412,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 <div class="resource-item">
                     <div class="resource-info">
                         <h4>Halyk Bank (Halyk Business)</h4>
-                        <span>Спецсчета для госзакупок, эквайринг и корпоративные счета</span>
+                        <span>Спецсчета для госзакупок, эквайринг и счета для ИП/ТОО</span>
                     </div>
                     <a href="https://halykbank.kz/business" target="_blank" class="resource-btn">halykbank.kz <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
@@ -397,22 +420,15 @@ HTML_PAGE = """<!DOCTYPE html>
                 <div class="resource-item">
                     <div class="resource-info">
                         <h4>Банк ЦентрКредит (BCC Business)</h4>
-                        <span>Выгодные тарифы РКО и поддержка малого и среднего бизнеса (МСБ)</span>
+                        <span>Выгодные тарифы РКО и поддержка МСБ</span>
                     </div>
                     <a href="https://www.bcc.kz/business" target="_blank" class="resource-btn">bcc.kz <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
-            </div>
-
-            <!-- 3. МАРКЕТПЛЕЙСЫ -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
-                <h3>Розничные продажи и маркетплейсы</h3>
-                <p>Альтернатива госзакупкам — продажа товаров физическим лицам в кредит и рассрочку:</p>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>Kaspi Магазин (Kaspi Pay / Kaspi Гид)</h4>
-                        <span>Продажа товаров широкой аудитории в рассрочку (Kaspi Red / Gold)</span>
+                        <h4>Kaspi Магазин (Kaspi Pay)</h4>
+                        <span>Продажи физическим лицам в кредит и рассрочку (Kaspi Red / Gold)</span>
                     </div>
                     <a href="https://kaspi.kz/merchant" target="_blank" class="resource-btn">kaspi.kz <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
@@ -421,12 +437,12 @@ HTML_PAGE = """<!DOCTYPE html>
             <!-- 4. ПОШАГОВЫЙ ГАЙД -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-list-check"></i></div>
-                <h3>Гайд: Как новичку зайти в тендеры</h3>
+                <h3>Быстрый старт: Пошаговый гайд</h3>
                 <ul class="step-list">
-                    <li><strong>1. Получение ЭЦП:</strong> Оформите ЭЦП в ЦОНе или на pki.gov.kz.</li>
-                    <li><strong>2. Регистрация:</strong> Зарегистрируйтесь на goszakup.gov.kz или Самрук-Казына.</li>
-                    <li><strong>3. Гарантийный взнос:</strong> Внесите 1% обеспечения через надежный банк.</li>
-                    <li><strong>4. Подача заявки:</strong> Подготовьте техспецификацию и отправьте цену.</li>
+                    <li><strong>1. Изучите базу:</strong> Посмотрите 2–3 часа обучающих роликов на YouTube.</li>
+                    <li><strong>2. Оформите ЭЦП:</strong> Получите ключ в ЦОНе или на pki.gov.kz.</li>
+                    <li><strong>3. Проверьте 5 лотов:</strong> Найдите лоты в вашей нише и просчитайте маржу «в стол».</li>
+                    <li><strong>4. Подайте заявку:</strong> Внесите 1% обеспечения и отправьте ценовое предложение.</li>
                 </ul>
             </div>
 
@@ -451,8 +467,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>Что такое РНУ и как туда не попасть?</h4>
-                        <span>Неуплата обеспечения, уклонение от договора, сорванные сроки поставки</span>
+                        <h4>Как не попасть в РНУ?</h4>
+                        <span>Своевременно уплачивайте обеспечение, соблюдайте сроки поставки и не уклоняйтесь от договора</span>
                     </div>
                 </div>
 
@@ -487,35 +503,12 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 8. ЗАКОНОДАТЕЛЬСТВО И ОБУЧЕНИЕ -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-book-open"></i></div>
-                <h3>Законодательство и Обучение (2026)</h3>
-                <p>Нормативные акты и государственные курсы:</p>
-
-                <div class="resource-item">
-                    <div class="resource-info">
-                        <h4>Правила осуществления государственных закупок РК</h4>
-                        <span>Параграф (PRG.kz) • Редакция 2026 года</span>
-                    </div>
-                    <a href="https://prg.kz/document/?doc_id=35520090" target="_blank" class="resource-btn">Читать документ <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-
-                <div class="resource-item">
-                    <div class="resource-info">
-                        <h4>Основы Государственных Закупок РК</h4>
-                        <span>Skills Enbek • Курс №460</span>
-                    </div>
-                    <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="resource-btn">Пройти курс <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-
         </section>
     </main>
 
     <footer>
         <div class="container">
-            &copy; 2026 Kzzakupbot — Поисковый сервис, финансовый хаб и консультационный центр РК.
+            &copy; 2026 Kzzakupbot — Поисковый сервис, учебный хаб и консультационный центр РК.
         </div>
     </footer>
 
