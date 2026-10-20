@@ -27,7 +27,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Портал мониторинга госзакупок и инструкций РК</title>
+    <title>Kzzakupbot — Мониторинг госзакупок, Законодательство и Обучение РК</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -125,7 +125,7 @@ HTML_PAGE = """<!DOCTYPE html>
         .hero p {
             font-size: 17px;
             color: var(--text-muted);
-            max-width: 700px;
+            max-width: 750px;
             margin: 0 auto 25px;
         }
 
@@ -230,32 +230,39 @@ HTML_PAGE = """<!DOCTYPE html>
             background: rgba(59, 130, 246, 0.25);
         }
 
-        .course-item {
+        .resource-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: rgba(15, 23, 42, 0.6);
-            padding: 12px 16px;
+            padding: 14px 18px;
             border-radius: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .course-info h4 {
-            font-size: 14px;
+        .resource-info h4 {
+            font-size: 15px;
             color: #f1f5f9;
+            margin-bottom: 2px;
         }
 
-        .course-info span {
+        .resource-info span {
             font-size: 12px;
             color: var(--accent);
         }
 
-        .course-btn {
+        .resource-btn {
             color: var(--primary-light);
             text-decoration: none;
             font-size: 13px;
             font-weight: 600;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+
+        .resource-btn:hover {
+            text-decoration: underline;
         }
 
         footer {
@@ -285,8 +292,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <main class="container">
         <section class="hero">
-            <h1>Мониторинг и Вход на Госзакупки РК</h1>
-            <p>Автоматический поиск лотов, бесплатное обучение и руководства по авторизации на портале.</p>
+            <h1>Мониторинг, Законодательство и Вход на Госзакупки РК</h1>
+            <p>Автоматический поиск лотов, нормативные акты, способы проведения закупок и бесплатное обучение.</p>
             <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
                 <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
             </a>
@@ -296,11 +303,11 @@ HTML_PAGE = """<!DOCTYPE html>
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
                 <h3>Быстрый вход по QR (eGov Mobile)</h3>
-                <p>Вход без ключей ЭЦП и NCALayer с помощью смартфона:</p>
+                <p>Вход на портал без использования флешки и ключей ЭЦП:</p>
                 <ul class="step-list">
-                    <li>Нажмите кнопку ниже для перехода к QR-авторизации.</li>
-                    <li>Откройте приложение <strong>eGov Mobile</strong> на телефоне.</li>
-                    <li>Отсканируйте код и подтвердите вход по Face ID / Touch ID.</li>
+                    <li>Нажмите кнопку ниже для перехода к авторизации.</li>
+                    <li>Откройте сканер в приложении <strong>eGov Mobile</strong>.</li>
+                    <li>Подтвердите вход с помощью Face ID / Touch ID.</li>
                 </ul>
                 <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff;">
                     <i class="fa-solid fa-qrcode"></i> Войти по QR-коду
@@ -310,11 +317,11 @@ HTML_PAGE = """<!DOCTYPE html>
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-key"></i></div>
                 <h3>Вход по ЭЦП (NCALayer)</h3>
-                <p>Классическая авторизация с помощью ключей ЭЦП:</p>
+                <p>Авторизация на портале Госзакупок через ПК:</p>
                 <ul class="step-list">
-                    <li>Запустите программу <strong>NCALayer</strong> на ПК.</li>
-                    <li>Выберите модуль «Модуль Государственные закупки РК».</li>
-                    <li>Выполните вход с помощью ключа AUTH.</li>
+                    <li>Запустите программу <strong>NCALayer</strong> на компьютере.</li>
+                    <li>Убедитесь в наличии модуля Госзакупок РК.</li>
+                    <li>Выберите ключ аутентификации (AUTH).</li>
                 </ul>
                 <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">
                     <i class="fa-solid fa-key"></i> Войти по ЭЦП
@@ -322,24 +329,54 @@ HTML_PAGE = """<!DOCTYPE html>
             </div>
 
             <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                <h3>Обучение и Государственные Курсы</h3>
-                <p>Полезные материалы и официальные программы подготовки для поставщиков:</p>
-                
-                <div class="course-item">
-                    <div class="course-info">
-                        <h4>Основы Госзакупок РК</h4>
-                        <span>Skills Enbek • Курс №460</span>
+                <div class="card-icon"><i class="fa-solid fa-book-open"></i></div>
+                <h3>Законодательство и Способы Госзакупок РК (2026)</h3>
+                <p>Нормативная база, правила проведения и разборы способов закупок для поставщиков и заказчиков:</p>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Правила осуществления государственных закупок РК</h4>
+                        <span>Параграф (PRG.kz) • Редакция 2026 года</span>
                     </div>
-                    <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="course-btn">Пройти курс <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://prg.kz/document/?doc_id=35520090" target="_blank" class="resource-btn">Читать документ <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
-                <div class="course-item">
-                    <div class="course-info">
-                        <h4>Регламенты и инструкции Госзакупок</h4>
-                        <span>Официальный портал РК</span>
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Обзор Правил Госзакупок и изменения</h4>
+                        <span>Pro1C.kz • Аналитический разбор</span>
                     </div>
-                    <a href="https://goszakup.gov.kz" target="_blank" class="course-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://pro1c.kz/articles/prochee/pravila-gosudarstvennykh-zakupok/" target="_blank" class="resource-btn">Перейти к статье <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Способы государственных закупок в Казахстане (2026)</h4>
+                        <span>Журнал «Госзакупки» (MCFR.kz) • Конкурс, Аукцион, ЗЦП, Из одного источника, Электронный магазин</span>
+                    </div>
+                    <a href="https://gz.mcfr.kz/article/1013-sposoby-zakupok" target="_blank" class="resource-btn">Читать обзор <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <h3>Обучение и Государственные Курсы</h3>
+                <p>Бесплатное обучение и официальные регламенты:</p>
+                
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Основы Государственных Закупок РК</h4>
+                        <span>Skills Enbek • Курс №460</span>
+                    </div>
+                    <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="resource-btn">Пройти курс <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Инструкции и видеоуроки портала</h4>
+                        <span>Официальный портал goszakup.gov.kz</span>
+                    </div>
+                    <a href="https://goszakup.gov.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </section>
@@ -347,7 +384,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            &copy; 2026 Kzzakupbot — Автоматизация поиска тендеров и обучение специалистов в Республики Казахстан.
+            &copy; 2026 Kzzakupbot — Информационный портал, мониторинг госзакупок и обучение специалистов в Республики Казахстан.
         </div>
     </footer>
 
