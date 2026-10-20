@@ -1,6 +1,7 @@
 import os
 import time
 import threading
+import re
 import requests
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from bs4 import BeautifulSoup
@@ -33,10 +34,8 @@ def run_server():
     server.serve_forever()
 
 def format_date(date_str):
-    # Разделяет склеенную дату и время (2026-10-2009:18:16 -> 2026-10-20 09:18:16)
-    if len(date_str) >= 18 and date_str[10].isdigit():
-        return date_str[:10] + " " + date_str[10:]
-    return date_str
+    # Автоматически разделяет слипшуюся дату и время пробелом
+    return re.sub(r'(\d{4}-\d{2}-\d{2})(\d{2}:\d{2})', r'\1 \2', date_str)
 
 def get_public_tenders():
     headers = {
@@ -121,7 +120,7 @@ def background_checker():
             if CHAT_ID:
                 send_tenders_to_chat(CHAT_ID)
         except Exception as e:
-            print(f"Ошибка в цикле: {e}")
+            print(f"Ошибка в фоновом цикле: {e}")
         time.sleep(7200)
 
 if __name__ == "__main__":
@@ -133,4 +132,3 @@ if __name__ == "__main__":
 
     print("Telegram бот запущен и слушает команды...")
     bot.infinity_polling()
-        
