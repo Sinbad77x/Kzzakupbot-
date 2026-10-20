@@ -326,7 +326,7 @@ HTML_PAGE = """<!DOCTYPE html>
     <main class="container">
         <section class="hero">
             <h1>Единый Портал Закупок, Банков и Сервисов РК</h1>
-            <p>Госзакупки, площадки квазигоссектора, коммерческие торги, маркетплейсы и финансовые инструменты в одном месте.</p>
+            <p>Госзакупки, официальные торговые площадки квазигоссектора, коммерческие торги и финансовые инструменты в одном месте.</p>
             <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
                 <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
             </a>
@@ -356,42 +356,66 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 2. ВСЕ ПЛОЩАДКИ ЗАКУПОК И КВАЗИГОССЕКТОР -->
+            <!-- 2. РЕЕСТР ВСЕХ 15 ПЛОЩАДОК КВАЗИГОССЕКТОРА И ЭТП -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-network-wired"></i></div>
-                <h3>Единый доступ к основным торговым площадкам РК</h3>
-                <p>Официальные порталы государственных закупок, холдингов и недропользователей:</p>
+                <h3>Единый реестр торговых площадок и операторов РК</h3>
+                <p>Прямой доступ к государственным и коммерческим электронным торговым площадкам:</p>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>Государственные закупки РК</h4>
-                        <span>Основной портал госзакупок (goszakup.gov.kz)</span>
+                        <h4>Государственные закупки РК (goszakup.gov.kz)</h4>
+                        <span>Основной портал государственных закупок</span>
                     </div>
-                    <a href="https://goszakup.gov.kz" target="_blank" class="resource-btn">Перейти <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://goszakup.gov.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>Портал закупок «Самрук-Қазына»</h4>
-                        <span>Закупки фонда национального благосостояния (zakup.sk.kz)</span>
+                        <h4>Портал закупок «Самрук-Қазына» (zakup.sk.kz)</h4>
+                        <span>Фонд национального благосостояния</span>
                     </div>
-                    <a href="https://zakup.sk.kz" target="_blank" class="resource-btn">Перейти <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://zakup.sk.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>Портал «СК-Фармация» и ФСМС</h4>
-                        <span>Закупки лекарственных средств и медицинских услуг</span>
+                        <h4>Портал закупок ТОО «СК-Фармация»</h4>
+                        <span>Единый дистрибьютор в сфере медицины и лекарств</span>
                     </div>
-                    <a href="https://sk-pharmacy.kz" target="_blank" class="resource-btn">Перейти <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://sk-pharmacy.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>Евразийский электронный портал</h4>
-                        <span>Электронная площадка (mitwork.kz)</span>
+                        <h4>Фонд медицинского страхования (ФСМС)</h4>
+                        <span>Закупки медицинских услуг</span>
                     </div>
-                    <a href="https://mitwork.kz" target="_blank" class="resource-btn">Перейти <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://fms.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Евразийский электронный портал (Mitwork)</h4>
+                        <span>Электронная торговая площадка</span>
+                    </div>
+                    <a href="https://mitwork.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>ЭТП «Caspy Tender» (Каспий Тендер)</h4>
+                        <span>Коммерческие и корпоративные закупки</span>
+                    </div>
+                    <a href="https://caspy-tender.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>ЭТП «Mp.kz» &amp; ЭТП «ETS-Тендер»</h4>
+                        <span>Электронные торговые площадки для бизнеса</span>
+                    </div>
+                    <a href="https://ets-tender.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
 
@@ -502,183 +526,3 @@ HTML_PAGE = """<!DOCTYPE html>
                 <h3>Вход на портал госзакупок</h3>
                 <p>Быстрый доступ через QR или классический ЭЦП:</p>
                 <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff;">
-                    <i class="fa-solid fa-qrcode"></i> Войти по QR (eGov Mobile)
-                </a>
-                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">
-                    <i class="fa-solid fa-key"></i> Войти по ЭЦП (NCALayer)
-                </a>
-            </div>
-
-            <!-- 7. АНТИКОРРУПЦИОННАЯ СЛУЖБА И КОНТАКТЫ -->
-            <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-phone-volume"></i></div>
-                <h3>Горячие линии и Антикор</h3>
-                <p>Защита прав предпринимателей и борьба с нарушениями:</p>
-
-                <div class="resource-item">
-                    <div class="resource-info">
-                        <h4>Антикоррупционная служба</h4>
-                        <span>Сообщить о коррупции и хищениях: <strong>1424</strong></span>
-                    </div>
-                    <a href="tel:1424" class="resource-btn"><i class="fa-solid fa-phone"></i> Позвонить</a>
-                </div>
-
-                <div class="resource-item">
-                    <div class="resource-info">
-                        <h4>НПП «Атамекен»</h4>
-                        <span>Правовая поддержка бизнеса: <strong>1432</strong></span>
-                    </div>
-                    <a href="tel:1432" class="resource-btn"><i class="fa-solid fa-phone"></i> Позвонить</a>
-                </div>
-            </div>
-
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            &copy; 2026 Kzzakupbot — Единый навигатор по закупкам, маркетплейсам и бизнес-сервисам РК.
-        </div>
-    </footer>
-
-    <script>
-        function calculateMargin() {
-            var sum = parseFloat(document.getElementById('lotSum').value) || 0;
-            var garant = sum * 0.01;
-            var contract = sum * 0.03;
-            var tax = sum * 0.10;
-
-            document.getElementById('garantVal').innerText = garant.toLocaleString('ru-RU') + ' ₸';
-            document.getElementById('contractVal').innerText = contract.toLocaleString('ru-RU') + ' ₸';
-            document.getElementById('taxVal').innerText = tax.toLocaleString('ru-RU') + ' ₸';
-        }
-    </script>
-</body>
-</html>
-"""
-
-class SimpleHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html; charset=utf-8")
-        self.end_headers()
-        self.wfile.write(HTML_PAGE.encode('utf-8'))
-
-    def log_message(self, format, *args):
-        return
-
-def run_server():
-    server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
-    server.serve_forever()
-
-def format_date(date_str):
-    return re.sub(r'(\d{4}-\d{2}-\d{2})(\d{2}:\d{2})', r'\1 \2', date_str)
-
-def get_public_tenders():
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
-    }
-    try:
-        response = requests.get(URL, headers=headers, timeout=10)
-        tenders = []
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            rows = soup.select('table.table tbody tr')
-            
-            for row in rows:
-                cols = row.find_all('td')
-                if len(cols) >= 8:
-                    link_elem = row.find('a')
-                    anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
-                    
-                    title = " ".join(cols[1].text.strip().split())
-                    organizer = " ".join(cols[3].text.strip().split())
-                    method = " ".join(cols[4].text.strip().split())
-                    start_date = format_date("".join(cols[5].text.strip().split()))
-                    end_date = format_date("".join(cols[6].text.strip().split()))
-                    sum_val = " ".join(cols[7].text.strip().split())
-                    
-                    title_lower = title.lower()
-                    if any(kw in title_lower for kw in KEYWORDS):
-                        tenders.append({
-                            'num': anno_num,
-                            'title': title,
-                            'organizer': organizer,
-                            'method': method,
-                            'start_date': start_date,
-                            'end_date': end_date,
-                            'sum': sum_val
-                        })
-        return tenders[:5]
-    except Exception as e:
-        print(f"Ошибка парсинга: {e}")
-        return []
-
-def send_tenders_to_chat(target_chat_id):
-    if not bot:
-        return
-    tenders = get_public_tenders()
-    if not tenders:
-        bot.send_message(target_chat_id, "📭 Новых актуальных тендеров по вашим ключевым словам пока не найдено.")
-        return
-
-    for t in tenders:
-        msg = (
-            f"🎯 **Найден целевой тендер!**\n\n"
-            f"🔹 **№ лота:** `{t['num']}`\n"
-            f"📝 **Предмет закупки:** {t['title']}\n"
-            f"🏢 **Организатор:** {t['organizer']}\n"
-            f"📋 **Способ:** {t['method']}\n"
-            f"📅 **Начало приема:** {t['start_date']}\n"
-            f"⏱ **Окончание приема:** {t['end_date']}\n"
-            f"₸ **Сумма:** `{t['sum']} ₸`\n\n"
-            f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
-        )
-        try:
-            bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
-        except Exception as e:
-            print(f"Ошибка отправки сообщения: {e}")
-
-if bot:
-    @bot.message_handler(commands=['start', 'tenders'])
-    def handle_start(message):
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn = types.KeyboardButton("📋 Свежие тендеры")
-        markup.add(btn)
-        
-        bot.send_message(
-            message.chat.id, 
-            "Привет! Нажмите кнопку ниже, чтобы проверить актуальные тендеры:", 
-            reply_markup=markup
-        )
-
-    @bot.message_handler(func=lambda message: message.text in ["Тендеры", "📋 Свежие тендеры"])
-    def handle_button_tenders(message):
-        bot.send_message(message.chat.id, "🔍 Ищу свежие тендеры по списку ключевых слов...")
-        send_tenders_to_chat(message.chat.id)
-
-def background_checker():
-    while True:
-        try:
-            if CHAT_ID and bot:
-                send_tenders_to_chat(CHAT_ID)
-        except Exception as e:
-            print(f"Ошибка в фоновом цикле: {e}")
-        time.sleep(7200)
-
-if __name__ == "__main__":
-    server_thread = threading.Thread(target=run_server, daemon=True)
-    server_thread.start()
-    print(f"Веб-сервер запущен на порту {PORT}")
-    
-    if CHAT_ID and bot:
-        checker_thread = threading.Thread(target=background_checker, daemon=True)
-        checker_thread.start()
-
-    if bot:
-        print("Telegram бот слушает команды...")
-        bot.infinity_polling(timeout=60, long_polling_timeout=60)
-    else:
-        print("TELEGRAM_BOT_TOKEN не задан. Работает только веб-сервер.")
-        while True:
-            time.sleep(3600)
