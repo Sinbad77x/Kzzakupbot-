@@ -294,27 +294,31 @@ HTML_PAGE = """<!DOCTYPE html>
 
         <section class="grid">
             <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-key"></i></div>
-                <h3>Вход по ЭЦП (NCALayer)</h3>
-                <p>Классический способ авторизации с помощью ключей электронной цифровой подписи:</p>
+                <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
+                <h3>Быстрый вход по QR (eGov Mobile)</h3>
+                <p>Вход без ключей ЭЦП и NCALayer с помощью смартфона:</p>
                 <ul class="step-list">
-                    <li>Запустите программу <strong>NCALayer</strong> на вашем компьютере.</li>
-                    <li>Убедитесь, что запущен модуль «Модуль Государственные закупки РК».</li>
-                    <li>Нажмите кнопку выбора ключа аутентификации (AUTH).</li>
+                    <li>Нажмите кнопку ниже для перехода к QR-авторизации.</li>
+                    <li>Откройте приложение <strong>eGov Mobile</strong> на телефоне.</li>
+                    <li>Отсканируйте код и подтвердите вход по Face ID / Touch ID.</li>
                 </ul>
-                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">Перейти к входу на портал <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff;">
+                    <i class="fa-solid fa-qrcode"></i> Войти по QR-коду
+                </a>
             </div>
 
             <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
-                <h3>Вход по QR (eGov Mobile)</h3>
-                <p>Быстрый вход без установки ключей и флешек с помощью мобильного приложения:</p>
+                <div class="card-icon"><i class="fa-solid fa-key"></i></div>
+                <h3>Вход по ЭЦП (NCALayer)</h3>
+                <p>Классическая авторизация с помощью ключей ЭЦП:</p>
                 <ul class="step-list">
-                    <li>Откройте страницу входа и выберите вкладку <strong>QR</strong>.</li>
-                    <li>Запустите приложение <strong>eGov Mobile</strong> на смартфоне.</li>
-                    <li>Отсканируйте динамический код на экране и подтвердите вход по Face ID / Touch ID.</li>
+                    <li>Запустите программу <strong>NCALayer</strong> на ПК.</li>
+                    <li>Выберите модуль «Модуль Государственные закупки РК».</li>
+                    <li>Выполните вход с помощью ключа AUTH.</li>
                 </ul>
-                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">Открыть страницу авторизации <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">
+                    <i class="fa-solid fa-key"></i> Войти по ЭЦП
+                </a>
             </div>
 
             <div class="card" style="grid-column: 1 / -1;">
@@ -343,7 +347,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            &copy; 2026 Kzzakupbot — Автоматизация поиска тендеров и обучение специалистов в Республике Казахстан.
+            &copy; 2026 Kzzakupbot — Автоматизация поиска тендеров и обучение специалистов в Республики Казахстан.
         </div>
     </footer>
 
