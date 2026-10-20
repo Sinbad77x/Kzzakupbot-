@@ -45,9 +45,10 @@ def get_public_tenders():
                     
                     title = " ".join(cols[1].text.strip().split())
                     organizer = " ".join(cols[2].text.strip().split())
-                    start_date = cols[3].text.strip()
-                    end_date = cols[4].text.strip()
-                    sum_val = cols[5].text.strip()
+                    start_date = " ".join(cols[3].text.strip().split())
+                    end_date = " ".join(cols[4].text.strip().split())
+                    method = " ".join(cols[5].text.strip().split())
+                    sum_val = " ".join(cols[6].text.strip().split())
                     
                     title_lower = title.lower()
                     if any(kw in title_lower for kw in KEYWORDS):
@@ -55,6 +56,7 @@ def get_public_tenders():
                             'num': anno_num,
                             'title': title,
                             'organizer': organizer,
+                            'method': method,
                             'start_date': start_date,
                             'end_date': end_date,
                             'sum': sum_val
@@ -76,9 +78,10 @@ def send_tenders_to_chat(target_chat_id):
             f"🔹 **№ лота:** `{t['num']}`\n"
             f"📝 **Предмет закупки:** {t['title']}\n"
             f"🏢 **Организатор:** {t['organizer']}\n"
+            f"📋 **Способ:** {t['method']}\n"
             f"📅 **Начало приема:** {t['start_date']}\n"
             f"⏱ **Окончание приема:** {t['end_date']}\n"
-            f"💰 **Сумма:** `{t['sum']}`\n\n"
+            f"💰 **Сумма:** `{t['sum']} ₸`\n\n"
             f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
         )
         bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
@@ -86,12 +89,12 @@ def send_tenders_to_chat(target_chat_id):
 @bot.message_handler(commands=['start', 'tenders'])
 def handle_start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn = types.KeyboardButton("Тендеры")
+    btn = types.KeyboardButton("📋 Свежие тендеры")
     markup.add(btn)
     
     bot.send_message(
         message.chat.id, 
-        "Привет! Нажмите кнопку «Тендеры» внизу, чтобы получить свежие лоты:", 
+        "Привет! Нажмите кнопку ниже, чтобы проверить актуальные тендеры:", 
         reply_markup=markup
     )
 
