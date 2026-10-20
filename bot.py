@@ -12,7 +12,6 @@ PORT = int(os.environ.get("PORT", 10000))
 URL = "https://goszakup.gov.kz/ru/search/announce"
 KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен']
 
-# Заглушка веб-сервера для Render
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -36,18 +35,14 @@ def get_public_tenders():
             
             for row in rows:
                 cols = row.find_all('td')
-                if len(cols) >= 5:
+                if len(cols) >= 6:
                     link_elem = row.find('a')
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     
-                    raw_text = cols[1].text.strip().replace('\n', ' ')
-                    title = " ".join(raw_text.split())
-                    
-                    organizer = cols[2].text.strip().replace('\n', ' ')
-                    organizer = " ".join(organizer.split())
-                    
-                    method = cols[3].text.strip()
-                    sum_val = cols[4].text.strip()
+                    title = " ".join(cols[1].text.strip().split())
+                    organizer = " ".join(cols[3].text.strip().split())
+                    method = cols[4].text.strip()
+                    sum_val = cols[5].text.strip()
                     
                     title_lower = title.lower()
                     if any(kw in title_lower for kw in KEYWORDS):
@@ -76,7 +71,7 @@ def send_to_telegram():
             f"📝 **Предмет закупки:** {t['title']}\n"
             f"🏢 **Организатор:** {t['organizer']}\n"
             f"📋 **Способ:** {t['method']}\n"
-            f"💰 **Сумма:** `{t['sum']} ₸`\n\n"
+            f"💰 **Сумма:** `{t['sum']}`\n\n"
             f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
         )
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -101,4 +96,3 @@ if __name__ == "__main__":
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
     bot_loop()
-        
