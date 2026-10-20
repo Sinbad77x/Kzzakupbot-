@@ -22,13 +22,12 @@ KEYWORDS = [
     'цветоч', 'композиц', 'отоплен', 'радиатор'
 ]
 
-# Полноценный, солидный бизнес-шаблон сайта
 HTML_PAGE = """<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Портал мониторинга госзакупок и обучения РК</title>
+    <title>Kzzakupbot — Портал мониторинга госзакупок и инструкций РК</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -110,24 +109,24 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         .hero {
-            padding: 60px 0 40px;
+            padding: 50px 0 30px;
             text-align: center;
         }
 
         .hero h1 {
-            font-size: 38px;
+            font-size: 36px;
             font-weight: 800;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             background: linear-gradient(to right, #ffffff, #93c5fd);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .hero p {
-            font-size: 18px;
+            font-size: 17px;
             color: var(--text-muted);
             max-width: 700px;
-            margin: 0 auto 30px;
+            margin: 0 auto 25px;
         }
 
         .btn-telegram {
@@ -136,11 +135,11 @@ HTML_PAGE = """<!DOCTYPE html>
             gap: 12px;
             background: linear-gradient(135deg, #2563eb, #0284c7);
             color: white;
-            padding: 16px 36px;
+            padding: 14px 32px;
             border-radius: 12px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 17px;
             box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
             transition: all 0.3s ease;
         }
@@ -154,36 +153,31 @@ HTML_PAGE = """<!DOCTYPE html>
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 25px;
-            margin: 40px 0;
+            margin: 30px 0;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
-            padding: 30px;
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            border-color: rgba(59, 130, 246, 0.4);
+            padding: 25px;
         }
 
         .card-icon {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             background: rgba(59, 130, 246, 0.1);
             color: var(--primary-light);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            margin-bottom: 20px;
+            font-size: 20px;
+            margin-bottom: 15px;
         }
 
         .card h3 {
-            font-size: 20px;
+            font-size: 19px;
             margin-bottom: 12px;
             color: #fff;
         }
@@ -194,20 +188,46 @@ HTML_PAGE = """<!DOCTYPE html>
             margin-bottom: 15px;
         }
 
-        .keywords-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 15px;
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 15px 0;
         }
 
-        .tag {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .step-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 10px;
+            font-size: 14px;
             color: #cbd5e1;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
+        }
+
+        .step-list li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .auth-link-btn {
+            display: block;
+            text-align: center;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .auth-link-btn:hover {
+            background: rgba(59, 130, 246, 0.25);
         }
 
         .course-item {
@@ -215,14 +235,14 @@ HTML_PAGE = """<!DOCTYPE html>
             align-items: center;
             justify-content: space-between;
             background: rgba(15, 23, 42, 0.6);
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .course-info h4 {
-            font-size: 15px;
+            font-size: 14px;
             color: #f1f5f9;
         }
 
@@ -234,21 +254,17 @@ HTML_PAGE = """<!DOCTYPE html>
         .course-btn {
             color: var(--primary-light);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-        }
-
-        .course-btn:hover {
-            text-decoration: underline;
         }
 
         footer {
             margin-top: auto;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 25px 0;
+            padding: 20px 0;
             text-align: center;
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 13px;
             background: #090d16;
         }
     </style>
@@ -269,8 +285,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <main class="container">
         <section class="hero">
-            <h1>Мониторинг Госзакупок Казахстана</h1>
-            <p>Интеллектуальный сервис поиска лотов, анализа объявлений и автоматического информирования с официального портала goszakup.gov.kz.</p>
+            <h1>Мониторинг и Вход на Госзакупки РК</h1>
+            <p>Автоматический поиск лотов, бесплатное обучение и руководства по авторизации на портале.</p>
             <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
                 <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
             </a>
@@ -278,35 +294,45 @@ HTML_PAGE = """<!DOCTYPE html>
 
         <section class="grid">
             <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
-                <h3>Мониторинг лотов</h3>
-                <p>Бот регулярно проверяет обновления на портале государственных закупок и мгновенно оповещает о новых подходящих конкурсах.</p>
-                <div class="keywords-list">
-                    <span class="tag">IT & Программы</span>
-                    <span class="tag">Строительство</span>
-                    <span class="tag">Ремонт</span>
-                    <span class="tag">Медицина</span>
-                    <span class="tag">Отопление</span>
-                    <span class="tag">Услуги</span>
-                </div>
+                <div class="card-icon"><i class="fa-solid fa-key"></i></div>
+                <h3>Вход по ЭЦП (NCALayer)</h3>
+                <p>Классический способ авторизации с помощью ключей электронной цифровой подписи:</p>
+                <ul class="step-list">
+                    <li>Запустите программу <strong>NCALayer</strong> на вашем компьютере.</li>
+                    <li>Убедитесь, что запущен модуль «Модуль Государственные закупки РК».</li>
+                    <li>Нажмите кнопку выбора ключа аутентификации (AUTH).</li>
+                </ul>
+                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">Перейти к входу на портал <i class="fa-solid fa-arrow-right"></i></a>
             </div>
 
             <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
+                <h3>Вход по QR (eGov Mobile)</h3>
+                <p>Быстрый вход без установки ключей и флешек с помощью мобильного приложения:</p>
+                <ul class="step-list">
+                    <li>Откройте страницу входа и выберите вкладку <strong>QR</strong>.</li>
+                    <li>Запустите приложение <strong>eGov Mobile</strong> на смартфоне.</li>
+                    <li>Отсканируйте динамический код на экране и подтвердите вход по Face ID / Touch ID.</li>
+                </ul>
+                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">Открыть страницу авторизации <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                 <h3>Обучение и Государственные Курсы</h3>
-                <p>Бесплатные государственные программы обучения работе с госзакупками РК и повышению квалификации:</p>
+                <p>Полезные материалы и официальные программы подготовки для поставщиков:</p>
                 
                 <div class="course-item">
                     <div class="course-info">
                         <h4>Основы Госзакупок РК</h4>
                         <span>Skills Enbek • Курс №460</span>
                     </div>
-                    <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="course-btn">Пройти <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="course-btn">Пройти курс <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="course-item">
                     <div class="course-info">
-                        <h4>Инструкции Goszakup</h4>
+                        <h4>Регламенты и инструкции Госзакупок</h4>
                         <span>Официальный портал РК</span>
                     </div>
                     <a href="https://goszakup.gov.kz" target="_blank" class="course-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
@@ -317,7 +343,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            &copy; 2026 Kzzakupbot — Автоматизация поиска тендеров и обучение специалистов в Республики Казахстан.
+            &copy; 2026 Kzzakupbot — Автоматизация поиска тендеров и обучение специалистов в Республике Казахстан.
         </div>
     </footer>
 
