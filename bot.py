@@ -16,117 +16,311 @@ bot = telebot.TeleBot(TOKEN)
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
 
-# Список ключевых слов для поиска тендеров
 KEYWORDS = [
     'it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 
     'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц', 
     'цветоч', 'композиц', 'отоплен', 'радиатор'
 ]
 
-# Красивая и полезная HTML-страница сайта
+# Полноценный, солидный бизнес-шаблон сайта
 HTML_PAGE = """<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Мониторинг и обучение госзакупкам</title>
+    <title>Kzzakupbot — Портал мониторинга госзакупок и обучения РК</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
+        header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+        }
+
         .container {
-            background: white;
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            max-width: 600px;
-            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-        h1 {
-            color: #2b6cb0;
-            margin-top: 0;
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
             font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .hero {
+            padding: 60px 0 40px;
             text-align: center;
         }
-        p {
-            color: #555;
-            font-size: 14px;
-            line-height: 1.5;
-            text-align: center;
-            margin-bottom: 25px;
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .btn {
-            display: block;
-            background-color: #2481cc;
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .btn-telegram {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #2563eb, #0284c7);
             color: white;
-            padding: 12px 20px;
+            padding: 16px 36px;
+            border-radius: 12px;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 25px;
-            transition: background 0.2s;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
         }
-        .btn:hover {
-            background-color: #1d6fa5;
+
+        .btn-telegram:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.6);
         }
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2d3748;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #edf2f7;
-            padding-bottom: 5px;
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
         }
-        ul {
-            padding-left: 20px;
-            margin: 0 0 20px 0;
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            transition: transform 0.3s ease;
         }
-        li {
+
+        .card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .card p {
+            color: var(--text-muted);
             font-size: 14px;
-            margin-bottom: 8px;
-            color: #4a5568;
+            margin-bottom: 15px;
         }
-        a.link {
-            color: #2b6cb0;
+
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .course-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .course-info h4 {
+            font-size: 15px;
+            color: #f1f5f9;
+        }
+
+        .course-info span {
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        .course-btn {
+            color: var(--primary-light);
             text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
         }
-        a.link:hover {
+
+        .course-btn:hover {
             text-decoration: underline;
         }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #aaa;
+
+        footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 25px 0;
             text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            background: #090d16;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Kzzakupbot</h1>
-        <p>Автоматизированный сервис мониторинга целевых тендеров и лотов с официального портала государственных закупок Республики Казахстан.</p>
-        
-        <a href="https://t.me/Kzzakupbot" class="btn" target="_blank">Открыть Telegram-бота</a>
 
-        <div class="section-title">📚 Бесплатное обучение по тендерам</div>
-        <ul>
-            <li><strong>Курс на Skills Enbek:</strong> <a href="https://skills.enbek.kz/ru/course-catalog/course/460" class="link" target="_blank">Основы государственных закупок (Курс №460)</a></li>
-            <li>Официальные видеоинструкции и регламенты на портале <a href="https://goszakup.gov.kz" class="link" target="_blank">goszakup.gov.kz</a></li>
-        </ul>
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <i class="fa-solid fa-chart-line"></i> Kzzakupbot
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                Сервер активен 24/7
+            </div>
+        </div>
+    </header>
 
-        <div class="footer">Сервер активен и бот работает 24/7</div>
-    </div>
+    <main class="container">
+        <section class="hero">
+            <h1>Мониторинг Госзакупок Казахстана</h1>
+            <p>Интеллектуальный сервис поиска лотов, анализа объявлений и автоматического информирования с официального портала goszakup.gov.kz.</p>
+            <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
+                <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
+            </a>
+        </section>
+
+        <section class="grid">
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <h3>Мониторинг лотов</h3>
+                <p>Бот регулярно проверяет обновления на портале государственных закупок и мгновенно оповещает о новых подходящих конкурсах.</p>
+                <div class="keywords-list">
+                    <span class="tag">IT & Программы</span>
+                    <span class="tag">Строительство</span>
+                    <span class="tag">Ремонт</span>
+                    <span class="tag">Медицина</span>
+                    <span class="tag">Отопление</span>
+                    <span class="tag">Услуги</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <h3>Обучение и Государственные Курсы</h3>
+                <p>Бесплатные государственные программы обучения работе с госзакупками РК и повышению квалификации:</p>
+                
+                <div class="course-item">
+                    <div class="course-info">
+                        <h4>Основы Госзакупок РК</h4>
+                        <span>Skills Enbek • Курс №460</span>
+                    </div>
+                    <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="course-btn">Пройти <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="course-item">
+                    <div class="course-info">
+                        <h4>Инструкции Goszakup</h4>
+                        <span>Официальный портал РК</span>
+                    </div>
+                    <a href="https://goszakup.gov.kz" target="_blank" class="course-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            &copy; 2026 Kzzakupbot — Автоматизация поиска тендеров и обучение специалистов в Республики Казахстан.
+        </div>
+    </footer>
+
 </body>
 </html>
 """
@@ -228,7 +422,7 @@ def background_checker():
             if CHAT_ID:
                 send_tenders_to_chat(CHAT_ID)
         except Exception as e:
-            print(f"Ошибка в фоновом цикле: {e}")
+            print(f"Ошибка в цикле: {e}")
         time.sleep(7200)
 
 if __name__ == "__main__":
