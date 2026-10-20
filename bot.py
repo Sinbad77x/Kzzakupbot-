@@ -568,4 +568,77 @@ def get_public_tenders():
                             'end_date': end_date,
                             'sum': sum_val
                         })
-        return tende
+        return tenders[:5]
+    except Exception as e:
+        print(f"Ошибка парсинга: {e}")
+        return []
+
+def send_tenders_to_chat(target_chat_id):
+    if not bot:
+        return
+    tenders = get_public_tenders()
+    if not tenders:
+        bot.send_message(target_chat_id, "📭 Новых актуальных тендеров по вашим ключевым словам пока не найдено.")
+        return
+
+    for t in tenders:
+        msg = (
+            f"🎯 **Найден целевой тендер!**\n\n"
+            f"🔹 **№ лота:** `{t['num']}`\n"
+            f"📝 **Предмет закупки:** {t['title']}\n"
+            f"🏢 **Организатор:** {t['organizer']}\n"
+            f"📋 **Способ:** {t['method']}\n"
+            f"📅 **Начало приема:** {t['start_date']}\n"
+            f"⏱ **Окончание приема:** {t['end_date']}\n"
+            f"₸ **Сумма:** `{t['sum']} ₸`\n\n"
+            f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
+        )
+        try:
+            bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
+        except Exception as e:
+            print(f"Ошибка отправки сообщения: {e}")
+
+if bot:
+    @bot.message_handler(commands=['start', 'tenders'])
+    def handle_start(message):
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        btn = types.KeyboardButton("📋 Свежие тендеры")
+        markup.add(btn)
+        
+        bot.send_message(
+            message.chat.id, 
+            "Привет! Нажмите кнопку ниже, чтобы проверить актуальные тендеры:", 
+            reply_markup=markup
+        )
+
+    @bot.message_handler(func=lambda message: message.text in ["Тендеры", "📋 Свежие тендеры"])
+    def handle_button_tenders(message):
+        bot.send_message(message.chat.id, "🔍 Ищу свежие тендеры по списку ключевых слов...")
+        send_tenders_to_chat(message.chat.id)
+
+def background_checker():
+    while True:
+        try:
+            if CHAT_ID and bot:
+                send_tenders_to_chat(CHAT_ID)
+        except Exception as e:
+            print(f"Ошибка в фоновом цикле: {e}")
+        time.sleep(7200)
+
+if __name__ == "__main__":
+    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread.start()
+    print(f"Веб-сервер запущен на порту {PORT}")
+    
+    if CHAT_ID and bot:
+        checker_thread = threading.Thread(target=background_checker, daemon=True)
+        checker_thread.start()
+
+    if bot:
+        print("Telegram бот слушает команды...")
+        bot.infinity_polling(timeout=60, long_polling_timeout=60)
+    else:
+        print("TELEGRAM_BOT_TOKEN не задан. Работает только веб-сервер.")
+        while True:
+            time.sleep(3600)
+
