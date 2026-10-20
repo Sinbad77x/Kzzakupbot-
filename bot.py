@@ -14,7 +14,7 @@ PORT = int(os.environ.get("PORT", 10000))
 bot = telebot.TeleBot(TOKEN)
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
-KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц', 'цветоч', 'композиц']
+KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц', 'цветоч', 'композиц', 'отоплен', 'радиатор']
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -39,56 +39,17 @@ def get_public_tenders():
             
             for row in rows:
                 cols = row.find_all('td')
-                if len(cols) >= 4:
+                if len(cols) >= 8:
                     link_elem = row.find('a')
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     
-                    # Собираем весь текст ячеек строки для умного анализа
-                    cell_texts = [col.text.strip().replace('\n', ' ') for col in cols]
+                    title = " ".join(cols[1].text.strip().split())
+                    organizer = " ".join(cols[3].text.strip().split())
+                    method = " ".join(cols[4].text.strip().split())
+                    start_date = " ".join(cols[5].text.strip().split())
+                    end_date = " ".join(cols[6].text.strip().split())
+                    sum_val = " ".join(cols[7].text.strip().split())
                     
-                    title = ""
-                    organizer = ""
-                    method = ""
-                    start_date = ""
-                    end_date = ""
-                    sum_val = "Не указана"
-                    
-                    # Ищем предмет закупки (обычно самая длинная ячейка или по ключевым словам)
-                    for text in cell_texts:
-                        cleaned = " ".join(text.split())
-                        if any(kw in cleaned.lower() for kw in KEYWORDS):
-                            title = cleaned
-                            break
-                    
-                    if not title and len(cell_texts) > 1:
-                        title = " ".join(cell_texts[1].split())
-
-                    # Интеллектуальный поиск суммы, дат и организатора по содержимому
-                    dates = []
-                    for text in cell_texts:
-                        # Поиск суммы (содержит цифры и запятые/точки, похожа на деньги)
-                        if any(char.isdigit() for char in text) and ('₸' in text or '.' in text or ',' in text) and len(text) < 25 and not '-' in text[:5]:
-                            sum_val = " ".join(text.split())
-                        # Поиск дат (содержит года вроде 2026)
-                        elif '2026' in text or '2027' in text:
-                            dates.append(" ".join(text.split()))
-                        elif "Запрос" in text or "Конкурс" in text or "Аукцион" in text or "Из одного источника" in text:
-                            method = " ".join(text.split())
-                        elif len(text) > 40 and "учреждение" in text.lower() or "аппарат" in text.lower() or "отдел" in text.lower():
-                            organizer = " ".join(text.split())
-
-                    if len(dates) >= 2:
-                        start_date = dates[0]
-                        end_date = dates[1]
-                    elif len(dates) == 1:
-                        start_date = dates[0]
-
-                    if not organizer and len(cell_texts) > 2:
-                        organizer = " ".join(cell_texts[2].split())
-
-                    if not method and len(cell_texts) > 4:
-                        method = " ".join(cell_texts[4].split())
-
                     title_lower = title.lower()
                     if any(kw in title_lower for kw in KEYWORDS):
                         tenders.append({
@@ -96,8 +57,8 @@ def get_public_tenders():
                             'title': title,
                             'organizer': organizer,
                             'method': method,
-                            'start_date': start_date or "Не указано",
-                            'end_date': end_date or "Не указано",
+                            'start_date': start_date,
+                            'end_date': end_date,
                             'sum': sum_val
                         })
         return tenders[:5]
@@ -120,7 +81,7 @@ def send_tenders_to_chat(target_chat_id):
             f"📋 **Способ:** {t['method']}\n"
             f"📅 **Начало приема:** {t['start_date']}\n"
             f"⏱ **Окончание приема:** {t['end_date']}\n"
-            f"💰 **Сумма:** `{t['sum']}`\n\n"
+            f"💰 **Сумма:** `{t['sum']} ₸`\n\n"
             f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
         )
         bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
@@ -160,4 +121,3 @@ if __name__ == "__main__":
 
     print("Telegram бот запущен и слушает команды...")
     bot.infinity_polling()
-            
