@@ -334,7 +334,6 @@ HTML_PAGE = """<!DOCTYPE html>
 
         <section class="grid">
 
-            <!-- 1. КАЛЬКУЛЯТОР МАРЖИНАЛЬНОСТИ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-calculator"></i></div>
                 <h3>Интерактивный Калькулятор Расходов и Маржи</h3>
@@ -356,7 +355,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 2. РЕЕСТР ВСЕХ 15 ПЛОЩАДОК КВАЗИГОССЕКТОРА И ЭТП -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-network-wired"></i></div>
                 <h3>Единый реестр торговых площадок и операторов РК</h3>
@@ -412,14 +410,13 @@ HTML_PAGE = """<!DOCTYPE html>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>ЭТП «Mp.kz» &amp; ЭТП «ETS-Тендер»</h4>
-                        <span>Электронные торговые площадки для бизнеса</span>
+                        <h4>ЭТП «ETS-Тендер»</h4>
+                        <span>Электронная торговая площадка для бизнеса</span>
                     </div>
                     <a href="https://ets-tender.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- 3. ОБУЧЕНИЕ И БАЗА ЗНАНИЙ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                 <h3>Бесплатное обучение тендерам и продажам в РК</h3>
@@ -430,7 +427,7 @@ HTML_PAGE = """<!DOCTYPE html>
                         <h4>Центр электронных финансов (ЦЭФ)</h4>
                         <span>Видеоинструкции по настройке ЭЦП, NCALayer, актам и договорам</span>
                     </div>
-                    <a href="https://www.youtube.com/results?search_query=%D0%A6%D0%B5%D0%BD%D1%82%D1%80+%D1%8D%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BD%D0%BD%D1%8B%D1%85+%D1%84%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D0%BE%D0%B2+%D0%B3%D0%BE%D1%81%D0%B7%D0%B0%D0%BA%D1%83%D0%BF%D0%BA%D0%B8" target="_blank" class="resource-btn">Смотреть YouTube <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://www.youtube.com/results?search_query=Центр+электронных+финансов+госзакупки" target="_blank" class="resource-btn">Смотреть YouTube <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="resource-item">
@@ -450,7 +447,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 4. ВНЕШНИЕ СЕРВИСЫ И ПРОВЕРКА КОНТРАГЕНТОВ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-shield-cat"></i></div>
                 <h3>Полезные внешние сервисы и проверка бизнеса</h3>
@@ -481,7 +477,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 5. БАНКИ И МАРКЕТПЛЕЙСЫ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-building-columns"></i></div>
                 <h3>Финансовые экосистемы и маркетплейсы</h3>
@@ -520,9 +515,19 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 6. ВХОД НА ПОРТАЛ -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
                 <h3>Вход на портал госзакупок</h3>
                 <p>Быстрый доступ через QR или классический ЭЦП:</p>
                 <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff;">
+                    <i class="fa-solid fa-qrcode"></i> Войти по QR (eGov Mobile)
+                </a>
+                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">
+                    <i class="fa-solid fa-key"></i> Войти по ЭЦП (NCALayer)
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-phone-volume"></i></div>
+                <h3>Горячие линии и Антикор</h3>
+                <p>Защита пр
