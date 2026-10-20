@@ -293,7 +293,7 @@ HTML_PAGE = """<!DOCTYPE html>
     <main class="container">
         <section class="hero">
             <h1>Мониторинг, Законодательство и Вход на Госзакупки РК</h1>
-            <p>Автоматический поиск лотов, нормативные акты, способы проведения закупок и бесплатное обучение.</p>
+            <p>Автоматический поиск лотов, консультации, правовая защита, законодательство и обучение.</p>
             <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
                 <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
             </a>
@@ -326,6 +326,36 @@ HTML_PAGE = """<!DOCTYPE html>
                 <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">
                     <i class="fa-solid fa-key"></i> Войти по ЭЦП
                 </a>
+            </div>
+
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                <h3>Бесплатная Консультация и Защита Прав (НПП «Атамекен»)</h3>
+                <p>Правовая и информационная поддержка предпринимателей в сфере тендеров и государственных закупок:</p>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Единый контакт-центр НПП «Атамекен»</h4>
+                        <span>Бесплатный звонок по Казахстану: <strong>1432</strong></span>
+                    </div>
+                    <a href="tel:1432" class="resource-btn"><i class="fa-solid fa-phone"></i> Позвонить 1432</a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Платформа "Government for Business" (G4B)</h4>
+                        <span>Онлайн-база знаний и подачи запросов по тендерам</span>
+                    </div>
+                    <a href="https://services.atameken.kz" target="_blank" class="resource-btn">services.atameken.kz <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Защита прав при нарушениях в тендерах</h4>
+                        <span>Совет по защите прав предпринимателей (отклонение заявок, задержка оплаты)</span>
+                    </div>
+                    <a href="https://atameken.kz" target="_blank" class="resource-btn">Подать жалобу <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
             </div>
 
             <div class="card" style="grid-column: 1 / -1;">
