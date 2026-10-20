@@ -13,7 +13,7 @@ PORT = int(os.environ.get("PORT", 10000))
 bot = telebot.TeleBot(TOKEN)
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
-KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен']
+KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц']
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -38,12 +38,12 @@ def get_public_tenders():
             
             for row in rows:
                 cols = row.find_all('td')
-                if len(cols) >= 6:
+                if len(cols) >= 7:
                     link_elem = row.find('a')
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     
                     title = " ".join(cols[1].text.strip().split())
-                    organizer = " ".join(cols[3].text.strip().split())
+                    organizer = " ".join(cols[2].text.strip().split())
                     method = cols[4].text.strip()
                     sum_val = cols[5].text.strip()
                     
@@ -79,7 +79,6 @@ def send_tenders_to_chat(target_chat_id):
         )
         bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
 
-# Обработка нажатия кнопки «Тендеры» или команд /tenders, /start
 @bot.message_handler(func=lambda message: message.text in ["Тендеры", "/tenders", "/start"])
 def handle_tenders_button(message):
     bot.send_message(message.chat.id, "🔍 Ищу свежие тендеры по списку ключевых слов...")
@@ -95,11 +94,9 @@ def background_checker():
         time.sleep(7200)
 
 if __name__ == "__main__":
-    # Запуск веб-сервера для Render
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
     
-    # Запуск фонового чекера в отдельном потоке
     checker_thread = threading.Thread(target=background_checker, daemon=True)
     checker_thread.start()
 
