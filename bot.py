@@ -5,6 +5,7 @@ import requests
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from bs4 import BeautifulSoup
 import telebot
+from telebot import types
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -13,7 +14,7 @@ PORT = int(os.environ.get("PORT", 10000))
 bot = telebot.TeleBot(TOKEN)
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
-KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц']
+KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц', 'цветоч', 'композиц']
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -43,7 +44,7 @@ def get_public_tenders():
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     
                     title = " ".join(cols[1].text.strip().split())
-                    organizer = " ".join(cols[2].text.strip().split())
+                    organizer = " ".join(cols[3].text.strip().split())
                     method = cols[4].text.strip()
                     sum_val = cols[5].text.strip()
                     
@@ -79,8 +80,20 @@ def send_tenders_to_chat(target_chat_id):
         )
         bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
 
-@bot.message_handler(func=lambda message: message.text in ["Тендеры", "/tenders", "/start"])
-def handle_tenders_button(message):
+@bot.message_handler(commands=['start', 'tenders'])
+def handle_start(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn = types.KeyboardButton("📋 Свежие тендеры")
+    markup.add(btn)
+    
+    bot.send_message(
+        message.chat.id, 
+        "Привет! Я бот для мониторинга госзакупок Казахстана.\nНажмите кнопку ниже, чтобы проверить актуальные лоты:", 
+        reply_markup=markup
+    )
+
+@bot.message_handler(func=lambda message: message.text == "📋 Свежие тендеры")
+def handle_button_tenders(message):
     bot.send_message(message.chat.id, "🔍 Ищу свежие тендеры по списку ключевых слов...")
     send_tenders_to_chat(message.chat.id)
 
