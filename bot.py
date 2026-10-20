@@ -27,7 +27,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Мониторинг госзакупок, Законодательство и Обучение РК</title>
+    <title>Kzzakupbot — Портал Мониторинга Госзакупок РК и База Знаний</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -265,6 +265,52 @@ HTML_PAGE = """<!DOCTYPE html>
             text-decoration: underline;
         }
 
+        /* Калькулятор */
+        .calc-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0f172a;
+            color: #fff;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+        .calc-res-box {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            margin-top: 10px;
+        }
+        .calc-res-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
+        .calc-res-item strong {
+            color: var(--accent);
+        }
+
+        /* Сравнительная таблица */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .comp-table th, .comp-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 14px;
+        }
+        .comp-table th {
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--accent);
+        }
+
         footer {
             margin-top: auto;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -292,23 +338,82 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <main class="container">
         <section class="hero">
-            <h1>Мониторинг, Законодательство и Вход на Госзакупки РК</h1>
-            <p>Автоматический поиск лотов, консультации, правовая защита, законодательство и обучение.</p>
+            <h1>Умный Мониторинг и Инструменты Госзакупок РК</h1>
+            <p>Автоматический поиск лотов, калькулятор маржинальности, пошаговые гайды, глоссарий и юридическая поддержка.</p>
             <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
                 <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
             </a>
         </section>
 
         <section class="grid">
+
+            <!-- 1. КАЛЬКУЛЯТОР МАРЖИНАЛЬНОСТИ -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-icon"><i class="fa-solid fa-calculator"></i></div>
+                <h3>Интерактивный Калькулятор Расходов и Маржи</h3>
+                <p>Введите запланированную сумму лота (в тенге) для автоматического расчета необходимых затрат:</p>
+                <input type="number" id="lotSum" class="calc-input" placeholder="Введите сумму лота (например: 5000000)" oninput="calculateMargin()">
+                <div class="calc-res-box">
+                    <div class="calc-res-item">
+                        <span>Обеспечение заявки (1%):</span>
+                        <strong id="garantVal">0 ₸</strong>
+                    </div>
+                    <div class="calc-res-item">
+                        <span>Обеспечение исполнения договора (3%):</span>
+                        <strong id="contractVal">0 ₸</strong>
+                    </div>
+                    <div class="calc-res-item">
+                        <span>Примерные налоги и сборы (~10%):</span>
+                        <strong id="taxVal">0 ₸</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ПОШАГОВЫЙ ГАЙД -->
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-list-check"></i></div>
+                <h3>Гайд: Как новичку зайти в тендеры</h3>
+                <ul class="step-list">
+                    <li><strong>1. Получение ЭЦП:</strong> Оформите ЭЦП в ЦОНе или на pki.gov.kz.</li>
+                    <li><strong>2. Регистрация:</strong> Зарегистрируйтесь на goszakup.gov.kz или Самрук-Казына.</li>
+                    <li><strong>3. Гарантийный взнос:</strong> Внесите 1% обеспечения на электронный кошелек.</li>
+                    <li><strong>4. Подача заявки:</strong> Подготовьте техспецификацию и отправьте цену.</li>
+                </ul>
+            </div>
+
+            <!-- 3. КОРПУС СРАВНЕНИЯ -->
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
+                <h3>Почему выбирают KzZakupBot</h3>
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Параметр</th>
+                            <th>KzZakupBot</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Скорость</td>
+                            <td><span style="color:#10b981;">Мгновенно в Telegram</span></td>
+                        </tr>
+                        <tr>
+                            <td>Экономия времени</td>
+                            <td><span style="color:#10b981;">До 3 часов в день</span></td>
+                        </tr>
+                        <tr>
+                            <td>Фильтрация</td>
+                            <td>Точно по ключевым словам</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 4. РА3ДЕЛ ВХОДА -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
                 <h3>Быстрый вход по QR (eGov Mobile)</h3>
                 <p>Вход на портал без использования флешки и ключей ЭЦП:</p>
-                <ul class="step-list">
-                    <li>Нажмите кнопку ниже для перехода к авторизации.</li>
-                    <li>Откройте сканер в приложении <strong>eGov Mobile</strong>.</li>
-                    <li>Подтвердите вход с помощью Face ID / Touch ID.</li>
-                </ul>
                 <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff;">
                     <i class="fa-solid fa-qrcode"></i> Войти по QR-коду
                 </a>
@@ -317,21 +422,38 @@ HTML_PAGE = """<!DOCTYPE html>
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-key"></i></div>
                 <h3>Вход по ЭЦП (NCALayer)</h3>
-                <p>Авторизация на портале Госзакупок через ПК:</p>
-                <ul class="step-list">
-                    <li>Запустите программу <strong>NCALayer</strong> на компьютере.</li>
-                    <li>Убедитесь в наличии модуля Госзакупок РК.</li>
-                    <li>Выберите ключ аутентификации (AUTH).</li>
-                </ul>
+                <p>Классическая авторизация через программу NCALayer на ПК:</p>
                 <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">
                     <i class="fa-solid fa-key"></i> Войти по ЭЦП
                 </a>
             </div>
 
+            <!-- 5. ГЛОССАРИЙ И ЗАЩИТА В РНУ -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3>Реестр недобросовестных участников (РНУ) и Глоссарий</h3>
+                <p>Как обезопасить свой бизнес от рисков и понимать профессиональные термины:</p>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Что такое РНУ и как туда не попасть?</h4>
+                        <span>Неуплата обеспечения, уклонение от договора, сорванные сроки поставки</span>
+                    </div>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Глоссарий терминов</h4>
+                        <span><strong>Демпинг:</strong> Снижение цены более чем на допустимый порог • <strong>ПКО:</strong> Предварительный квалификационный отбор • <strong>ЗЦП:</strong> Запрос ценовых предложений</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. НПП АТАМЕКЕН -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-scale-balanced"></i></div>
                 <h3>Бесплатная Консультация и Защита Прав (НПП «Атамекен»)</h3>
-                <p>Правовая и информационная поддержка предпринимателей в сфере тендеров и государственных закупок:</p>
+                <p>Правовая и информационная поддержка предпринимателей в сфере тендеров:</p>
 
                 <div class="resource-item">
                     <div class="resource-info">
@@ -348,20 +470,13 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                     <a href="https://services.atameken.kz" target="_blank" class="resource-btn">services.atameken.kz <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
-
-                <div class="resource-item">
-                    <div class="resource-info">
-                        <h4>Защита прав при нарушениях в тендерах</h4>
-                        <span>Совет по защите прав предпринимателей (отклонение заявок, задержка оплаты)</span>
-                    </div>
-                    <a href="https://atameken.kz" target="_blank" class="resource-btn">Подать жалобу <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
             </div>
 
+            <!-- 7. ЗАКОНОДАТЕЛЬСТВО И ОБУЧЕНИЕ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-book-open"></i></div>
-                <h3>Законодательство и Способы Госзакупок РК (2026)</h3>
-                <p>Нормативная база, правила проведения и разборы способов закупок для поставщиков и заказчиков:</p>
+                <h3>Законодательство и Обучение (2026)</h3>
+                <p>Нормативные акты и государственные курсы:</p>
 
                 <div class="resource-item">
                     <div class="resource-info">
@@ -373,51 +488,34 @@ HTML_PAGE = """<!DOCTYPE html>
 
                 <div class="resource-item">
                     <div class="resource-info">
-                        <h4>Обзор Правил Госзакупок и изменения</h4>
-                        <span>Pro1C.kz • Аналитический разбор</span>
-                    </div>
-                    <a href="https://pro1c.kz/articles/prochee/pravila-gosudarstvennykh-zakupok/" target="_blank" class="resource-btn">Перейти к статье <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-
-                <div class="resource-item">
-                    <div class="resource-info">
-                        <h4>Способы государственных закупок в Казахстане (2026)</h4>
-                        <span>Журнал «Госзакупки» (MCFR.kz) • Конкурс, Аукцион, ЗЦП, Из одного источника, Электронный магазин</span>
-                    </div>
-                    <a href="https://gz.mcfr.kz/article/1013-sposoby-zakupok" target="_blank" class="resource-btn">Читать обзор <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                <h3>Обучение и Государственные Курсы</h3>
-                <p>Бесплатное обучение и официальные регламенты:</p>
-                
-                <div class="resource-item">
-                    <div class="resource-info">
                         <h4>Основы Государственных Закупок РК</h4>
                         <span>Skills Enbek • Курс №460</span>
                     </div>
                     <a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="resource-btn">Пройти курс <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
-
-                <div class="resource-item">
-                    <div class="resource-info">
-                        <h4>Инструкции и видеоуроки портала</h4>
-                        <span>Официальный портал goszakup.gov.kz</span>
-                    </div>
-                    <a href="https://goszakup.gov.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
             </div>
+
         </section>
     </main>
 
     <footer>
         <div class="container">
-            &copy; 2026 Kzzakupbot — Информационный портал, мониторинг госзакупок и обучение специалистов в Республики Казахстан.
+            &copy; 2026 Kzzakupbot — Поисковый сервис, аналитический калькулятор и консультационный центр РК.
         </div>
     </footer>
 
+    <script>
+        function calculateMargin() {
+            var sum = parseFloat(document.getElementById('lotSum').value) || 0;
+            var garant = sum * 0.01;
+            var contract = sum * 0.03;
+            var tax = sum * 0.10;
+
+            document.getElementById('garantVal').innerText = garant.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('contractVal').innerText = contract.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('taxVal').innerText = tax.toLocaleString('ru-RU') + ' ₸';
+        }
+    </script>
 </body>
 </html>
 """
@@ -467,67 +565,3 @@ def get_public_tenders():
                             'title': title,
                             'organizer': organizer,
                             'method': method,
-                            'start_date': start_date,
-                            'end_date': end_date,
-                            'sum': sum_val
-                        })
-        return tenders[:5]
-    except Exception as e:
-        print(f"Ошибка парсинга: {e}")
-        return []
-
-def send_tenders_to_chat(target_chat_id):
-    tenders = get_public_tenders()
-    if not tenders:
-        bot.send_message(target_chat_id, "📭 Новых актуальных тендеров по вашим ключевым словам пока не найдено.")
-        return
-
-    for t in tenders:
-        msg = (
-            f"🎯 **Найден целевой тендер!**\n\n"
-            f"🔹 **№ лота:** `{t['num']}`\n"
-            f"📝 **Предмет закупки:** {t['title']}\n"
-            f"🏢 **Организатор:** {t['organizer']}\n"
-            f"📋 **Способ:** {t['method']}\n"
-            f"📅 **Начало приема:** {t['start_date']}\n"
-            f"⏱ **Окончание приема:** {t['end_date']}\n"
-            f"₸ **Сумма:** `{t['sum']} ₸`\n\n"
-            f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
-        )
-        bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
-
-@bot.message_handler(commands=['start', 'tenders'])
-def handle_start(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn = types.KeyboardButton("📋 Свежие тендеры")
-    markup.add(btn)
-    
-    bot.send_message(
-        message.chat.id, 
-        "Привет! Нажмите кнопку ниже, чтобы проверить актуальные тендеры:", 
-        reply_markup=markup
-    )
-
-@bot.message_handler(func=lambda message: message.text in ["Тендеры", "📋 Свежие тендеры"])
-def handle_button_tenders(message):
-    bot.send_message(message.chat.id, "🔍 Ищу свежие тендеры по списку ключевых слов...")
-    send_tenders_to_chat(message.chat.id)
-
-def background_checker():
-    while True:
-        try:
-            if CHAT_ID:
-                send_tenders_to_chat(CHAT_ID)
-        except Exception as e:
-            print(f"Ошибка в цикле: {e}")
-        time.sleep(7200)
-
-if __name__ == "__main__":
-    server_thread = threading.Thread(target=run_server, daemon=True)
-    server_thread.start()
-    
-    checker_thread = threading.Thread(target=background_checker, daemon=True)
-    checker_thread.start()
-
-    print("Telegram бот запущен и слушает команды...")
-    bot.infinity_polling()
