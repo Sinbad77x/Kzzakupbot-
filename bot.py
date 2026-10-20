@@ -203,7 +203,7 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         .step-list li::before {
-            content: "\f00c";
+            content: "\\f00c";
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
@@ -265,7 +265,6 @@ HTML_PAGE = """<!DOCTYPE html>
             text-decoration: underline;
         }
 
-        /* Калькулятор */
         .calc-input {
             width: 100%;
             padding: 10px 14px;
@@ -294,7 +293,6 @@ HTML_PAGE = """<!DOCTYPE html>
             color: var(--accent);
         }
 
-        /* Сравнительная таблица */
         .comp-table {
             width: 100%;
             border-collapse: collapse;
@@ -347,7 +345,6 @@ HTML_PAGE = """<!DOCTYPE html>
 
         <section class="grid">
 
-            <!-- 1. КАЛЬКУЛЯТОР МАРЖИНАЛЬНОСТИ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-calculator"></i></div>
                 <h3>Интерактивный Калькулятор Расходов и Маржи</h3>
@@ -369,7 +366,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 2. ПОШАГОВЫЙ ГАЙД -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-list-check"></i></div>
                 <h3>Гайд: Как новичку зайти в тендеры</h3>
@@ -381,7 +377,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </ul>
             </div>
 
-            <!-- 3. КОРПУС СРАВНЕНИЯ -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
                 <h3>Почему выбирают KzZakupBot</h3>
@@ -409,7 +404,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </table>
             </div>
 
-            <!-- 4. РА3ДЕЛ ВХОДА -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
                 <h3>Быстрый вход по QR (eGov Mobile)</h3>
@@ -428,7 +422,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </a>
             </div>
 
-            <!-- 5. ГЛОССАРИЙ И ЗАЩИТА В РНУ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
                 <h3>Реестр недобросовестных участников (РНУ) и Глоссарий</h3>
@@ -449,7 +442,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 6. НПП АТАМЕКЕН -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-scale-balanced"></i></div>
                 <h3>Бесплатная Консультация и Защита Прав (НПП «Атамекен»)</h3>
@@ -472,7 +464,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 7. ЗАКОНОДАТЕЛЬСТВО И ОБУЧЕНИЕ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-book-open"></i></div>
                 <h3>Законодательство и Обучение (2026)</h3>
@@ -565,3 +556,15 @@ def get_public_tenders():
                             'title': title,
                             'organizer': organizer,
                             'method': method,
+                            'start_date': start_date,
+                            'end_date': end_date,
+                            'sum': sum_val
+                        })
+        return tenders[:5]
+    except Exception as e:
+        print(f"Ошибка парсинга: {e}")
+        return []
+
+def send_tenders_to_chat(target_chat_id):
+    tenders = get_public_tenders()
+   
