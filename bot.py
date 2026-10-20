@@ -44,8 +44,9 @@ def get_public_tenders():
                     anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     
                     title = " ".join(cols[1].text.strip().split())
-                    organizer = " ".join(cols[3].text.strip().split())
-                    method = cols[4].text.strip()
+                    organizer = " ".join(cols[2].text.strip().split())
+                    start_date = cols[3].text.strip()
+                    end_date = cols[4].text.strip()
                     sum_val = cols[5].text.strip()
                     
                     title_lower = title.lower()
@@ -54,7 +55,8 @@ def get_public_tenders():
                             'num': anno_num,
                             'title': title,
                             'organizer': organizer,
-                            'method': method,
+                            'start_date': start_date,
+                            'end_date': end_date,
                             'sum': sum_val
                         })
         return tenders[:5]
@@ -74,7 +76,8 @@ def send_tenders_to_chat(target_chat_id):
             f"🔹 **№ лота:** `{t['num']}`\n"
             f"📝 **Предмет закупки:** {t['title']}\n"
             f"🏢 **Организатор:** {t['organizer']}\n"
-            f"📋 **Способ:** {t['method']}\n"
+            f"📅 **Начало приема:** {t['start_date']}\n"
+            f"⏱ **Окончание приема:** {t['end_date']}\n"
             f"💰 **Сумма:** `{t['sum']}`\n\n"
             f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
         )
@@ -83,16 +86,16 @@ def send_tenders_to_chat(target_chat_id):
 @bot.message_handler(commands=['start', 'tenders'])
 def handle_start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn = types.KeyboardButton("📋 Свежие тендеры")
+    btn = types.KeyboardButton("Тендеры")
     markup.add(btn)
     
     bot.send_message(
         message.chat.id, 
-        "Привет! Я бот для мониторинга госзакупок Казахстана.\nНажмите кнопку ниже, чтобы проверить актуальные лоты:", 
+        "Привет! Нажмите кнопку «Тендеры» внизу, чтобы получить свежие лоты:", 
         reply_markup=markup
     )
 
-@bot.message_handler(func=lambda message: message.text == "📋 Свежие тендеры")
+@bot.message_handler(func=lambda message: message.text in ["Тендеры", "📋 Свежие тендеры"])
 def handle_button_tenders(message):
     bot.send_message(message.chat.id, "🔍 Ищу свежие тендеры по списку ключевых слов...")
     send_tenders_to_chat(message.chat.id)
