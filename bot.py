@@ -32,7 +32,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Портал Мониторинга Госзакупок РК и База Знаний</title>
+    <title>Kzzakupbot — Портал Мониторинга Госзакупок, Маркетплейсов и Бизнес-Банков РК</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -341,8 +341,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <main class="container">
         <section class="hero">
-            <h1>Умный Мониторинг и Инструменты Госзакупок РК</h1>
-            <p>Автоматический поиск лотов, калькулятор маржинальности, пошаговые гайды, глоссарий и юридическая поддержка.</p>
+            <h1>Умный Мониторинг, Банки и Маркетплейсы РК</h1>
+            <p>Госзакупки, продажи через Kaspi, цифровые гарантии Freedom, счета в Halyk и BCC — все бизнес-инструменты в одном месте.</p>
             <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram">
                 <i class="fa-brands fa-telegram"></i> Запустить Telegram-бота
             </a>
@@ -350,6 +350,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
         <section class="grid">
 
+            <!-- 1. КАЛЬКУЛЯТОР МАРЖИНАЛЬНОСТИ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-calculator"></i></div>
                 <h3>Интерактивный Калькулятор Расходов и Маржи</h3>
@@ -371,62 +372,78 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
+            <!-- 2. БАНКИ И ФИНАНСОВЫЕ СЕРВИСЫ ДЛЯ БИЗНЕСА -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-icon"><i class="fa-solid fa-building-columns"></i></div>
+                <h3>Финансовые экосистемы и банки для предпринимателей РК</h3>
+                <p>Открытие счетов, тендерные гарантии и расчетно-кассовое обслуживание:</p>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Freedom Bank (Фридом)</h4>
+                        <span>Цифровые тендерные гарантии и онлайн-финансирование для бизнеса</span>
+                    </div>
+                    <a href="https://bankffin.kz" target="_blank" class="resource-btn">bankffin.kz <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Halyk Bank (Halyk Business)</h4>
+                        <span>Спецсчета для госзакупок, эквайринг и корпоративные счета</span>
+                    </div>
+                    <a href="https://halykbank.kz/business" target="_blank" class="resource-btn">halykbank.kz <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Банк ЦентрКредит (BCC Business)</h4>
+                        <span>Выгодные тарифы РКО и поддержка малого и среднего бизнеса (МСБ)</span>
+                    </div>
+                    <a href="https://www.bcc.kz/business" target="_blank" class="resource-btn">bcc.kz <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <!-- 3. МАРКЕТПЛЕЙСЫ -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                <h3>Розничные продажи и маркетплейсы</h3>
+                <p>Альтернатива госзакупкам — продажа товаров физическим лицам в кредит и рассрочку:</p>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Kaspi Магазин (Kaspi Pay / Kaspi Гид)</h4>
+                        <span>Продажа товаров широкой аудитории в рассрочку (Kaspi Red / Gold)</span>
+                    </div>
+                    <a href="https://kaspi.kz/merchant" target="_blank" class="resource-btn">kaspi.kz <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <!-- 4. ПОШАГОВЫЙ ГАЙД -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-list-check"></i></div>
                 <h3>Гайд: Как новичку зайти в тендеры</h3>
                 <ul class="step-list">
                     <li><strong>1. Получение ЭЦП:</strong> Оформите ЭЦП в ЦОНе или на pki.gov.kz.</li>
                     <li><strong>2. Регистрация:</strong> Зарегистрируйтесь на goszakup.gov.kz или Самрук-Казына.</li>
-                    <li><strong>3. Гарантийный взнос:</strong> Внесите 1% обеспечения на электронный кошелек.</li>
+                    <li><strong>3. Гарантийный взнос:</strong> Внесите 1% обеспечения через надежный банк.</li>
                     <li><strong>4. Подача заявки:</strong> Подготовьте техспецификацию и отправьте цену.</li>
                 </ul>
             </div>
 
-            <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
-                <h3>Почему выбирают KzZakupBot</h3>
-                <table class="comp-table">
-                    <thead>
-                        <tr>
-                            <th>Параметр</th>
-                            <th>KzZakupBot</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Скорость</td>
-                            <td><span style="color:#10b981;">Мгновенно в Telegram</span></td>
-                        </tr>
-                        <tr>
-                            <td>Экономия времени</td>
-                            <td><span style="color:#10b981;">До 3 часов в день</span></td>
-                        </tr>
-                        <tr>
-                            <td>Фильтрация</td>
-                            <td>Точно по ключевым словам</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
+            <!-- 5. ВХОД НА ПОРТАЛ -->
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
-                <h3>Быстрый вход по QR (eGov Mobile)</h3>
-                <p>Вход на портал без использования флешки и ключей ЭЦП:</p>
-                <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff;">
-                    <i class="fa-solid fa-qrcode"></i> Войти по QR-коду
+                <h3>Вход на портал госзакупок</h3>
+                <p>Быстрый доступ через QR или классический ЭЦП:</p>
+                <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff; margin-bottom: 8px;">
+                    <i class="fa-solid fa-qrcode"></i> Войти по QR (eGov Mobile)
                 </a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-key"></i></div>
-                <h3>Вход по ЭЦП (NCALayer)</h3>
-                <p>Классическая авторизация через программу NCALayer на ПК:</p>
                 <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn">
-                    <i class="fa-solid fa-key"></i> Войти по ЭЦП
+                    <i class="fa-solid fa-key"></i> Войти по ЭЦП (NCALayer)
                 </a>
             </div>
 
+            <!-- 6. РНУ И ГЛОССАРИЙ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
                 <h3>Реестр недобросовестных участников (РНУ) и Глоссарий</h3>
@@ -447,6 +464,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
+            <!-- 7. НПП АТАМЕКЕН -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-scale-balanced"></i></div>
                 <h3>Бесплатная Консультация и Защита Прав (НПП «Атамекен»)</h3>
@@ -469,6 +487,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             </div>
 
+            <!-- 8. ЗАКОНОДАТЕЛЬСТВО И ОБУЧЕНИЕ -->
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-icon"><i class="fa-solid fa-book-open"></i></div>
                 <h3>Законодательство и Обучение (2026)</h3>
@@ -496,7 +515,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            &copy; 2026 Kzzakupbot — Поисковый сервис, аналитический калькулятор и консультационный центр РК.
+            &copy; 2026 Kzzakupbot — Поисковый сервис, финансовый хаб и консультационный центр РК.
         </div>
     </footer>
 
@@ -641,4 +660,3 @@ if __name__ == "__main__":
         print("TELEGRAM_BOT_TOKEN не задан. Работает только веб-сервер.")
         while True:
             time.sleep(3600)
-
