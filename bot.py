@@ -4,10 +4,13 @@ import threading
 import requests
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from bs4 import BeautifulSoup
+import telebot
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 PORT = int(os.environ.get("PORT", 10000))
+
+bot = telebot.TeleBot(TOKEN)
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
 KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен']
@@ -58,10 +61,10 @@ def get_public_tenders():
         print(f"Ошибка парсинга: {e}")
         return []
 
-def send_to_telegram():
+def send_tenders_to_chat(target_chat_id):
     tenders = get_public_tenders()
     if not tenders:
-        print("Новых лотов по вашим ключевым словам не найдено.")
+        bot.send_message(target_chat_id, "📭 Новых актуальных тендеров по вашим ключевым словам пока не найдено.")
         return
 
     for t in tenders:
@@ -74,25 +77,31 @@ def send_to_telegram():
             f"💰 **Сумма:** `{t['sum']}`\n\n"
             f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
         )
-        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": msg,
-            "parse_mode": "Markdown",
-            "disable_web_page_preview": True
-        }
-        requests.post(url, json=payload)
+        bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
 
-def bot_loop():
-    print("Бот запущен и работает в фоновом режиме...")
+# Обработка нажатия кнопки «Тендеры» или команд /tenders, /start
+@bot.message_handler(func=lambda message: message.text in ["Тендеры", "/tenders", "/start"])
+def handle_tenders_button(message):
+    bot.send_message(message.chat.id, "🔍 Ищу свежие тендеры по списку ключевых слов...")
+    send_tenders_to_chat(message.chat.id)
+
+def background_checker():
     while True:
         try:
-            send_to_telegram()
+            if CHAT_ID:
+                send_tenders_to_chat(CHAT_ID)
         except Exception as e:
-            print(f"Ошибка в цикле: {e}")
+            print(f"Ошибка в фоновом цикле: {e}")
         time.sleep(7200)
 
 if __name__ == "__main__":
+    # Запуск веб-сервера для Render
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    bot_loop()
+    
+    # Запуск фонового чекера в отдельном потоке
+    checker_thread = threading.Thread(target=background_checker, daemon=True)
+    checker_thread.start()
+
+    print("Telegram бот запущен и слушает команды...")
+    bot.infinity_polling()
