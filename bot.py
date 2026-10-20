@@ -1,4 +1,4 @@
-import os
+.import os
 import time
 import threading
 import re
@@ -12,13 +12,12 @@ TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 PORT = int(os.environ.get("PORT", 10000))
 
-# Безопасная инициализация бота
 bot = None
 if TOKEN:
     try:
         bot = telebot.TeleBot(TOKEN)
     except Exception as e:
-        print(f"Ошибка инициализации Telegram бота: {e}")
+        print(f"Ошибка инициализации бота: {e}")
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
 
@@ -568,4 +567,5 @@ def get_public_tenders():
                             'start_date': start_date,
                             'end_date': end_date,
                             'sum': sum_val
-      
+                        })
+        return tende
