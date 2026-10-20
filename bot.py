@@ -12,7 +12,13 @@ TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 PORT = int(os.environ.get("PORT", 10000))
 
-bot = telebot.TeleBot(TOKEN)
+# Безопасная инициализация бота
+bot = None
+if TOKEN:
+    try:
+        bot = telebot.TeleBot(TOKEN)
+    except Exception as e:
+        print(f"Ошибка инициализации Telegram бота: {e}")
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
 
@@ -518,6 +524,9 @@ class SimpleHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(HTML_PAGE.encode('utf-8'))
 
+    def log_message(self, format, *args):
+        return
+
 def run_server():
     server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
     server.serve_forever()
@@ -559,12 +568,4 @@ def get_public_tenders():
                             'start_date': start_date,
                             'end_date': end_date,
                             'sum': sum_val
-                        })
-        return tenders[:5]
-    except Exception as e:
-        print(f"Ошибка парсинга: {e}")
-        return []
-
-def send_tenders_to_chat(target_chat_id):
-    tenders = get_public_tenders()
-   
+      
