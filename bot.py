@@ -14,7 +14,13 @@ PORT = int(os.environ.get("PORT", 10000))
 bot = telebot.TeleBot(TOKEN)
 
 URL = "https://goszakup.gov.kz/ru/search/announce"
-KEYWORDS = ['it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц', 'цветоч', 'композиц', 'отоплен', 'радиатор']
+
+# Список ваших ключевых слов (можно добавлять или изменять свои)
+KEYWORDS = [
+    'it', 'программ', 'компьютер', 'сайт', 'медицин', 'лекарств', 
+    'строй', 'ремонт', 'услуг', 'обучен', 'посадк', 'саженц', 
+    'цветоч', 'композиц', 'отоплен', 'радиатор'
+]
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -25,6 +31,12 @@ class SimpleHandler(BaseHTTPRequestHandler):
 def run_server():
     server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
     server.serve_forever()
+
+def format_date(date_str):
+    # Разделяет склеенную дату и время (2026-10-2009:18:16 -> 2026-10-20 09:18:16)
+    if len(date_str) >= 18 and date_str[10].isdigit():
+        return date_str[:10] + " " + date_str[10:]
+    return date_str
 
 def get_public_tenders():
     headers = {
@@ -46,8 +58,8 @@ def get_public_tenders():
                     title = " ".join(cols[1].text.strip().split())
                     organizer = " ".join(cols[3].text.strip().split())
                     method = " ".join(cols[4].text.strip().split())
-                    start_date = " ".join(cols[5].text.strip().split())
-                    end_date = " ".join(cols[6].text.strip().split())
+                    start_date = format_date("".join(cols[5].text.strip().split()))
+                    end_date = format_date("".join(cols[6].text.strip().split()))
                     sum_val = " ".join(cols[7].text.strip().split())
                     
                     title_lower = title.lower()
@@ -81,7 +93,7 @@ def send_tenders_to_chat(target_chat_id):
             f"📋 **Способ:** {t['method']}\n"
             f"📅 **Начало приема:** {t['start_date']}\n"
             f"⏱ **Окончание приема:** {t['end_date']}\n"
-            f"💰 **Сумма:** `{t['sum']} ₸`\n\n"
+            f"₸ **Сумма:** `{t['sum']} ₸`\n\n"
             f"🔗 [Перейти на портал Госзакупок](https://goszakup.gov.kz/ru/search/announce)"
         )
         bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
@@ -109,7 +121,7 @@ def background_checker():
             if CHAT_ID:
                 send_tenders_to_chat(CHAT_ID)
         except Exception as e:
-            print(f"Ошибка в фоновом цикле: {e}")
+            print(f"Ошибка в цикле: {e}")
         time.sleep(7200)
 
 if __name__ == "__main__":
@@ -121,3 +133,4 @@ if __name__ == "__main__":
 
     print("Telegram бот запущен и слушает команды...")
     bot.infinity_polling()
+        
