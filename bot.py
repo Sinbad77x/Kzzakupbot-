@@ -82,7 +82,7 @@ def run_server():
     server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
     server.serve_forever()
 
-# --- БАЗА ДАННЫХ ЛОТОВ (Расширенная с регионами) ---
+# --- БАЗА ДАННЫХ ЛОТОВ ---
 DEMO_TENDERS = [
     {"num": "12849102-1", "title": "Закупка офисной бумаги А4 и канцтоваров для государственных нужд", "organizer": "ГУ Аппарат Акима г. Шымкент", "sum": "850 000 ₸", "amount": 850000, "source": "🏛 Госзакупки", "region": "Шымкент", "link": "https://goszakup.gov.kz/ru/search/announce"},
     {"num": "ETS-551", "title": "Организация питания и поставка продуктов для детского сада", "organizer": "ТОО ПромСнаб", "sum": "650 000 ₸", "amount": 650000, "source": "📊 ETS-Тендер", "region": "Алматы", "link": "https://ets-tender.kz"},
@@ -95,7 +95,7 @@ DEMO_TENDERS = [
     {"num": "CT-904", "title": "Поставка строительных материалов (цемент, арматура)", "organizer": "ТОО СтройСервис-Шымкент", "sum": "14 000 000 ₸", "amount": 14000000, "source": "🛒 Caspy Tender", "region": "Шымкент", "link": "https://caspytender.kz"}
 ]
 
-# --- КЛАВИАТУРЫ ---
+# --- КЛАВИАТУРЫ ИНЛАЙН ---
 def get_budget_inline_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton("🔹 До 1 000 000 ₸", callback_data="budget_1m")
@@ -103,6 +103,18 @@ def get_budget_inline_keyboard():
     btn3 = types.InlineKeyboardButton("🔹 Свыше 10 000 000 ₸", callback_data="budget_10m_plus")
     btn_all = types.InlineKeyboardButton("⚡️ Любая сумма (Все лоты)", callback_data="budget_all")
     keyboard.add(btn1, btn2, btn3, btn_all)
+    return keyboard
+
+def get_region_inline_keyboard():
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    btn1 = types.InlineKeyboardButton("📍 Шымкент", callback_data="region_Шымкент")
+    btn2 = types.InlineKeyboardButton("📍 Астана", callback_data="region_Астана")
+    btn3 = types.InlineKeyboardButton("📍 Алматы", callback_data="region_Алматы")
+    btn4 = types.InlineKeyboardButton("📍 Атырау", callback_data="region_Атырау")
+    btn_all = types.InlineKeyboardButton("🌍 Вся Республика Казахстан", callback_data="region_Вся РК")
+    keyboard.add(btn1, btn2)
+    keyboard.add(btn3, btn4)
+    keyboard.add(btn_all)
     return keyboard
 
 def send_main_menu(chat_id):
@@ -127,7 +139,7 @@ def send_main_menu(chat_id):
     
     bot.send_message(
         chat_id, 
-        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите площадки в меню ниже или настройте ваш персональный фильтр:", 
+        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите интересующую площадку в меню ниже или настройте ваш фильтр:", 
         reply_markup=markup,
         parse_mode="Markdown"
     )
@@ -157,13 +169,13 @@ if bot:
         elif s['budget'] == "budget_10m_plus": b_text = "Свыше 10 млн ₸"
 
         msg = (
-            f"👤 **Ваш сохраненный авто-фильтр:**\n\n"
-            f"📌 **Выбранная площадка:** `{s['platform']}`\n"
+            f"👤 **Ваш сохраненный профиль подписки:**\n\n"
+            f"📌 **Площадка:** `{s['platform']}`\n"
             f"💰 **Бюджет:** `{b_text}`\n"
             f"📍 **Регион:** `{s['region']}`\n\n"
-            f"При появлении новых лотов по вашим критериям бот уведомит вас автоматически!"
+            f"Выберите ниже действие для настройки локации:"
         )
-        bot.send_message(user_id, msg, parse_mode="Markdown")
+        bot.send_message(user_id, msg, reply_markup=get_region_inline_keyboard(), parse_mode="Markdown")
 
     @bot.message_handler(func=lambda message: True)
     def handle_platform_click(message):
@@ -199,26 +211,43 @@ if bot:
         else:
             send_main_menu(user_id)
 
+    # Обработка выбора региона
+    @bot.callback_query_handler(func=lambda call: call.data.startswith('region_'))
+    def handle_region_selection(call):
+        chat_id = call.message.chat.id
+        region_val = call.data.split('_')[1]
+        
+        bot.answer_callback_query(call.id)
+        update_user_setting(chat_id, "region", region_val)
+        
+        bot.send_message(chat_id, f"✅ **Регион сохранён:** `{region_val}`\n\nТеперь бот будет учитывать ваш регион при поиске тендеров!", parse_mode="Markdown")
+
+    # Обработка выбора бюджета
     @bot.callback_query_handler(func=lambda call: call.data.startswith('budget_'))
     def handle_budget_filter(call):
         chat_id = call.message.chat.id
         budget_type = call.data
         
         bot.answer_callback_query(call.id)
-        
-        # Сохраняем выбор бюджета в БД
         update_user_setting(chat_id, "budget", budget_type)
         
         s = get_user_settings(chat_id)
         platform = s["platform"]
+        user_region = s["region"]
         
         filtered_tenders = []
         budget_title = ""
         
         for t in DEMO_TENDERS:
+            # Проверка площадки
             if platform != "🔥 Все новые лоты" and t["source"] != platform:
                 continue
+            
+            # Проверка региона
+            if user_region != "Вся РК" and t["region"] != "Вся РК" and t["region"] != user_region:
+                continue
                 
+            # Проверка суммы
             amt = t["amount"]
             if budget_type == "budget_1m" and amt <= 1000000:
                 filtered_tenders.append(t)
@@ -233,15 +262,15 @@ if bot:
                 filtered_tenders.append(t)
                 budget_title = "Любая сумма"
 
-        bot.send_message(chat_id, f"🔍 **Результаты ({platform} | {budget_title}):**\nНайдено лотов: {len(filtered_tenders)}", parse_mode="Markdown")
+        bot.send_message(chat_id, f"🔍 **Результаты ({platform} | {user_region} | {budget_title}):**\nНайдено лотов: {len(filtered_tenders)}", parse_mode="Markdown")
         
         if not filtered_tenders:
-            bot.send_message(chat_id, "😔 По данному диапазону сумм в выбранной категории свежих объявлений не найдено.")
+            bot.send_message(chat_id, f"😔 По вашим фильтрам ({user_region}, {budget_title}) подходящих объявлений не найдено.")
             return
 
         for t in filtered_tenders:
             msg = (
-                f"🎯 **{t['source']}** ({t['region']})\n"
+                f"🎯 **{t['source']}** (📍 {t['region']})\n"
                 f"🔹 **Номер:** `{t['num']}`\n"
                 f"📝 **Предмет:** {t['title']}\n"
                 f"🏢 **Организатор:** {t['organizer']}\n"
