@@ -193,29 +193,6 @@ HTML_PAGE = """<!DOCTYPE html>
             margin-bottom: 15px;
         }
 
-        .step-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 15px 0;
-        }
-
-        .step-list li {
-            position: relative;
-            padding-left: 28px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #cbd5e1;
-        }
-
-        .step-list li::before {
-            content: "\\f00c";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-        }
-
         .auth-link-btn {
             display: block;
             text-align: center;
@@ -530,4 +507,16 @@ HTML_PAGE = """<!DOCTYPE html>
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-phone-volume"></i></div>
                 <h3>Горячие линии и Антикор</h3>
-                <p>Защита пр
+                <p>Защита прав предпринимателей и борьба с нарушениями:</p>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <h4>Антикоррупционная служба</h4>
+                        <span>Сообщить о коррупции и хищениях: <strong>1424</strong></span>
+                    </div>
+                    <a href="tel:1424" class="resource-btn"><i class="fa-solid fa-phone"></i> Позвонить</a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+    
