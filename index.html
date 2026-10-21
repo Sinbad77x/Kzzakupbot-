@@ -37,17 +37,24 @@
         .btn-search { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; text-align: center; display: block; text-decoration: none; }
         .btn-search:hover { background: var(--primary-dark); }
 
-        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid var(--border); }
-        .card h3 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .search-results-box { margin-top: 15px; display: none; }
+        .tender-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; font-size: 14px; }
+        .tender-card strong { color: var(--primary-dark); }
 
-        /* Калькулятор маржи */
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid var(--border); }
+        .card h3 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+
+        /* Переключатель режимов калькулятора */
+        .calc-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+        .calc-toggle button { flex: 1; padding: 8px; border: 1px solid var(--border); background: #f1f5f9; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .calc-toggle button.active { background: var(--primary); color: white; border-color: var(--primary); }
+
         .calc-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media(min-width: 600px) { .calc-grid { grid-template-columns: 1fr 1fr; } }
         .calc-result { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
         .calc-result p { display: flex; justify-content: space-between; margin-bottom: 6px; }
         .calc-result p.total { font-weight: 700; color: var(--primary-dark); border-top: 1px solid var(--border); padding-top: 6px; font-size: 16px; }
 
-        /* Площадки и ссылки */
         .platforms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
         .platform-item { background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; text-decoration: none; color: var(--text-main); font-weight: 500; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
         .platform-item:hover { border-color: var(--primary); background: #f0fdf4; color: var(--primary-dark); }
@@ -62,7 +69,7 @@
 
     <header>
         <h1>Kzzakupbot Hub</h1>
-        <p>Профессиональный инструмент поставщика: тендеры, аналитика и расчеты в РК</p>
+        <p>Профессиональный инструмент поставщика: тендеры, аналитика и точные расчеты РК</p>
     </header>
 
     <div class="container">
@@ -79,10 +86,10 @@
                     <label>Регион</label>
                     <select id="queryRegion">
                         <option value="all">Весь Казахстан</option>
-                        <option value="shymkent">Шымкент</option>
-                        <option value="astana">Астана</option>
-                        <option value="almaty">Алматы</option>
-                        <option value="atyrau">Атырау</option>
+                        <option value="Шымкент">Шымкент</option>
+                        <option value="Астана">Астана</option>
+                        <option value="Алматы">Алматы</option>
+                        <option value="Атырау">Атырау</option>
                     </select>
                 </div>
                 <div class="input-group">
@@ -95,31 +102,52 @@
                     </select>
                 </div>
             </div>
-            <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-search">Найти закупки и получать уведомления в Telegram 🚀</a>
+            <button class="btn-search" onclick="performWebSearch()">Искать на сайте 🔎</button>
+
+            <div class="search-results-box" id="resultsBox"></div>
         </div>
 
         <!-- Калькулятор маржи -->
         <div class="card">
-            <h3>🧮 Расширенный калькулятор маржи поставщика</h3>
+            <h3>
+                <span>🧮 Калькулятор прибыльности</span>
+            </h3>
+            
+            <div class="calc-toggle">
+                <button id="btnQuick" class="active" onclick="setCalcMode('quick')">Быстрый расчет</button>
+                <button id="btnAdvanced" onclick="setCalcMode('advanced')">Расширенный расчет</button>
+            </div>
+
             <div class="calc-grid">
                 <div class="input-group">
-                    <label>Сумма лота (₸):</label>
+                    <label>Сумма контракта / лота (₸):</label>
                     <input type="number" id="calcLotSum" value="5000000" oninput="calculateMargin()">
                 </div>
                 <div class="input-group">
-                    <label>Закупочная стоимость товара (₸):</label>
+                    <label>Закупочная стоимость товаров (₸):</label>
                     <input type="number" id="calcCost" value="3500000" oninput="calculateMargin()">
                 </div>
                 <div class="input-group">
                     <label>Доставка и логистика (₸):</label>
                     <input type="number" id="calcDelivery" value="150000" oninput="calculateMargin()">
                 </div>
-                <div class="input-group">
-                    <label>Налоговый режим и расходы:</label>
-                    <select id="calcTax" onchange="calculateMargin()">
-                        <option value="0.03">УСН (3%) + Обеспечения (~2%)</option>
-                        <option value="0.15">Общий режим / НДС (~15%)</option>
+
+                <!-- Дополнительные поля для расширенного режима -->
+                <div class="input-group adv-field" style="display:none;">
+                    <label>Налоговый режим:</label>
+                    <select id="calcTaxMode" onchange="calculateMargin()">
+                        <option value="0.03">УСН (3%)</option>
+                        <option value="0.00">ОУР без НДС (0%)</option>
+                        <option value="0.12">ОУР с НДС (12%)</option>
                     </select>
+                </div>
+                <div class="input-group adv-field" style="display:none;">
+                    <label>Обеспечение исполнения договора (%):</label>
+                    <input type="number" id="calcSecContract" value="3" step="0.5" oninput="calculateMargin()">
+                </div>
+                <div class="input-group adv-field" style="display:none;">
+                    <label>Резерв на риски и комиссии (%):</label>
+                    <input type="number" id="calcRisk" value="2" step="0.5" oninput="calculateMargin()">
                 </div>
             </div>
 
@@ -145,9 +173,9 @@
 
         <!-- Блок Telegram -->
         <div class="bot-cta">
-            <h3>🤖 Настройте авто-уведомления в Telegram</h3>
-            <p>Получайте свежие лоты по вашему региону и бюджету прямо в мессенджер в режиме реального времени.</p>
-            <a href="https://t.me/Kzzakupbot" target="_blank">Открыть Telegram-бот Kzzakupbot</a>
+            <h3>🤖 Авто-уведомления в Telegram</h3>
+            <p>Подпишитесь на мгновенные Push-уведомления по вашим сохраненным фильтрам.</p>
+            <a href="https://t.me/Kzzakupbot" target="_blank" id="tgSubLink">Открыть Telegram-бот Kzzakupbot</a>
         </div>
 
         <footer>
@@ -157,15 +185,43 @@
     </div>
 
     <script>
+        let currentMode = 'quick';
+
+        const SAMPLE_TENDERS = [
+            { num: "12849102-1", title: "Закупка офисной бумаги А4 и канцтоваров", organizer: "ГУ Аппарат Акима г. Шымкент", sum: "850 000 ₸", region: "Шымкент", amount: 850000 },
+            { num: "12849105-1", title: "Обслуживание компьютерной техники", organizer: "Управление образования г. Астана", sum: "5 800 000 ₸", region: "Астана", amount: 5800000 },
+            { num: "CT-904", title: "Поставка строительных материалов (цемент, арматура)", organizer: "ТОО СтройСервис-Шымкент", sum: "14 000 000 ₸", region: "Шымкент", amount: 14000000 }
+        ];
+
+        function setCalcMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnQuick').classList.toggle('active', mode === 'quick');
+            document.getElementById('btnAdvanced').classList.toggle('active', mode === 'advanced');
+            
+            const advFields = document.querySelectorAll('.adv-field');
+            advFields.forEach(el => el.style.display = mode === 'advanced' ? 'flex' : 'none');
+            
+            calculateMargin();
+        }
+
         function calculateMargin() {
             let lotSum = parseFloat(document.getElementById('calcLotSum').value) || 0;
             let cost = parseFloat(document.getElementById('calcCost').value) || 0;
             let delivery = parseFloat(document.getElementById('calcDelivery').value) || 0;
-            let taxRate = parseFloat(document.getElementById('calcTax').value) || 0.03;
 
-            let directCosts = cost + delivery;
-            let taxes = lotSum * taxRate;
-            let totalExpenses = directCosts + taxes;
+            let taxes = 0;
+            let riskAndCommissions = 0;
+
+            if (currentMode === 'advanced') {
+                let taxRate = parseFloat(document.getElementById('calcTaxMode').value) || 0;
+                let riskRate = (parseFloat(document.getElementById('calcRisk').value) || 0) / 100;
+                taxes = lotSum * taxRate;
+                riskAndCommissions = lotSum * riskRate;
+            } else {
+                taxes = lotSum * 0.03; // Стандартная базовая ставка для быстрого счета
+            }
+
+            let totalExpenses = cost + delivery + taxes + riskAndCommissions;
             let profit = lotSum - totalExpenses;
             let margin = lotSum > 0 ? (profit / lotSum) * 100 : 0;
             let breakeven = totalExpenses;
@@ -173,6 +229,45 @@
             document.getElementById('resProfit').innerText = profit.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('resMargin').innerText = margin.toFixed(1) + '%';
             document.getElementById('resBreakeven').innerText = breakeven.toLocaleString('ru-RU') + ' ₸';
+        }
+
+        function performWebSearch() {
+            let text = document.getElementById('queryText').value.toLowerCase().trim();
+            let region = document.getElementById('queryRegion').value;
+            let budget = document.getElementById('queryBudget').value;
+
+            let filtered = SAMPLE_TENDERS.filter(t => {
+                let matchesText = text === "" || t.title.toLowerCase().includes(text) || t.organizer.toLowerCase().includes(text);
+                let matchesRegion = region === "all" || t.region === region;
+                let matchesBudget = true;
+
+                if (budget === "1m") matchesBudget = t.amount <= 1000000;
+                else if (budget === "1m_10m") matchesBudget = t.amount > 1000000 && t.amount <= 10000000;
+                else if (budget === "10m") matchesBudget = t.amount > 10000000;
+
+                return matchesText && matchesRegion && matchesBudget;
+            });
+
+            let box = document.getElementById('resultsBox');
+            box.style.display = 'block';
+
+            if (filtered.length === 0) {
+                box.innerHTML = '<div class="tender-card">😔 По вашему запросу лотов не найдено. Настройте уведомления в боте.</div>';
+            } else {
+                let html = '<h4>Найдено на сайте:</h4>';
+                filtered.forEach(t => {
+                    html += `<div class="tender-card">
+                        <strong>${t.num}</strong> (${t.region})<br>
+                        ${t.title}<br>
+                        Сумма: <b>${t.sum}</b>
+                    </div>`;
+                });
+                box.innerHTML = html;
+            }
+
+            // Обновляем Deep Linking ссылку для Telegram
+            let tgLink = `https://t.me/Kzzakupbot?start=search_${encodeURIComponent(region)}`;
+            document.getElementById('tgSubLink').href = tgLink;
         }
 
         calculateMargin();
