@@ -124,9 +124,9 @@
             </div>
 
             <div class="calc-result" id="calcResultBox">
-                <p><span>Чистая расчетная прибыль:</span> <strong id="resProfit" style="color: #059669;">1 075 000 ₸</strong></p>
-                <p><span>Рентабельность (маржинальность):</span> <strong id="resMargin">21.5%</strong></p>
-                <p class="total"><span>Точка безубыточности торгов:</span> <strong id="resBreakeven">3 925 000 ₸</strong></p>
+                <p><span>Чистая расчетная прибыль:</span> <strong id="resProfit" style="color: #059669;">1 200 000 ₸</strong></p>
+                <p><span>Рентабельность (маржинальность):</span> <strong id="resMargin">24.0%</strong></p>
+                <p class="total"><span>Точка безубыточности торгов:</span> <strong id="resBreakeven">3 800 000 ₸</strong></p>
             </div>
         </div>
 
@@ -163,17 +163,18 @@
             let delivery = parseFloat(document.getElementById('calcDelivery').value) || 0;
             let taxRate = parseFloat(document.getElementById('calcTax').value) || 0.03;
 
-            let totalExpenses = cost + delivery + (lotSum * taxRate);
+            let directCosts = cost + delivery;
+            let taxes = lotSum * taxRate;
+            let totalExpenses = directCosts + taxes;
             let profit = lotSum - totalExpenses;
             let margin = lotSum > 0 ? (profit / lotSum) * 100 : 0;
-            let breakeven = cost + delivery + (lotSum * taxRate);
+            let breakeven = totalExpenses;
 
             document.getElementById('resProfit').innerText = profit.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('resMargin').innerText = margin.toFixed(1) + '%';
             document.getElementById('resBreakeven').innerText = breakeven.toLocaleString('ru-RU') + ' ₸';
         }
 
-        // Запуск при загрузке
         calculateMargin();
     </script>
 </body>
