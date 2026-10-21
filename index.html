@@ -66,7 +66,7 @@
 
     <header>
         <h1>Kzzakupbot Hub</h1>
-        <p>Профессиональный инструмент поставщика: тендеры, аналитика и расчеты РК (НК РК 2026)</p>
+        <p>Профессиональный инструмент поставщика: тендеры, аналитика и расчеты (НК РК 2026)</p>
     </header>
 
     <div class="container">
@@ -109,11 +109,11 @@
 
             <div class="calc-grid">
                 <div class="input-group">
-                    <label>Сумма контракта с НДС (₸):</label>
+                    <label>Сумма контракта / лота (₸):</label>
                     <input type="number" id="calcLotSum" value="5000000" oninput="calculateMargin()">
                 </div>
                 <div class="input-group">
-                    <label>Закупочная стоимость товара с НДС (₸):</label>
+                    <label>Закупочная стоимость товара (₸):</label>
                     <input type="number" id="calcCost" value="3500000" oninput="calculateMargin()">
                 </div>
                 <div class="input-group">
@@ -123,15 +123,14 @@
                 <div class="input-group">
                     <label>Налоговый режим (НК РК 2026):</label>
                     <select id="calcTaxMode" onchange="calculateMargin()">
-                        <option value="simp_4">СНР Упрощенка 4% (Базовая)</option>
-                        <option value="simp_2">СНР Упрощенка 2% (Решение маслихата)</option>
-                        <option value="simp_3">СНР Упрощенка 3%</option>
-                        <option value="our_vat16">ОУР с НДС 16% (Стандарт 2026)</option>
-                        <option value="our_novat">ОУР без НДС (Плательщик ИПН/КПН)</option>
+                        <option value="simp_4">СНР Упрощенка (Базовая ставка 4%)</option>
+                        <option value="simp_2">СНР Упрощенка (Пониженная ставка 2%)</option>
+                        <option value="our_vat16">ОУР с НДС (Стандарт 16% + ИПН/КПН)</option>
+                        <option value="our_novat">ОУР без НДС (Только ИПН/КПН 10%)</option>
                     </select>
                 </div>
                 <div class="input-group">
-                    <label>Комиссия банковской гарантии (₸):</label>
+                    <label>Комиссия за банковскую гарантию (₸):</label>
                     <input type="number" id="calcBankFee" value="25000" oninput="calculateMargin()">
                 </div>
             </div>
@@ -141,7 +140,7 @@
             </div>
 
             <div class="tax-notice">
-                ⚠️ <b>Примечание:</b> Расчеты приведены в соответствии с Налоговым кодексом РК 2026 года (базовая ставка СНР 4%, стандартный НДС 16%). Ставки СНР могут отличаться в зависимости от нормативных решений местных маслихатов.
+                ⚠️ <b>Правовое примечание:</b> Расчет учитывает нормы Налогового кодекса РК (действует с 01.01.2026). Базовая ставка упрощенной декларации — 4% (ст. 726 НК РК), ставка НДС — 16% (ст. 503 НК РК). Фактические ставки налогов могут изменяться решениями местных маслихатов или спецификой освобождения по отдельным видам товаров.
             </div>
         </div>
 
@@ -186,41 +185,43 @@
             let taxMode = document.getElementById('calcTaxMode').value;
 
             let taxAmount = 0;
-            let taxName = "";
+            let taxDetailsHTML = "";
+            let directCosts = cost + delivery + bankFee;
 
             if (taxMode === 'simp_4') {
-                taxAmount = lotSum * 0.04;
-                taxName = "СНР Упрощенка (4%)";
+                taxAmount = lotSum * 0.04; // 4% по ст. 726 НК РК 2026
+                taxDetailsHTML = `<p><span>Налог СНР (Упрощенка 4%):</span> <strong>${Math.round(taxAmount).toLocaleString('ru-RU')} ₸</strong></p>`;
             } else if (taxMode === 'simp_2') {
-                taxAmount = lotSum * 0.02;
-                taxName = "СНР Упрощенка (2%)";
-            } else if (taxMode === 'simp_3') {
-                taxAmount = lotSum * 0.03;
-                taxName = "СНР Упрощенка (3%)";
+                taxAmount = lotSum * 0.02; // Пониженная ставка маслихата
+                taxDetailsHTML = `<p><span>Налог СНР (Упрощенка 2%):</span> <strong>${Math.round(taxAmount).toLocaleString('ru-RU')} ₸</strong></p>`;
             } else if (taxMode === 'our_vat16') {
-                // Расчет НДС к уплате (Выходящий НДС - Входящий НДС от закупа)
+                // Расчет НДС 16% (зачетный метод) и ИПН/КПН 10% от чистой базы
                 let vatOut = lotSum - (lotSum / 1.16);
                 let vatIn = cost - (cost / 1.16);
-                let vatPayable = Math.max(0, vatOut - vatIn);
+                let netVat = Math.max(0, vatOut - vatIn);
                 
-                // Примерный КПН/ИПН от облагаемого дохода
-                let incomeTax = Math.max(0, (lotSum - cost - delivery - bankFee) * 0.10);
-                taxAmount = vatPayable + incomeTax;
-                taxName = "НДС 16% к уплате + ИПН/КПН";
+                let taxableIncome = Math.max(0, (lotSum / 1.16) - (cost / 1.16) - delivery - bankFee);
+                let incomeTax = taxableIncome * 0.10;
+                
+                taxAmount = netVat + incomeTax;
+                taxDetailsHTML = `
+                    <p><span>НДС к уплате (16% с зачетом):</span> <strong>${Math.round(netVat).toLocaleString('ru-RU')} ₸</strong></p>
+                    <p><span>ИПН / КПН (10%):</span> <strong>${Math.round(incomeTax).toLocaleString('ru-RU')} ₸</strong></p>
+                `;
             } else if (taxMode === 'our_novat') {
-                taxAmount = Math.max(0, (lotSum - cost - delivery - bankFee) * 0.10);
-                taxName = "ИПН/КПН (10%)";
+                let taxableIncome = Math.max(0, lotSum - cost - delivery - bankFee);
+                taxAmount = taxableIncome * 0.10;
+                taxDetailsHTML = `<p><span>ИПН / КПН (10% от прибыли):</span> <strong>${Math.round(taxAmount).toLocaleString('ru-RU')} ₸</strong></p>`;
             }
 
-            let directCosts = cost + delivery + bankFee;
             let totalExpenses = directCosts + taxAmount;
             let profit = lotSum - totalExpenses;
             let margin = lotSum > 0 ? (profit / lotSum) * 100 : 0;
             let breakeven = totalExpenses;
 
             let resultHTML = `
-                <p><span>Прямые затраты (закуп + доставка + комиссия банка):</span> <strong>${directCosts.toLocaleString('ru-RU')} ₸</strong></p>
-                <p><span>Расчетный налог (${taxName}):</span> <strong>${Math.round(taxAmount).toLocaleString('ru-RU')} ₸</strong></p>
+                <p><span>Прямые затраты (закуп + логистика + комиссия БГ):</span> <strong>${directCosts.toLocaleString('ru-RU')} ₸</strong></p>
+                ${taxDetailsHTML}
                 <p><span>Чистая расчетная прибыль:</span> <strong style="color: #059669;">${Math.round(profit).toLocaleString('ru-RU')} ₸</strong></p>
                 <p><span>Маржинальность:</span> <strong>${margin.toFixed(1)}%</strong></p>
                 <p class="total"><span>Точка безубыточности торгов:</span> <strong>${Math.round(breakeven).toLocaleString('ru-RU')} ₸</strong></p>
