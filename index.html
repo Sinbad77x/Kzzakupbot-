@@ -1,3 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kzzakupbot — Единый тендерный и закупочный хаб Казахстана</title>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 50px; }
+        
+        header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 30px 20px; text-align: center; }
+        header h1 { font-size: 26px; margin-bottom: 8px; }
+        header p { color: #94a3b8; font-size: 14px; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        /* Поисковый блок (Hero) */
+        .search-hero { background: var(--card-bg); border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-top: -25px; margin-bottom: 25px; border: 1px solid var(--border); }
+        .search-hero h2 { font-size: 18px; margin-bottom: 15px; color: var(--text-main); }
+        .search-row { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 15px; }
+        @media(min-width: 640px) { .search-row { grid-template-columns: 2fr 1fr 1fr; } }
+        
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+        .input-group input, .input-group select { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); }
+        
+        .btn-search { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; text-align: center; display: block; text-decoration: none; }
+        .btn-search:hover { background: var(--primary-dark); }
+
+        .search-results-box { margin-top: 15px; display: none; }
+        .tender-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; font-size: 14px; }
+        .tender-card strong { color: var(--primary-dark); }
+
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid var(--border); }
+        .card h3 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+
+        /* Переключатель режимов калькулятора */
+        .calc-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+        .calc-toggle button { flex: 1; padding: 8px; border: 1px solid var(--border); background: #f1f5f9; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .calc-toggle button.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .calc-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media(min-width: 600px) { .calc-grid { grid-template-columns: 1fr 1fr; } }
+        .calc-result { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
+        .calc-result p { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .calc-result p.total { font-weight: 700; color: var(--primary-dark); border-top: 1px solid var(--border); padding-top: 6px; font-size: 16px; }
+
+        .platforms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+        .platform-item { background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; text-decoration: none; color: var(--text-main); font-weight: 500; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .platform-item:hover { border-color: var(--primary); background: #f0fdf4; color: var(--primary-dark); }
+
+        .bot-cta { text-align: center; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 25px; border-radius: 12px; margin-top: 25px; }
+        .bot-cta a { display: inline-block; background: white; color: var(--primary-dark); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; margin-top: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        footer { text-align: center; margin-top: 30px; color: var(--text-muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Kzzakupbot Hub</h1>
+        <p>Профессиональный инструмент поставщика: тендеры, аналитика и точные расчеты РК</p>
+    </header>
+
+    <div class="container">
+
+        <!-- Поисковый блок (Hero) -->
+        <div class="search-hero">
+            <h2>🔍 Быстрый поиск закупок</h2>
+            <div class="search-row">
+                <div class="input-group">
+                    <label>Что хотите поставлять?</label>
+                    <input type="text" id="queryText" placeholder="Например: бумага, медоборудование...">
+                </div>
+                <div class="input-group">
+                    <label>Регион</label>
+                    <select id="queryRegion">
+                        <option value="all">Весь Казахстан</option>
+                        <option value="Шымкент">Шымкент</option>
+                        <option value="Астана">Астана</option>
+                        <option value="Алматы">Алматы</option>
+                        <option value="Атырау">Атырау</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Бюджет</label>
+                    <select id="queryBudget">
+                        <option value="all">Любая сумма</option>
+                        <option value="1m">До 1 млн ₸</option>
+                        <option value="1m_10m">От 1 до 10 млн ₸</option>
+                        <option value="10m">Свыше 10 млн ₸</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-search" onclick="performWebSearch()">Искать на сайте 🔎</button>
+            <div class="search-results-box" id="resultsBox"></div>
+        </div>
+
+        <!-- Калькулятор маржи -->
+        <div class="card">
+            <h3><span>🧮 Калькулятор прибыльности</span></h3>
+            
+            <div class="calc-toggle">
+                <button id="btnQuick" class="active" onclick="setCalcMode('quick')">Быстрый расчет</button>
+                <button id="btnAdvanced" onclick="setCalcMode('advanced')">Расширенный расчет</button>
+            </div>
+
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label>Сумма контракта / лота (₸):</label>
+                    <input type="number" id="calcLotSum" value="5000000" oninput="calculateMargin()">
+                </div>
+                <div class="input-group">
+                    <label>Закупочная стоимость товаров (₸):</label>
+                    <input type="number" id="calcCost" value="3500000" oninput="calculateMargin()">
+                </div>
+                <div class="input-group">
+                    <label>Доставка и логистика (₸):</label>
+                    <input type="number" id="calcDelivery" value="150000" oninput="calculateMargin()">
+                </div>
+
+                <div class="input-group adv-field" style="display:none;">
+                    <label>Налоговый режим:</label>
+                    <select id="calcTaxMode" onchange="calculateMargin()">
+                        <option value="0.03">УСН (3%)</option>
+                        <option value="0.00">ОУР без НДС (0%)</option>
+                        <option value="0.12">ОУР с НДС (12%)</option>
+                    </select>
+                </div>
+                <div class="input-group adv-field" style="display:none;">
+                    <label>Обеспечение исполнения договора (%):</label>
+                    <input type="number" id="calcSecContract" value="3" step="0.5" oninput="calculateMargin()">
+                </div>
+                <div class="input-group adv-field" style="display:none;">
+                    <label>Резерв на риски и комиссии (%):</label>
+                    <input type="number" id="calcRisk" value="2" step="0.5" oninput="calculateMargin()">
+                </div>
+            </div>
+
+            <div class="calc-result" id="calcResultBox">
+                <!-- Динамический расчет -->
+            </div>
+        </div>
+
+        <!-- Каталог площадок -->
+        <div class="card">
+            <h3>🔗 Официальные площадки закупок РК</h3>
+            <div class="platforms-grid">
+                <a href="https://goszakup.gov.kz" target="_blank" class="platform-item"><span>🏛 Госзакупки РК</span> ➔</a>
+                <a href="https://zakup.sk.kz" target="_blank" class="platform-item"><span>🏢 Самрук-Қазына</span> ➔</a>
+                <a href="https://sk-pharmacy.kz" target="_blank" class="platform-item"><span>💊 СК-Фармация</span> ➔</a>
+                <a href="https://mitwork.kz" target="_blank" class="platform-item"><span>🌐 Mitwork</span> ➔</a>
+                <a href="https://caspytender.kz" target="_blank" class="platform-item"><span>🛒 Caspy Tender</span> ➔</a>
+                <a href="https://ets-tender.kz" target="_blank" class="platform-item"><span>📊 ETS-Тендер</span> ➔</a>
+            </div>
+        </div>
+
+        <!-- Блок Telegram -->
+        <div class="bot-cta">
+            <h3>🤖 Авто-уведомления в Telegram</h3>
+            <p>Подпишитесь на мгновенные Push-уведомления по вашим сохраненным фильтрам.</p>
+            <a href="https://t.me/Kzzakupbot" target="_blank" id="tgSubLink">Открыть Telegram-бот Kzzakupbot</a>
+        </div>
+
+        <footer>
+            <p>© 2026 Kzzakupbot Hub. Все права защищены.</p>
+        </footer>
+
+    </div>
+
     <script>
         let currentMode = 'quick';
 
@@ -36,7 +216,7 @@
                 let select = document.getElementById('calcTaxMode');
                 taxName = select.options[select.selectedIndex].text;
             } else {
-                taxes = lotSum * 0.03; // Базовый расчет для быстрого режима
+                taxes = lotSum * 0.03;
             }
 
             let directCosts = cost + delivery;
@@ -45,7 +225,6 @@
             let margin = lotSum > 0 ? (profit / lotSum) * 100 : 0;
             let breakeven = totalExpenses;
 
-            // Выводим детальную разбивку в блок результатов
             let resultHTML = `
                 <p><span>Прямые затраты (закуп + доставка):</span> <strong>${directCosts.toLocaleString('ru-RU')} ₸</strong></p>
                 <p><span>Налоги (${taxName}):</span> <strong>${taxes.toLocaleString('ru-RU')} ₸</strong></p>
@@ -99,10 +278,11 @@
                 box.innerHTML = html;
             }
 
-            // Передаем параметры фильтра в Telegram через deep linking
             let tgLink = `https://t.me/Kzzakupbot?start=region_${encodeURIComponent(region)}_bud_${encodeURIComponent(budget)}`;
             document.getElementById('tgSubLink').href = tgLink;
         }
 
         calculateMargin();
     </script>
+</body>
+</html>
