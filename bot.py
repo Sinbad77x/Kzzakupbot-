@@ -40,7 +40,7 @@ def run_server():
     server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
     server.serve_forever()
 
-# База лотов с фильтрацией по суммам
+# Демо-база лотов
 DEMO_TENDERS = [
     {"num": "12849102-1", "title": "Закупка офисной бумаги А4 и канцтоваров для государственных нужд", "organizer": "ГУ Аппарат Акима г. Шымкент", "sum": "850 000 ₸", "amount": 850000, "source": "🏛 Госзакупки", "link": "https://goszakup.gov.kz/ru/search/announce"},
     {"num": "ETS-551", "title": "Организация питания и поставка продуктов для детского сада", "organizer": "ТОО ПромСнаб", "sum": "650 000 ₸", "amount": 650000, "source": "📊 ETS-Тендер", "link": "https://ets-tender.kz"},
@@ -75,31 +75,46 @@ def send_main_menu(chat_id):
     btn_caspy = types.KeyboardButton("🛒 Caspy Tender")
     btn_ets = types.KeyboardButton("📊 ETS-Тендер")
     
+    # Кнопка возврата на веб-сайт
+    btn_site = types.KeyboardButton("🌐 Перейти на веб-портал")
+    
     markup.add(btn_all)
     markup.add(btn_gos, btn_sk)
     markup.add(btn_pharm, btn_fms)
     markup.add(btn_mit, btn_caspy, btn_ets)
+    markup.add(btn_site)
     
     bot.send_message(
         chat_id, 
-        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите интересующую площадку в меню ниже:", 
+        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите площадки в меню ниже или перейдите на наш веб-портал с калькулятором маржи:", 
         reply_markup=markup,
         parse_mode="Markdown"
     )
 
 if bot:
-    # Установка подсказок команд для меню в Telegram
     try:
         bot.set_my_commands([
             types.BotCommand("start", "Запустить хаб и открыть меню"),
+            types.BotCommand("site", "Открыть веб-портал"),
             types.BotCommand("menu", "Показать кнопки площадок")
         ])
     except Exception as e:
-        print(f"Не удалось установить команды: {e}")
+        print(f"Ошибка установки команд: {e}")
 
     @bot.message_handler(commands=['start', 'tenders', 'menu'])
     def handle_start(message):
         send_main_menu(message.chat.id)
+
+    @bot.message_handler(commands=['site'])
+    def handle_site_cmd(message):
+        inline_kb = types.InlineKeyboardMarkup()
+        btn = types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Portal", url="https://kzzakupbot.onrender.com")
+        inline_kb.add(btn)
+        bot.send_message(
+            message.chat.id,
+            "🔗 Нажмите на кнопку ниже для перехода на наш веб-портал с калькулятором маржи и полезными сервисами:",
+            reply_markup=inline_kb
+        )
 
     @bot.message_handler(func=lambda message: True)
     def handle_platform_click(message):
@@ -110,7 +125,17 @@ if bot:
             "💊 СК-Фармация", "🏥 ФСМС", "🌐 Mitwork", "🛒 Caspy Tender", "📊 ETS-Тендер"
         ]
         
-        if text in valid_keys:
+        if text == "🌐 Перейти на веб-портал":
+            inline_kb = types.InlineKeyboardMarkup()
+            btn = types.InlineKeyboardButton("🚀 Открыть веб-сайт", url="https://kzzakupbot.onrender.com")
+            inline_kb.add(btn)
+            bot.send_message(
+                message.chat.id,
+                "🖥 **Наш официальный веб-портал:**\n\nЗдесь доступны калькулятор маржи, контакты проверок налогов и юридическая база.",
+                reply_markup=inline_kb,
+                parse_mode="Markdown"
+            )
+        elif text in valid_keys:
             user_platform_selection[message.chat.id] = text
             bot.send_message(
                 message.chat.id,
@@ -119,7 +144,6 @@ if bot:
                 parse_mode="Markdown"
             )
         else:
-            # Если пользователь написал что-то случайное, автоматически показываем ему меню!
             send_main_menu(message.chat.id)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith('budget_'))
