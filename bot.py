@@ -40,7 +40,6 @@ def run_server():
     server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
     server.serve_forever()
 
-# Демо-база лотов
 DEMO_TENDERS = [
     {"num": "12849102-1", "title": "Закупка офисной бумаги А4 и канцтоваров для государственных нужд", "organizer": "ГУ Аппарат Акима г. Шымкент", "sum": "850 000 ₸", "amount": 850000, "source": "🏛 Госзакупки", "link": "https://goszakup.gov.kz/ru/search/announce"},
     {"num": "ETS-551", "title": "Организация питания и поставка продуктов для детского сада", "organizer": "ТОО ПромСнаб", "sum": "650 000 ₸", "amount": 650000, "source": "📊 ETS-Тендер", "link": "https://ets-tender.kz"},
@@ -66,6 +65,9 @@ def get_budget_inline_keyboard():
 
 def send_main_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    
+    # Кнопку сайта ставим САМОЙ ПЕРВОЙ наверх
+    btn_site = types.KeyboardButton("🌐 Перейти на веб-портал")
     btn_all = types.KeyboardButton("🔥 Все новые лоты")
     btn_gos = types.KeyboardButton("🏛 Госзакупки")
     btn_sk = types.KeyboardButton("🏢 Самрук-Қазына")
@@ -75,18 +77,15 @@ def send_main_menu(chat_id):
     btn_caspy = types.KeyboardButton("🛒 Caspy Tender")
     btn_ets = types.KeyboardButton("📊 ETS-Тендер")
     
-    # Кнопка возврата на веб-сайт
-    btn_site = types.KeyboardButton("🌐 Перейти на веб-портал")
-    
+    markup.add(btn_site)
     markup.add(btn_all)
     markup.add(btn_gos, btn_sk)
     markup.add(btn_pharm, btn_fms)
     markup.add(btn_mit, btn_caspy, btn_ets)
-    markup.add(btn_site)
     
     bot.send_message(
         chat_id, 
-        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите площадки в меню ниже или перейдите на наш веб-портал с калькулятором маржи:", 
+        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите интересующую площадку в меню ниже или перейдите на наш веб-портал:", 
         reply_markup=markup,
         parse_mode="Markdown"
     )
@@ -112,7 +111,7 @@ if bot:
         inline_kb.add(btn)
         bot.send_message(
             message.chat.id,
-            "🔗 Нажмите на кнопку ниже для перехода на наш веб-портал с калькулятором маржи и полезными сервисами:",
+            "🔗 Нажмите на кнопку ниже для перехода на наш веб-портал с калькулятором маржи и сервисами:",
             reply_markup=inline_kb
         )
 
