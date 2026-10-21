@@ -1,296 +1,67 @@
 import os
-import time
-import threading
-import sqlite3
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import telebot
-from telebot import types
+import logging
+from telebot import TeleBot, types
+import database
 
-TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-PORT = int(os.environ.get("PORT", 10000))
+# Настройка логов
+logging.basicConfig(level=logging.INFO)
 
-bot = None
-if TOKEN:
-    try:
-        bot = telebot.TeleBot(TOKEN)
-    except Exception as e:
-        print(f"Ошибка инициализации бота: {e}")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_TELEGRAM_BOT_TOKEN_HERE")
+bot = TeleBot(BOT_TOKEN)
 
-# --- ИНИЦИАЛИЗА БАЗЫ ДАННЫХ (SQLite) ---
-DB_FILE = "users_settings.db"
+# Инициализация БД при запуске бота
+database.init_db()
 
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            platform TEXT DEFAULT '🔥 Все новые лоты',
-            budget TEXT DEFAULT 'budget_all',
-            region TEXT DEFAULT 'Вся РК'
-        )
-    ''')
-    conn.commit()
-    conn.close()
+@bot.message_handler(commands=['start'])
+def handle_start(message):
+    user_id = message.from_user.id
+    username = message.from_user.username or ""
+    first_name = message.from_user.first_name or "Пользователь"
 
-init_db()
+    # Регистрируем пользователя в БД
+    database.add_or_update_user(user_id, username, first_name)
 
-def update_user_setting(user_id, key, value):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
-    if cursor.fetchone():
-        cursor.execute(f"UPDATE users SET {key} = ? WHERE user_id = ?", (value, user_id))
-    else:
-        cursor.execute(f"INSERT INTO users (user_id, {key}) VALUES (?, ?)", (user_id, value))
-    conn.commit()
-    conn.close()
-
-def get_user_settings(user_id):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT platform, budget, region FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    conn.close()
-    if row:
-        return {"platform": row[0], "budget": row[1], "region": row[2]}
-    return {"platform": "🔥 Все новые лоты", "budget": "budget_all", "region": "Вся РК"}
-
-# --- ВЕБ-СЕРВЕР ДЛЯ RENDER ---
-class SimpleHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        try:
-            if os.path.exists("index.html"):
-                with open("index.html", "r", encoding="utf-8") as f:
-                    content = f.read()
-            else:
-                content = "<h1>Kzzakupbot Hub is active</h1>"
-            
-            self.send_response(200)
-            self.send_header("Content-type", "text/html; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(content.encode('utf-8'))
-        except Exception as e:
-            self.send_response(500)
-            self.end_headers()
-            self.wfile.write(str(e).encode('utf-8'))
-
-    def log_message(self, format, *args):
-        return
-
-def run_server():
-    server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
-    server.serve_forever()
-
-# --- БАЗА ДАННЫХ ЛОТОВ ---
-DEMO_TENDERS = [
-    {"num": "12849102-1", "title": "Закупка офисной бумаги А4 и канцтоваров для государственных нужд", "organizer": "ГУ Аппарат Акима г. Шымкент", "sum": "850 000 ₸", "amount": 850000, "source": "🏛 Госзакупки", "region": "Шымкент", "link": "https://goszakup.gov.kz/ru/search/announce"},
-    {"num": "ETS-551", "title": "Организация питания и поставка продуктов для детского сада", "organizer": "ТОО ПромСнаб", "sum": "650 000 ₸", "amount": 650000, "source": "📊 ETS-Тендер", "region": "Алматы", "link": "https://ets-tender.kz"},
-    {"num": "12849105-1", "title": "Услуги по техническому обслуживанию компьютерной техники и ЛВС", "organizer": "Управление образования г. Астана", "sum": "5 800 000 ₸", "amount": 5800000, "source": "🏛 Госзакупки", "region": "Астана", "link": "https://goszakup.gov.kz/ru/search/announce"},
-    {"num": "SK-89215", "title": "Закуп спецодежды и средств индивидуальной защиты (СИЗ)", "organizer": "АО Қазақстан Ғарыш Сапасы", "sum": "8 300 000 ₸", "amount": 8300000, "source": "🏢 Самрук-Қазына", "region": "Астана", "link": "https://zakup.sk.kz"},
-    {"num": "12849110-1", "title": "Поставка медицинских расходных материалов (перчатки, маски)", "organizer": "ГКП Городская больница №1", "sum": "11 200 000 ₸", "amount": 11200000, "source": "🏛 Госзакупки", "region": "Шымкент", "link": "https://goszakup.gov.kz/ru/search/announce"},
-    {"num": "SK-89210", "title": "Поставка запорной арматуры и оборудования для трубопроводов", "organizer": "АО НК КазМунайГаз", "sum": "45 000 000 ₸", "amount": 45000000, "source": "🏢 Самрук-Қазына", "region": "Атырау", "link": "https://zakup.sk.kz"},
-    {"num": "SKF-2026-04", "title": "Закупка лекарственных средств и кардиопрепаратов", "organizer": "ТОО СК-Фармация", "sum": "120 000 000 ₸", "amount": 120000000, "source": "💊 СК-Фармация", "region": "Вся РК", "link": "https://sk-pharmacy.kz"},
-    {"num": "MIT-3012", "title": "Текущий ремонт административного здания и благоустройство территории", "organizer": "ТОО Базис Трейд", "sum": "18 500 000 ₸", "amount": 18500000, "source": "🌐 Mitwork", "region": "Алматы", "link": "https://mitwork.kz"},
-    {"num": "CT-904", "title": "Поставка строительных материалов (цемент, арматура)", "organizer": "ТОО СтройСервис-Шымкент", "sum": "14 000 000 ₸", "amount": 14000000, "source": "🛒 Caspy Tender", "region": "Шымкент", "link": "https://caspytender.kz"}
-]
-
-# --- КЛАВИАТУРЫ ИНЛАЙН ---
-def get_budget_inline_keyboard():
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton("🔹 До 1 000 000 ₸", callback_data="budget_1m")
-    btn2 = types.InlineKeyboardButton("🔹 От 1 000 000 до 10 000 000 ₸", callback_data="budget_1m_10m")
-    btn3 = types.InlineKeyboardButton("🔹 Свыше 10 000 000 ₸", callback_data="budget_10m_plus")
-    btn_all = types.InlineKeyboardButton("⚡️ Любая сумма (Все лоты)", callback_data="budget_all")
-    keyboard.add(btn1, btn2, btn3, btn_all)
-    return keyboard
-
-def get_region_inline_keyboard():
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    btn1 = types.InlineKeyboardButton("📍 Шымкент", callback_data="region_Шымкент")
-    btn2 = types.InlineKeyboardButton("📍 Астана", callback_data="region_Астана")
-    btn3 = types.InlineKeyboardButton("📍 Алматы", callback_data="region_Алматы")
-    btn4 = types.InlineKeyboardButton("📍 Атырау", callback_data="region_Атырау")
-    btn_all = types.InlineKeyboardButton("🌍 Вся Республика Казахстан", callback_data="region_Вся РК")
-    keyboard.add(btn1, btn2)
-    keyboard.add(btn3, btn4)
-    keyboard.add(btn_all)
-    return keyboard
-
-def send_main_menu(chat_id):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    # Разбор параметров Deep Linking (например, start=region_Шымкент_bud_1m_10m)
+    args = message.text.split()[1:] if len(message.text.split()) > 1 else []
     
-    btn_site = types.KeyboardButton("🌐 Перейти на веб-портал")
-    btn_all = types.KeyboardButton("🔥 Все новые лоты")
-    btn_gos = types.KeyboardButton("🏛 Госзакупки")
-    btn_sk = types.KeyboardButton("🏢 Самрук-Қазына")
-    btn_pharm = types.KeyboardButton("💊 СК-Фармация")
-    btn_fms = types.KeyboardButton("🏥 ФСМС")
-    btn_mit = types.KeyboardButton("🌐 Mitwork")
-    btn_caspy = types.KeyboardButton("🛒 Caspy Tender")
-    btn_ets = types.KeyboardButton("📊 ETS-Тендер")
-    btn_settings = types.KeyboardButton("⚙️ Мой фильтр и подписка")
-    
-    markup.add(btn_site, btn_all)
-    markup.add(btn_gos, btn_sk)
-    markup.add(btn_pharm, btn_fms)
-    markup.add(btn_mit, btn_caspy)
-    markup.add(btn_ets, btn_settings)
-    
-    bot.send_message(
-        chat_id, 
-        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите интересующую площадку в меню ниже или настройте ваш фильтр:", 
-        reply_markup=markup,
-        parse_mode="Markdown"
-    )
+    if args:
+        param_str = args[0]
+        region = "all"
+        budget = "all"
 
-if bot:
-    try:
-        bot.set_my_commands([
-            types.BotCommand("start", "Запустить хаб и открыть меню"),
-            types.BotCommand("filter", "Мой персональный фильтр"),
-            types.BotCommand("site", "Открыть веб-портал")
-        ])
-    except Exception as e:
-        print(f"Ошибка установки команд: {e}")
-
-    @bot.message_handler(commands=['start', 'tenders', 'menu'])
-    def handle_start(message):
-        send_main_menu(message.chat.id)
-
-    @bot.message_handler(commands=['filter'])
-    def handle_filter_cmd(message):
-        user_id = message.chat.id
-        s = get_user_settings(user_id)
-        
-        b_text = "Все суммы"
-        if s['budget'] == "budget_1m": b_text = "До 1 млн ₸"
-        elif s['budget'] == "budget_1m_10m": b_text = "От 1 до 10 млн ₸"
-        elif s['budget'] == "budget_10m_plus": b_text = "Свыше 10 млн ₸"
-
-        msg = (
-            f"👤 **Ваш сохраненный профиль подписки:**\n\n"
-            f"📌 **Площадка:** `{s['platform']}`\n"
-            f"💰 **Бюджет:** `{b_text}`\n"
-            f"📍 **Регион:** `{s['region']}`\n\n"
-            f"Выберите ниже действие для настройки локации:"
-        )
-        bot.send_message(user_id, msg, reply_markup=get_region_inline_keyboard(), parse_mode="Markdown")
-
-    @bot.message_handler(func=lambda message: True)
-    def handle_platform_click(message):
-        text = message.text.strip()
-        user_id = message.chat.id
-        
-        valid_keys = [
-            "🔥 Все новые лоты", "🏛 Госзакупки", "🏢 Самрук-Қазына", 
-            "💊 СК-Фармация", "🏥 ФСМС", "🌐 Mitwork", "🛒 Caspy Tender", "📊 ETS-Тендер"
-        ]
-        
-        if text == "⚙️ Мой фильтр и подписка":
-            handle_filter_cmd(message)
-            
-        elif text == "🌐 Перейти на веб-портал":
-            inline_kb = types.InlineKeyboardMarkup()
-            btn = types.InlineKeyboardButton("🚀 Открыть веб-сайт", url="https://kzzakupbot.onrender.com")
-            inline_kb.add(btn)
-            bot.send_message(
-                user_id,
-                "🖥 **Наш официальный веб-портал:**\n\nЗдесь доступны калькулятор маржи, контакты проверок налогов и юридическая база.",
-                reply_markup=inline_kb,
-                parse_mode="Markdown"
-            )
-        elif text in valid_keys:
-            update_user_setting(user_id, "platform", text)
-            bot.send_message(
-                user_id,
-                f"🎯 **Площадка сохранена:** {text}\n\n💰 **Укажите предпочитаемый диапазон сумм:**",
-                reply_markup=get_budget_inline_keyboard(),
-                parse_mode="Markdown"
-            )
-        else:
-            send_main_menu(user_id)
-
-    # Обработка выбора региона
-    @bot.callback_query_handler(func=lambda call: call.data.startswith('region_'))
-    def handle_region_selection(call):
-        chat_id = call.message.chat.id
-        region_val = call.data.split('_')[1]
-        
-        bot.answer_callback_query(call.id)
-        update_user_setting(chat_id, "region", region_val)
-        
-        bot.send_message(chat_id, f"✅ **Регион сохранён:** `{region_val}`\n\nТеперь бот будет учитывать ваш регион при поиске тендеров!", parse_mode="Markdown")
-
-    # Обработка выбора бюджета
-    @bot.callback_query_handler(func=lambda call: call.data.startswith('budget_'))
-    def handle_budget_filter(call):
-        chat_id = call.message.chat.id
-        budget_type = call.data
-        
-        bot.answer_callback_query(call.id)
-        update_user_setting(chat_id, "budget", budget_type)
-        
-        s = get_user_settings(chat_id)
-        platform = s["platform"]
-        user_region = s["region"]
-        
-        filtered_tenders = []
-        budget_title = ""
-        
-        for t in DEMO_TENDERS:
-            # Проверка площадки
-            if platform != "🔥 Все новые лоты" and t["source"] != platform:
-                continue
-            
-            # Проверка региона
-            if user_region != "Вся РК" and t["region"] != "Вся РК" and t["region"] != user_region:
-                continue
-                
-            # Проверка суммы
-            amt = t["amount"]
-            if budget_type == "budget_1m" and amt <= 1000000:
-                filtered_tenders.append(t)
-                budget_title = "До 1 000 000 ₸"
-            elif budget_type == "budget_1m_10m" and 1000000 < amt <= 10000000:
-                filtered_tenders.append(t)
-                budget_title = "От 1 до 10 млн ₸"
-            elif budget_type == "budget_10m_plus" and amt > 10000000:
-                filtered_tenders.append(t)
-                budget_title = "Свыше 10 млн ₸"
-            elif budget_type == "budget_all":
-                filtered_tenders.append(t)
-                budget_title = "Любая сумма"
-
-        bot.send_message(chat_id, f"🔍 **Результаты ({platform} | {user_region} | {budget_title}):**\nНайдено лотов: {len(filtered_tenders)}", parse_mode="Markdown")
-        
-        if not filtered_tenders:
-            bot.send_message(chat_id, f"😔 По вашим фильтрам ({user_region}, {budget_title}) подходящих объявлений не найдено.")
-            return
-
-        for t in filtered_tenders:
-            msg = (
-                f"🎯 **{t['source']}** (📍 {t['region']})\n"
-                f"🔹 **Номер:** `{t['num']}`\n"
-                f"📝 **Предмет:** {t['title']}\n"
-                f"🏢 **Организатор:** {t['organizer']}\n"
-                f"₸ **Сумма:** `{t['sum']}`\n\n"
-                f"🔗 [Перейти к лоту на портале]({t['link']})"
-            )
+        if "region_" in param_str:
             try:
-                bot.send_message(chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
-                time.sleep(0.3)
+                parts = param_str.split("_")
+                for i, p in enumerate(parts):
+                    if p == "region" and i + 1 < len(parts):
+                        region = parts[i + 1]
+                    if p == "bud" and i + 1 < len(parts):
+                        budget = parts[i + 1]
             except Exception as e:
-                print(f"Ошибка отправки сообщения: {e}")
+                logging.error(f"Ошибка парсинга Deep Link: {e}")
+
+        # Сохраняем сохраненный фильтр пользователя
+        database.save_user_filter(user_id, region=region, budget=budget)
+
+        reply_text = (
+            f"👋 Здравствуйте, {first_name}!\n\n"
+            f"✅ **Ваш фильтр авто-уведомлений успешно сохранен!**\n\n"
+            f"📍 **Регион:** {region}\n"
+            f"💰 **Бюджет:** {budget}\n\n"
+            f"Мы отправим вам Push-уведомление, как только появится подходящая закупка."
+        )
+    else:
+        reply_text = (
+            f"👋 Здравствуйте, {first_name}!\n\n"
+            f"Добро пожаловать в **Kzzakupbot** — ваш личный тендерный помощник по закупкам в Казахстане.\n\n"
+            f"Используйте наш веб-портал для точного расчета маржинальности и настройки персональных авто-уведомлений."
+        )
+
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
+    
+    bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=markup)
 
 if __name__ == "__main__":
-    server_thread = threading.Thread(target=run_server, daemon=True)
-    server_thread.start()
-    print(f"Веб-сервер запущен на порту {PORT}")
-    
-    if bot:
-        print("Telegram бот запущен...")
-        bot.infinity_polling(timeout=60, long_polling_timeout=60)
-    else:
-        while True:
-            time.sleep(3600)
+    print("Запуск бота Kzzakupbot...")
+    bot.infinity_polling()
