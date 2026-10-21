@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 from threading import Thread
 from flask import Flask, send_from_directory
@@ -8,12 +9,11 @@ import database
 # Настройка логов
 logging.basicConfig(level=logging.INFO)
 
-# Инициализация Flask с указанием текущей директории для раздачи статики (index.html)
+# Инициализация Flask для раздачи static (index.html) и удержания порта
 app = Flask(__name__, static_folder='.', static_url_path='')
 
 @app.route('/')
 def serve_index():
-    """Отдает главную страницу калькулятора и поиска (index.html)"""
     return send_from_directory('.', 'index.html')
 
 # Получаем токен из переменных окружения
@@ -72,9 +72,16 @@ else:
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=markup)
 
 def run_bot():
+    """Фоновый цикл работы бота с авто-восстановлением при сбоях сети"""
     if bot:
-        print("Запуск Telegram-бота...")
-        bot.infinity_polling()
+        print("Запуск Telegram-бота с защитой от сбоев...")
+        while True:
+            try:
+                # infinity_polling с таймаутами для стабильной работы
+                bot.infinity_polling(timeout=10, long_polling_timeout=5)
+            except Exception as e:
+                logging.error(f"Сбой подключения Telegram API, перезапуск через 5 сек: {e}")
+                time.sleep(5)
 
 if __name__ == "__main__":
     # Запускаем бота в фоновом потоке
@@ -83,6 +90,6 @@ if __name__ == "__main__":
         bot_thread.daemon = True
         bot_thread.start()
 
-    # Запускаем веб-сервер Flask на порту Render
+    # Запускаем веб-сервер Flask
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
