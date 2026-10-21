@@ -1,40 +1,39 @@
 import os
 import time
 import logging
+from threading import Thread
+from flask import Flask, send_from_directory
 from telebot import TeleBot, types
 import database
 
-# Настройка логов
 logging.basicConfig(level=logging.INFO)
 
-# Получаем токен из переменной окружения или вставьте его сюда напрямую
-BOT_TOKEN = os.getenv("BOT_TOKEN", "ВАШ_ТОКЕН_ОТ_BOTFATHER").strip()
+app = Flask(__name__, static_folder='.', static_url_path='')
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+# Вставьте ваш новый токен от @BotFather прямо в кавычки ниже:
+BOT_TOKEN = os.getenv("BOT_TOKEN", "2844582:AAF5_pkY3oz9QG1mHBhus52CBAZfS3k4eB4").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
-    logging.warning("⚠️ Внимание: BOT_TOKEN не задан!")
+    logging.warning("⚠️ BOT_TOKEN не задан!")
     bot = None
 else:
     bot = TeleBot(BOT_TOKEN)
-    database.init_db()
+    try:
+        database.init_db()
+    except Exception as e:
+        logging.error(f"Ошибка БД: {e}")
 
     def get_main_keyboard():
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        btn_web = types.KeyboardButton("🌐 Перейти на веб-портал")
-        btn_lots = types.KeyboardButton("🔥 Все новые лоты")
-        btn_gos = types.KeyboardButton("🏛 Госзакупки")
-        btn_samruk = types.KeyboardButton("🏢 Самрук-Қазына")
-        btn_sk = types.KeyboardButton("💊 СК-Фармация")
-        btn_fms = types.KeyboardButton("🏥 ФСМС")
-        btn_mit = types.KeyboardButton("🌐 Mitwork")
-        btn_caspy = types.KeyboardButton("🛒 Caspy Tender")
-        btn_ets = types.KeyboardButton("📊 ETS-Тендер")
-        btn_filter = types.KeyboardButton("⚙️ Мой фильтр и подписка")
-        
-        markup.add(btn_web, btn_lots)
-        markup.add(btn_gos, btn_samruk)
-        markup.add(btn_sk, btn_fms)
-        markup.add(btn_mit, btn_caspy)
-        markup.add(btn_ets, btn_filter)
+        markup.add("🌐 Перейти на веб-портал", "🔥 Все новые лоты")
+        markup.add("🏛 Госзакупки", "🏢 Самрук-Қазына")
+        markup.add("💊 СК-Фармация", "🏥 ФСМС")
+        markup.add("🌐 Mitwork", "🛒 Caspy Tender")
+        markup.add("📊 ETS-Тендер", "⚙️ Мой фильтр и подписка")
         return markup
 
     @bot.message_handler(commands=['start'])
@@ -43,28 +42,22 @@ else:
         username = message.from_user.username or ""
         first_name = message.from_user.first_name or "Пользователь"
 
-        database.add_or_update_user(user_id, username, first_name)
+        try:
+            database.add_or_update_user(user_id, username, first_name)
+        except Exception as e:
+            logging.error(f"Ошибка записи пользователя: {e}")
 
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
             f"Добро пожаловать в **Kzzakupbot Hub** — рабочий кабинет поставщика РК.\n\n"
-            f"Используйте кнопки меню ниже или откройте наш веб-кабинет для поиска лотов и расчета маржинальности (НК РК 2026)."
+            f"Используйте кнопки меню ниже или откройте веб-кабинет для поиска лотов и расчета маржинальности (НК РК 2026)."
         )
 
         inline_markup = types.InlineKeyboardMarkup()
         inline_markup.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
         
-        bot.send_message(
-            message.chat.id, 
-            reply_text, 
-            parse_mode="Markdown", 
-            reply_markup=inline_markup
-        )
-        bot.send_message(
-            message.chat.id,
-            "Выберите интересующий раздел:",
-            reply_markup=get_main_keyboard()
-        )
+        bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=inline_markup)
+        bot.send_message(message.chat.id, "Выберите интересующий раздел:", reply_markup=get_main_keyboard())
 
     @bot.message_handler(func=lambda message: True)
     def handle_all_messages(message):
@@ -85,12 +78,21 @@ else:
 
         bot.send_message(message.chat.id, ans, parse_mode="Markdown", reply_markup=inline_markup)
 
-if __name__ == "__main__":
+def run_bot():
     if bot:
-        print("Запуск автономного Telegram-бота на PythonAnywhere...")
+        print("Запуск Telegram-бота...")
         while True:
             try:
                 bot.infinity_polling(timeout=10, long_polling_timeout=5)
             except Exception as e:
-                logging.error(f"Ошибка бота, перезапуск через 5 сек: {e}")
+                logging.error(f"Ошибка polling: {e}")
                 time.sleep(5)
+
+if __name__ == "__main__":
+    if bot:
+        bot_thread = Thread(target=run_bot)
+        bot_thread.daemon = True
+        bot_thread.start()
+
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
