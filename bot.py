@@ -66,7 +66,6 @@ def get_budget_inline_keyboard():
 def send_main_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
-    # Кнопку сайта ставим САМОЙ ПЕРВОЙ наверх
     btn_site = types.KeyboardButton("🌐 Перейти на веб-портал")
     btn_all = types.KeyboardButton("🔥 Все новые лоты")
     btn_gos = types.KeyboardButton("🏛 Госзакупки")
@@ -77,15 +76,16 @@ def send_main_menu(chat_id):
     btn_caspy = types.KeyboardButton("🛒 Caspy Tender")
     btn_ets = types.KeyboardButton("📊 ETS-Тендер")
     
-    markup.add(btn_site)
-    markup.add(btn_all)
+    # Ровное симметричное расположение по парам
+    markup.add(btn_site, btn_all)
     markup.add(btn_gos, btn_sk)
     markup.add(btn_pharm, btn_fms)
-    markup.add(btn_mit, btn_caspy, btn_ets)
+    markup.add(btn_mit, btn_caspy)
+    markup.add(btn_ets)
     
     bot.send_message(
         chat_id, 
-        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите интересующую площадку в меню ниже или перейдите на наш веб-портал:", 
+        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите интересующую площадку в меню ниже или перейдите на веб-портал:", 
         reply_markup=markup,
         parse_mode="Markdown"
     )
