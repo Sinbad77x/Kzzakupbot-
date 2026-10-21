@@ -1,19 +1,20 @@
 import os
 import logging
 from threading import Thread
-from flask import Flask
+from flask import Flask, send_from_directory
 from telebot import TeleBot, types
 import database
 
 # Настройка логов
 logging.basicConfig(level=logging.INFO)
 
-# Инициализация Flask для удержания порта на Render
-app = Flask(__name__)
+# Инициализация Flask с указанием текущей директории для раздачи статики (index.html)
+app = Flask(__name__, static_folder='.', static_url_path='')
 
 @app.route('/')
-def health_check():
-    return "Kzzakupbot Hub & Worker is running!", 200
+def serve_index():
+    """Отдает главную страницу калькулятора и поиска (index.html)"""
+    return send_from_directory('.', 'index.html')
 
 # Получаем токен из переменных окружения
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
@@ -76,12 +77,12 @@ def run_bot():
         bot.infinity_polling()
 
 if __name__ == "__main__":
-    # Запускаем бота в отдельном потоке, чтобы он не блокировал веб-сервер
+    # Запускаем бота в фоновом потоке
     if bot:
         bot_thread = Thread(target=run_bot)
         bot_thread.daemon = True
         bot_thread.start()
 
-    # Порт для Render выделяется автоматически через переменные окружения
+    # Запускаем веб-сервер Flask на порту Render
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
