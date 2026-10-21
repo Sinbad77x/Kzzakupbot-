@@ -3,134 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Единый портал закупок, маркетплейсов и сервисов РК</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Kzzakupbot — Единый тендерный и закупочный хаб Казахстана</title>
     <style>
         :root {
-            --primary: #1e3a8a;
-            --primary-light: #3b82f6;
-            --accent: #06b6d4;
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-light); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
-        header { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 20px 0; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .logo i { color: var(--accent); }
-        .status-badge { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .status-dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
-        .hero { padding: 50px 0 30px; text-align: center; }
-        .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 15px; background: linear-gradient(to right, #ffffff, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { font-size: 17px; color: var(--text-muted); max-width: 750px; margin: 0 auto 25px; }
-        .btn-telegram { display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #2563eb, #0284c7); color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 17px; box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4); transition: all 0.3s ease; }
-        .btn-telegram:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.6); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin: 30px 0; }
-        .card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 25px; }
-        .card-icon { width: 48px; height: 48px; background: rgba(59, 130, 246, 0.1); color: var(--primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 15px; }
-        .card h3 { font-size: 19px; margin-bottom: 12px; color: #fff; }
-        .card p { color: var(--text-muted); font-size: 14px; margin-bottom: 15px; }
-        .auth-link-btn { display: block; text-align: center; background: rgba(59, 130, 246, 0.15); color: var(--primary-light); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 10px; transition: background 0.2s; }
-        .auth-link-btn:hover { background: rgba(59, 130, 246, 0.25); }
-        .resource-item { display: flex; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.05); }
-        .resource-info h4 { font-size: 14px; color: #f1f5f9; margin-bottom: 2px; }
-        .resource-info span { font-size: 11px; color: var(--accent); }
-        .resource-btn { color: var(--primary-light); text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap; margin-left: 15px; }
-        .resource-btn:hover { text-decoration: underline; }
-        .calc-input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); background: #0f172a; color: #fff; font-size: 15px; margin-bottom: 15px; }
-        .calc-res-box { background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 10px; border: 1px solid rgba(6, 182, 212, 0.2); margin-top: 10px; }
-        .calc-res-item { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; color: #cbd5e1; }
-        .calc-res-item strong { color: var(--accent); }
-        footer { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.08); padding: 20px 0; text-align: center; color: var(--text-muted); font-size: 13px; background: #090d16; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 50px; }
+        
+        header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 30px 20px; text-align: center; }
+        header h1 { font-size: 26px; margin-bottom: 8px; }
+        header p { color: #94a3b8; font-size: 14px; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        /* Поисковый блок (Hero) */
+        .search-hero { background: var(--card-bg); border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-top: -25px; margin-bottom: 25px; border: 1px solid var(--border); }
+        .search-hero h2 { font-size: 18px; margin-bottom: 15px; color: var(--text-main); }
+        .search-row { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 15px; }
+        @media(min-width: 640px) { .search-row { grid-template-columns: 2fr 1fr 1fr; } }
+        
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+        .input-group input, .input-group select { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); }
+        
+        .btn-search { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; text-align: center; display: block; text-decoration: none; }
+        .btn-search:hover { background: var(--primary-dark); }
+
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid var(--border); }
+        .card h3 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        /* Калькулятор маржи */
+        .calc-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media(min-width: 600px) { .calc-grid { grid-template-columns: 1fr 1fr; } }
+        .calc-result { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
+        .calc-result p { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .calc-result p.total { font-weight: 700; color: var(--primary-dark); border-top: 1px solid var(--border); padding-top: 6px; font-size: 16px; }
+
+        /* Площадки и ссылки */
+        .platforms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+        .platform-item { background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; text-decoration: none; color: var(--text-main); font-weight: 500; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .platform-item:hover { border-color: var(--primary); background: #f0fdf4; color: var(--primary-dark); }
+
+        .bot-cta { text-align: center; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 25px; border-radius: 12px; margin-top: 25px; }
+        .bot-cta a { display: inline-block; background: white; color: var(--primary-dark); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; margin-top: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        footer { text-align: center; margin-top: 30px; color: var(--text-muted); font-size: 13px; }
     </style>
 </head>
 <body>
+
     <header>
-        <div class="container navbar">
-            <div class="logo"><i class="fa-solid fa-chart-line"></i> Kzzakupbot</div>
-            <div class="status-badge"><div class="status-dot"></div>Сервер активен 24/7</div>
-        </div>
+        <h1>Kzzakupbot Hub</h1>
+        <p>Профессиональный инструмент поставщика: тендеры, аналитика и расчеты в РК</p>
     </header>
-    <main class="container">
-        <section class="hero">
-            <h1>Единый Портал Закупок, Банков и Сервисов РК</h1>
-            <p>Госзакупки, официальные торговые площадки квазигоссектора, коммерческие торги и финансовые инструменты в одном месте.</p>
-            <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-telegram"><i class="fa-brands fa-telegram"></i> Запустить Telegram-бота</a>
-        </section>
-        <section class="grid">
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-calculator"></i></div>
-                <h3>Интерактивный Калькулятор Расходов и Маржи</h3>
-                <p>Введите запланированную сумму лота (в тенге) для автоматического расчета необходимых затрат:</p>
-                <input type="number" id="lotSum" class="calc-input" placeholder="Введите сумму лота (например: 5000000)" oninput="calculateMargin()">
-                <div class="calc-res-box">
-                    <div class="calc-res-item"><span>Обеспечение заявки (1%):</span><strong id="garantVal">0 ₸</strong></div>
-                    <div class="calc-res-item"><span>Обеспечение исполнения договора (3%):</span><strong id="contractVal">0 ₸</strong></div>
-                    <div class="calc-res-item"><span>Примерные налоги и сборы (~10%):</span><strong id="taxVal">0 ₸</strong></div>
+
+    <div class="container">
+
+        <!-- Поисковый блок (Hero) -->
+        <div class="search-hero">
+            <h2>🔍 Быстрый поиск закупок</h2>
+            <div class="search-row">
+                <div class="input-group">
+                    <label>Что хотите поставлять?</label>
+                    <input type="text" id="queryText" placeholder="Например: бумага, медоборудование...">
+                </div>
+                <div class="input-group">
+                    <label>Регион</label>
+                    <select id="queryRegion">
+                        <option value="all">Весь Казахстан</option>
+                        <option value="shymkent">Шымкент</option>
+                        <option value="astana">Астана</option>
+                        <option value="almaty">Алматы</option>
+                        <option value="atyrau">Атырау</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Бюджет</label>
+                    <select id="queryBudget">
+                        <option value="all">Любая сумма</option>
+                        <option value="1m">До 1 млн ₸</option>
+                        <option value="1m_10m">От 1 до 10 млн ₸</option>
+                        <option value="10m">Свыше 10 млн ₸</option>
+                    </select>
                 </div>
             </div>
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-network-wired"></i></div>
-                <h3>Единый реестр торговых площадок и операторов РК</h3>
-                <p>Прямой доступ к государственным и коммерческим электронным торговым площадкам:</p>
-                <div class="resource-item"><div class="resource-info"><h4>Государственные закупки РК</h4><span>goszakup.gov.kz</span></div><a href="https://goszakup.gov.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Портал закупок «Самрук-Қазына»</h4><span>zakup.sk.kz</span></div><a href="https://zakup.sk.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Портал ТОО «СК-Фармация»</h4><span>Медицина и лекарства</span></div><a href="https://sk-pharmacy.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Фонд медицинского страхования (ФСМС)</h4><span>fms.kz</span></div><a href="https://fms.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Евразийский электронный портал</h4><span>mitwork.kz</span></div><a href="https://mitwork.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>ЭТП «Caspy Tender»</h4><span>caspytender.kz</span></div><a href="https://caspytender.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>ЭТП «ETS-Тендер»</h4><span>ets-tender.kz</span></div><a href="https://ets-tender.kz" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
+            <a href="https://t.me/Kzzakupbot" target="_blank" class="btn-search">Найти закупки и получать уведомления в Telegram 🚀</a>
+        </div>
+
+        <!-- Калькулятор маржи -->
+        <div class="card">
+            <h3>🧮 Расширенный калькулятор маржи поставщика</h3>
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label>Сумма лота (₸):</label>
+                    <input type="number" id="calcLotSum" value="5000000" oninput="calculateMargin()">
+                </div>
+                <div class="input-group">
+                    <label>Закупочная стоимость товара (₸):</label>
+                    <input type="number" id="calcCost" value="3500000" oninput="calculateMargin()">
+                </div>
+                <div class="input-group">
+                    <label>Доставка и логистика (₸):</label>
+                    <input type="number" id="calcDelivery" value="150000" oninput="calculateMargin()">
+                </div>
+                <div class="input-group">
+                    <label>Налоговый режим и расходы:</label>
+                    <select id="calcTax" onchange="calculateMargin()">
+                        <option value="0.03">УСН (3%) + Обеспечения (~2%)</option>
+                        <option value="0.15">Общий режим / НДС (~15%)</option>
+                    </select>
+                </div>
             </div>
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                <h3>Бесплатное обучение тендерам и продажам в РК</h3>
-                <div class="resource-item"><div class="resource-info"><h4>Центр электронных финансов (ЦЭФ)</h4><span>Видеоинструкции YouTube</span></div><a href="https://www.youtube.com/results?search_query=Центр+электронных+финансов+госзакупки" target="_blank" class="resource-btn">Смотреть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Курс «Основы Госзакупок РК» (Skills Enbek)</h4><span>Онлайн-курс №460</span></div><a href="https://skills.enbek.kz/ru/course-catalog/course/460" target="_blank" class="resource-btn">Пройти <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Omarket.kz</h4><span>Прямые продажи товаров</span></div><a href="https://omarket.kz" target="_blank" class="resource-btn">Сайт <i class="fa-solid fa-arrow-right"></i></a></div>
+
+            <div class="calc-result" id="calcResultBox">
+                <p><span>Чистая расчетная прибыль:</span> <strong id="resProfit" style="color: #059669;">1 075 000 ₸</strong></p>
+                <p><span>Рентабельность (маржинальность):</span> <strong id="resMargin">21.5%</strong></p>
+                <p class="total"><span>Точка безубыточности торгов:</span> <strong id="resBreakeven">3 925 000 ₸</strong></p>
             </div>
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-shield-cat"></i></div>
-                <h3>Полезные внешние сервисы и проверка бизнеса</h3>
-                <div class="resource-item"><div class="resource-info"><h4>ИС «ЭСФ» (Электронные счета-фактуры)</h4><span>esf.gov.kz</span></div><a href="https://esf.gov.kz:8443/esf-web/app" target="_blank" class="resource-btn">Открыть <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Судебный кабинет РК</h4><span>office.sud.kz</span></div><a href="https://office.sud.kz" target="_blank" class="resource-btn">Проверить <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Комитет госдоходов (КГД МФ РК)</h4><span>Официальный портал сервисов КГД</span></div><a href="https://kgd.gov.kz" target="_blank" class="resource-btn">Перейти <i class="fa-solid fa-arrow-right"></i></a></div>
+        </div>
+
+        <!-- Каталог площадок -->
+        <div class="card">
+            <h3>🔗 Официальные площадки закупок РК</h3>
+            <div class="platforms-grid">
+                <a href="https://goszakup.gov.kz" target="_blank" class="platform-item"><span>🏛 Госзакупки РК</span> ➔</a>
+                <a href="https://zakup.sk.kz" target="_blank" class="platform-item"><span>🏢 Самрук-Қазына</span> ➔</a>
+                <a href="https://sk-pharmacy.kz" target="_blank" class="platform-item"><span>💊 СК-Фармация</span> ➔</a>
+                <a href="https://mitwork.kz" target="_blank" class="platform-item"><span>🌐 Mitwork</span> ➔</a>
+                <a href="https://caspytender.kz" target="_blank" class="platform-item"><span>🛒 Caspy Tender</span> ➔</a>
+                <a href="https://ets-tender.kz" target="_blank" class="platform-item"><span>📊 ETS-Тендер</span> ➔</a>
             </div>
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-icon"><i class="fa-solid fa-building-columns"></i></div>
-                <h3>Финансовые экосистемы и маркетплейсы</h3>
-                <div class="resource-item"><div class="resource-info"><h4>Freedom Bank</h4><span>Тендерные гарантии</span></div><a href="https://bankffin.kz" target="_blank" class="resource-btn">Сайт <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Halyk Bank (Business)</h4><span>Спецсчета</span></div><a href="https://halykbank.kz/business" target="_blank" class="resource-btn">Сайт <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Банк ЦентрКредит (BCC Business)</h4><span>bcc.kz</span></div><a href="https://www.bcc.kz/business" target="_blank" class="resource-btn">Сайт <i class="fa-solid fa-arrow-right"></i></a></div>
-                <div class="resource-item"><div class="resource-info"><h4>Kaspi Магазин (Kaspi Pay)</h4><span>kaspi.kz</span></div><a href="https://kaspi.kz/merchant" target="_blank" class="resource-btn">Сайт <i class="fa-solid fa-arrow-right"></i></a></div>
-            </div>
-            <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-qrcode"></i></div>
-                <h3>Вход на портал госзакупок</h3>
-                <a href="https://zakup.gov.kz/sso#qr" target="_blank" class="auth-link-btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent); color: #fff;"><i class="fa-solid fa-qrcode"></i> Войти по QR (eGov Mobile)</a>
-                <a href="https://zakup.gov.kz/sso" target="_blank" class="auth-link-btn"><i class="fa-solid fa-key"></i> Войти по ЭЦП (NCALayer)</a>
-            </div>
-            <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-phone-volume"></i></div>
-                <h3>Горячие линии и Антикор</h3>
-                <div class="resource-item"><div class="resource-info"><h4>Антикоррупционная служба</h4><span><strong>1424</strong></span></div><a href="tel:1424" class="resource-btn"><i class="fa-solid fa-phone"></i> Позвонить</a></div>
-                <div class="resource-item"><div class="resource-info"><h4>НПП «Атамекен»</h4><span><strong>1432</strong></span></div><a href="tel:1432" class="resource-btn"><i class="fa-solid fa-phone"></i> Позвонить</a></div>
-            </div>
-        </section>
-    </main>
-    <footer>
-        <div class="container">&copy; 2026 Kzzakupbot — Единый навигатор по закупкам, маркетплейсам и бизнес-сервисам РК.</div>
-    </footer>
+        </div>
+
+        <!-- Блок Telegram -->
+        <div class="bot-cta">
+            <h3>🤖 Настройте авто-уведомления в Telegram</h3>
+            <p>Получайте свежие лоты по вашему региону и бюджету прямо в мессенджер в режиме реального времени.</p>
+            <a href="https://t.me/Kzzakupbot" target="_blank">Открыть Telegram-бот Kzzakupbot</a>
+        </div>
+
+        <footer>
+            <p>© 2026 Kzzakupbot Hub. Все права защищены.</p>
+        </footer>
+
+    </div>
+
     <script>
         function calculateMargin() {
-            var sum = parseFloat(document.getElementById('lotSum').value) || 0;
-            document.getElementById('garantVal').innerText = (sum * 0.01).toLocaleString('ru-RU') + ' ₸';
-            document.getElementById('contractVal').innerText = (sum * 0.03).toLocaleString('ru-RU') + ' ₸';
-            document.getElementById('taxVal').innerText = (sum * 0.10).toLocaleString('ru-RU') + ' ₸';
+            let lotSum = parseFloat(document.getElementById('calcLotSum').value) || 0;
+            let cost = parseFloat(document.getElementById('calcCost').value) || 0;
+            let delivery = parseFloat(document.getElementById('calcDelivery').value) || 0;
+            let taxRate = parseFloat(document.getElementById('calcTax').value) || 0.03;
+
+            let totalExpenses = cost + delivery + (lotSum * taxRate);
+            let profit = lotSum - totalExpenses;
+            let margin = lotSum > 0 ? (profit / lotSum) * 100 : 0;
+            let breakeven = cost + delivery + (lotSum * taxRate);
+
+            document.getElementById('resProfit').innerText = profit.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('resMargin').innerText = margin.toFixed(1) + '%';
+            document.getElementById('resBreakeven').innerText = breakeven.toLocaleString('ru-RU') + ' ₸';
         }
+
+        // Запуск при загрузке
+        calculateMargin();
     </script>
 </body>
 </html>
