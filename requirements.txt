@@ -1,6 +1,7 @@
-pyTelegramBotAPI
 requests
 beautifulsoup4
-cloudscraper
+pyTelegramBotAPI
+flask
+
 
 
