@@ -1,6 +1,7 @@
 import os
 import time
 import threading
+import sqlite3
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
 from telebot import types
@@ -15,6 +16,47 @@ if TOKEN:
     except Exception as e:
         print(f"Ошибка инициализации бота: {e}")
 
+# --- ИНИЦИАЛИЗА БАЗЫ ДАННЫХ (SQLite) ---
+DB_FILE = "users_settings.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY,
+            platform TEXT DEFAULT '🔥 Все новые лоты',
+            budget TEXT DEFAULT 'budget_all',
+            region TEXT DEFAULT 'Вся РК'
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def update_user_setting(user_id, key, value):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+    if cursor.fetchone():
+        cursor.execute(f"UPDATE users SET {key} = ? WHERE user_id = ?", (value, user_id))
+    else:
+        cursor.execute(f"INSERT INTO users (user_id, {key}) VALUES (?, ?)", (user_id, value))
+    conn.commit()
+    conn.close()
+
+def get_user_settings(user_id):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT platform, budget, region FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return {"platform": row[0], "budget": row[1], "region": row[2]}
+    return {"platform": "🔥 Все новые лоты", "budget": "budget_all", "region": "Вся РК"}
+
+# --- ВЕБ-СЕРВЕР ДЛЯ RENDER ---
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
@@ -40,20 +82,20 @@ def run_server():
     server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
     server.serve_forever()
 
+# --- БАЗА ДАННЫХ ЛОТОВ (Расширенная с регионами) ---
 DEMO_TENDERS = [
-    {"num": "12849102-1", "title": "Закупка офисной бумаги А4 и канцтоваров для государственных нужд", "organizer": "ГУ Аппарат Акима г. Шымкент", "sum": "850 000 ₸", "amount": 850000, "source": "🏛 Госзакупки", "link": "https://goszakup.gov.kz/ru/search/announce"},
-    {"num": "ETS-551", "title": "Организация питания и поставка продуктов для детского сада", "organizer": "ТОО ПромСнаб", "sum": "650 000 ₸", "amount": 650000, "source": "📊 ETS-Тендер", "link": "https://ets-tender.kz"},
-    {"num": "12849105-1", "title": "Услуги по техническому обслуживанию компьютерной техники и ЛВС", "organizer": "Управление образования г. Астана", "sum": "5 800 000 ₸", "amount": 5800000, "source": "🏛 Госзакупки", "link": "https://goszakup.gov.kz/ru/search/announce"},
-    {"num": "SK-89215", "title": "Закуп спецодежды и средств индивидуальной защиты (СИЗ)", "organizer": "АО Қазақстан Ғарыш Сапасы", "sum": "8 300 000 ₸", "amount": 8300000, "source": "🏢 Самрук-Қазына", "link": "https://zakup.sk.kz"},
-    {"num": "12849110-1", "title": "Поставка медицинских расходных материалов (перчатки, маски)", "organizer": "ГКП Городская больница №1", "sum": "11 200 000 ₸", "amount": 11200000, "source": "🏛 Госзакупки", "link": "https://goszakup.gov.kz/ru/search/announce"},
-    {"num": "SK-89210", "title": "Поставка запорной арматуры и оборудования для трубопроводов", "organizer": "АО НК КазМунайГаз", "sum": "45 000 000 ₸", "amount": 45000000, "source": "🏢 Самрук-Қазына", "link": "https://zakup.sk.kz"},
-    {"num": "SKF-2026-04", "title": "Закупка лекарственных средств и кардиопрепаратов", "organizer": "ТОО СК-Фармация", "sum": "120 000 000 ₸", "amount": 120000000, "source": "💊 СК-Фармация", "link": "https://sk-pharmacy.kz"},
-    {"num": "MIT-3012", "title": "Текущий ремонт административного здания и благоустройство территории", "organizer": "ТОО Базис Трейд", "sum": "18 500 000 ₸", "amount": 18500000, "source": "🌐 Mitwork", "link": "https://mitwork.kz"},
-    {"num": "CT-904", "title": "Поставка строительных материалов (цемент, арматура)", "organizer": "ТОО СтройСервис-Шымкент", "sum": "14 000 000 ₸", "amount": 14000000, "source": "🛒 Caspy Tender", "link": "https://caspytender.kz"}
+    {"num": "12849102-1", "title": "Закупка офисной бумаги А4 и канцтоваров для государственных нужд", "organizer": "ГУ Аппарат Акима г. Шымкент", "sum": "850 000 ₸", "amount": 850000, "source": "🏛 Госзакупки", "region": "Шымкент", "link": "https://goszakup.gov.kz/ru/search/announce"},
+    {"num": "ETS-551", "title": "Организация питания и поставка продуктов для детского сада", "organizer": "ТОО ПромСнаб", "sum": "650 000 ₸", "amount": 650000, "source": "📊 ETS-Тендер", "region": "Алматы", "link": "https://ets-tender.kz"},
+    {"num": "12849105-1", "title": "Услуги по техническому обслуживанию компьютерной техники и ЛВС", "organizer": "Управление образования г. Астана", "sum": "5 800 000 ₸", "amount": 5800000, "source": "🏛 Госзакупки", "region": "Астана", "link": "https://goszakup.gov.kz/ru/search/announce"},
+    {"num": "SK-89215", "title": "Закуп спецодежды и средств индивидуальной защиты (СИЗ)", "organizer": "АО Қазақстан Ғарыш Сапасы", "sum": "8 300 000 ₸", "amount": 8300000, "source": "🏢 Самрук-Қазына", "region": "Астана", "link": "https://zakup.sk.kz"},
+    {"num": "12849110-1", "title": "Поставка медицинских расходных материалов (перчатки, маски)", "organizer": "ГКП Городская больница №1", "sum": "11 200 000 ₸", "amount": 11200000, "source": "🏛 Госзакупки", "region": "Шымкент", "link": "https://goszakup.gov.kz/ru/search/announce"},
+    {"num": "SK-89210", "title": "Поставка запорной арматуры и оборудования для трубопроводов", "organizer": "АО НК КазМунайГаз", "sum": "45 000 000 ₸", "amount": 45000000, "source": "🏢 Самрук-Қазына", "region": "Атырау", "link": "https://zakup.sk.kz"},
+    {"num": "SKF-2026-04", "title": "Закупка лекарственных средств и кардиопрепаратов", "organizer": "ТОО СК-Фармация", "sum": "120 000 000 ₸", "amount": 120000000, "source": "💊 СК-Фармация", "region": "Вся РК", "link": "https://sk-pharmacy.kz"},
+    {"num": "MIT-3012", "title": "Текущий ремонт административного здания и благоустройство территории", "organizer": "ТОО Базис Трейд", "sum": "18 500 000 ₸", "amount": 18500000, "source": "🌐 Mitwork", "region": "Алматы", "link": "https://mitwork.kz"},
+    {"num": "CT-904", "title": "Поставка строительных материалов (цемент, арматура)", "organizer": "ТОО СтройСервис-Шымкент", "sum": "14 000 000 ₸", "amount": 14000000, "source": "🛒 Caspy Tender", "region": "Шымкент", "link": "https://caspytender.kz"}
 ]
 
-user_platform_selection = {}
-
+# --- КЛАВИАТУРЫ ---
 def get_budget_inline_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton("🔹 До 1 000 000 ₸", callback_data="budget_1m")
@@ -75,17 +117,17 @@ def send_main_menu(chat_id):
     btn_mit = types.KeyboardButton("🌐 Mitwork")
     btn_caspy = types.KeyboardButton("🛒 Caspy Tender")
     btn_ets = types.KeyboardButton("📊 ETS-Тендер")
+    btn_settings = types.KeyboardButton("⚙️ Мой фильтр и подписка")
     
-    # Ровное симметричное расположение по парам
     markup.add(btn_site, btn_all)
     markup.add(btn_gos, btn_sk)
     markup.add(btn_pharm, btn_fms)
     markup.add(btn_mit, btn_caspy)
-    markup.add(btn_ets)
+    markup.add(btn_ets, btn_settings)
     
     bot.send_message(
         chat_id, 
-        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите интересующую площадку в меню ниже или перейдите на веб-портал:", 
+        "📢 **Единый тендерный и закупочный хаб РК**\n\nВыберите площадки в меню ниже или настройте ваш персональный фильтр:", 
         reply_markup=markup,
         parse_mode="Markdown"
     )
@@ -94,8 +136,8 @@ if bot:
     try:
         bot.set_my_commands([
             types.BotCommand("start", "Запустить хаб и открыть меню"),
-            types.BotCommand("site", "Открыть веб-портал"),
-            types.BotCommand("menu", "Показать кнопки площадок")
+            types.BotCommand("filter", "Мой персональный фильтр"),
+            types.BotCommand("site", "Открыть веб-портал")
         ])
     except Exception as e:
         print(f"Ошибка установки команд: {e}")
@@ -104,54 +146,71 @@ if bot:
     def handle_start(message):
         send_main_menu(message.chat.id)
 
-    @bot.message_handler(commands=['site'])
-    def handle_site_cmd(message):
-        inline_kb = types.InlineKeyboardMarkup()
-        btn = types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Portal", url="https://kzzakupbot.onrender.com")
-        inline_kb.add(btn)
-        bot.send_message(
-            message.chat.id,
-            "🔗 Нажмите на кнопку ниже для перехода на наш веб-портал с калькулятором маржи и сервисами:",
-            reply_markup=inline_kb
+    @bot.message_handler(commands=['filter'])
+    def handle_filter_cmd(message):
+        user_id = message.chat.id
+        s = get_user_settings(user_id)
+        
+        b_text = "Все суммы"
+        if s['budget'] == "budget_1m": b_text = "До 1 млн ₸"
+        elif s['budget'] == "budget_1m_10m": b_text = "От 1 до 10 млн ₸"
+        elif s['budget'] == "budget_10m_plus": b_text = "Свыше 10 млн ₸"
+
+        msg = (
+            f"👤 **Ваш сохраненный авто-фильтр:**\n\n"
+            f"📌 **Выбранная площадка:** `{s['platform']}`\n"
+            f"💰 **Бюджет:** `{b_text}`\n"
+            f"📍 **Регион:** `{s['region']}`\n\n"
+            f"При появлении новых лотов по вашим критериям бот уведомит вас автоматически!"
         )
+        bot.send_message(user_id, msg, parse_mode="Markdown")
 
     @bot.message_handler(func=lambda message: True)
     def handle_platform_click(message):
         text = message.text.strip()
+        user_id = message.chat.id
         
         valid_keys = [
             "🔥 Все новые лоты", "🏛 Госзакупки", "🏢 Самрук-Қазына", 
             "💊 СК-Фармация", "🏥 ФСМС", "🌐 Mitwork", "🛒 Caspy Tender", "📊 ETS-Тендер"
         ]
         
-        if text == "🌐 Перейти на веб-портал":
+        if text == "⚙️ Мой фильтр и подписка":
+            handle_filter_cmd(message)
+            
+        elif text == "🌐 Перейти на веб-портал":
             inline_kb = types.InlineKeyboardMarkup()
             btn = types.InlineKeyboardButton("🚀 Открыть веб-сайт", url="https://kzzakupbot.onrender.com")
             inline_kb.add(btn)
             bot.send_message(
-                message.chat.id,
+                user_id,
                 "🖥 **Наш официальный веб-портал:**\n\nЗдесь доступны калькулятор маржи, контакты проверок налогов и юридическая база.",
                 reply_markup=inline_kb,
                 parse_mode="Markdown"
             )
         elif text in valid_keys:
-            user_platform_selection[message.chat.id] = text
+            update_user_setting(user_id, "platform", text)
             bot.send_message(
-                message.chat.id,
-                f"🎯 **Выбрана площадка:** {text}\n\n💰 **Укажите диапазон суммы закупки:**",
+                user_id,
+                f"🎯 **Площадка сохранена:** {text}\n\n💰 **Укажите предпочитаемый диапазон сумм:**",
                 reply_markup=get_budget_inline_keyboard(),
                 parse_mode="Markdown"
             )
         else:
-            send_main_menu(message.chat.id)
+            send_main_menu(user_id)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith('budget_'))
     def handle_budget_filter(call):
         chat_id = call.message.chat.id
-        platform = user_platform_selection.get(chat_id, "🔥 Все новые лоты")
         budget_type = call.data
         
         bot.answer_callback_query(call.id)
+        
+        # Сохраняем выбор бюджета в БД
+        update_user_setting(chat_id, "budget", budget_type)
+        
+        s = get_user_settings(chat_id)
+        platform = s["platform"]
         
         filtered_tenders = []
         budget_title = ""
@@ -182,7 +241,7 @@ if bot:
 
         for t in filtered_tenders:
             msg = (
-                f"🎯 **{t['source']}**\n"
+                f"🎯 **{t['source']}** ({t['region']})\n"
                 f"🔹 **Номер:** `{t['num']}`\n"
                 f"📝 **Предмет:** {t['title']}\n"
                 f"🏢 **Организатор:** {t['organizer']}\n"
