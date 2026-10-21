@@ -44,16 +44,13 @@
         .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid var(--border); }
         .card h3 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
 
-        /* Переключатель режимов калькулятора */
-        .calc-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
-        .calc-toggle button { flex: 1; padding: 8px; border: 1px solid var(--border); background: #f1f5f9; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
-        .calc-toggle button.active { background: var(--primary); color: white; border-color: var(--primary); }
-
         .calc-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media(min-width: 600px) { .calc-grid { grid-template-columns: 1fr 1fr; } }
         .calc-result { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
         .calc-result p { display: flex; justify-content: space-between; margin-bottom: 6px; }
         .calc-result p.total { font-weight: 700; color: var(--primary-dark); border-top: 1px solid var(--border); padding-top: 6px; font-size: 16px; }
+
+        .tax-notice { font-size: 11px; color: var(--text-muted); margin-top: 10px; line-height: 1.4; border-top: 1px dashed var(--border); padding-top: 8px; }
 
         .platforms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
         .platform-item { background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; text-decoration: none; color: var(--text-main); font-weight: 500; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
@@ -69,7 +66,7 @@
 
     <header>
         <h1>Kzzakupbot Hub</h1>
-        <p>Профессиональный инструмент поставщика: тендеры, аналитика и точные расчеты РК</p>
+        <p>Профессиональный инструмент поставщика: тендеры, аналитика и расчеты РК (НК РК 2026)</p>
     </header>
 
     <div class="container">
@@ -108,47 +105,43 @@
 
         <!-- Калькулятор маржи -->
         <div class="card">
-            <h3><span>🧮 Калькулятор прибыльности</span></h3>
-            
-            <div class="calc-toggle">
-                <button id="btnQuick" class="active" onclick="setCalcMode('quick')">Быстрый расчет</button>
-                <button id="btnAdvanced" onclick="setCalcMode('advanced')">Расширенный расчет</button>
-            </div>
+            <h3><span>🧮 Калькулятор прибыльности поставщика (НК РК 2026)</span></h3>
 
             <div class="calc-grid">
                 <div class="input-group">
-                    <label>Сумма контракта / лота (₸):</label>
+                    <label>Сумма контракта с НДС (₸):</label>
                     <input type="number" id="calcLotSum" value="5000000" oninput="calculateMargin()">
                 </div>
                 <div class="input-group">
-                    <label>Закупочная стоимость товаров (₸):</label>
+                    <label>Закупочная стоимость товара с НДС (₸):</label>
                     <input type="number" id="calcCost" value="3500000" oninput="calculateMargin()">
                 </div>
                 <div class="input-group">
                     <label>Доставка и логистика (₸):</label>
                     <input type="number" id="calcDelivery" value="150000" oninput="calculateMargin()">
                 </div>
-
-                <div class="input-group adv-field" style="display:none;">
-                    <label>Налоговый режим:</label>
+                <div class="input-group">
+                    <label>Налоговый режим (НК РК 2026):</label>
                     <select id="calcTaxMode" onchange="calculateMargin()">
-                        <option value="0.03">УСН (3%)</option>
-                        <option value="0.00">ОУР без НДС (0%)</option>
-                        <option value="0.12">ОУР с НДС (12%)</option>
+                        <option value="simp_4">СНР Упрощенка 4% (Базовая)</option>
+                        <option value="simp_2">СНР Упрощенка 2% (Решение маслихата)</option>
+                        <option value="simp_3">СНР Упрощенка 3%</option>
+                        <option value="our_vat16">ОУР с НДС 16% (Стандарт 2026)</option>
+                        <option value="our_novat">ОУР без НДС (Плательщик ИПН/КПН)</option>
                     </select>
                 </div>
-                <div class="input-group adv-field" style="display:none;">
-                    <label>Обеспечение исполнения договора (%):</label>
-                    <input type="number" id="calcSecContract" value="3" step="0.5" oninput="calculateMargin()">
-                </div>
-                <div class="input-group adv-field" style="display:none;">
-                    <label>Резерв на риски и комиссии (%):</label>
-                    <input type="number" id="calcRisk" value="2" step="0.5" oninput="calculateMargin()">
+                <div class="input-group">
+                    <label>Комиссия банковской гарантии (₸):</label>
+                    <input type="number" id="calcBankFee" value="25000" oninput="calculateMargin()">
                 </div>
             </div>
 
             <div class="calc-result" id="calcResultBox">
                 <!-- Динамический расчет -->
+            </div>
+
+            <div class="tax-notice">
+                ⚠️ <b>Примечание:</b> Расчеты приведены в соответствии с Налоговым кодексом РК 2026 года (базовая ставка СНР 4%, стандартный НДС 16%). Ставки СНР могут отличаться в зависимости от нормативных решений местных маслихатов.
             </div>
         </div>
 
@@ -179,65 +172,58 @@
     </div>
 
     <script>
-        let currentMode = 'quick';
-
         const SAMPLE_TENDERS = [
             { num: "12849102-1", title: "Закупка офисной бумаги А4 и канцтоваров", organizer: "ГУ Аппарат Акима г. Шымкент", sum: "850 000 ₸", region: "Шымкент", amount: 850000 },
             { num: "12849105-1", title: "Обслуживание компьютерной техники", organizer: "Управление образования г. Астана", sum: "5 800 000 ₸", region: "Астана", amount: 5800000 },
             { num: "CT-904", title: "Поставка строительных материалов (цемент, арматура)", organizer: "ТОО СтройСервис-Шымкент", sum: "14 000 000 ₸", region: "Шымкент", amount: 14000000 }
         ];
 
-        function setCalcMode(mode) {
-            currentMode = mode;
-            document.getElementById('btnQuick').classList.toggle('active', mode === 'quick');
-            document.getElementById('btnAdvanced').classList.toggle('active', mode === 'advanced');
-            
-            const advFields = document.querySelectorAll('.adv-field');
-            advFields.forEach(el => el.style.display = mode === 'advanced' ? 'flex' : 'none');
-            
-            calculateMargin();
-        }
-
         function calculateMargin() {
             let lotSum = parseFloat(document.getElementById('calcLotSum').value) || 0;
             let cost = parseFloat(document.getElementById('calcCost').value) || 0;
             let delivery = parseFloat(document.getElementById('calcDelivery').value) || 0;
+            let bankFee = parseFloat(document.getElementById('calcBankFee').value) || 0;
+            let taxMode = document.getElementById('calcTaxMode').value;
 
-            let taxes = 0;
-            let riskAndCommissions = 0;
-            let taxName = "УСН (3%)";
+            let taxAmount = 0;
+            let taxName = "";
 
-            if (currentMode === 'advanced') {
-                let taxRate = parseFloat(document.getElementById('calcTaxMode').value) || 0;
-                let riskRate = (parseFloat(document.getElementById('calcRisk').value) || 0) / 100;
-                taxes = lotSum * taxRate;
-                riskAndCommissions = lotSum * riskRate;
+            if (taxMode === 'simp_4') {
+                taxAmount = lotSum * 0.04;
+                taxName = "СНР Упрощенка (4%)";
+            } else if (taxMode === 'simp_2') {
+                taxAmount = lotSum * 0.02;
+                taxName = "СНР Упрощенка (2%)";
+            } else if (taxMode === 'simp_3') {
+                taxAmount = lotSum * 0.03;
+                taxName = "СНР Упрощенка (3%)";
+            } else if (taxMode === 'our_vat16') {
+                // Расчет НДС к уплате (Выходящий НДС - Входящий НДС от закупа)
+                let vatOut = lotSum - (lotSum / 1.16);
+                let vatIn = cost - (cost / 1.16);
+                let vatPayable = Math.max(0, vatOut - vatIn);
                 
-                let select = document.getElementById('calcTaxMode');
-                taxName = select.options[select.selectedIndex].text;
-            } else {
-                taxes = lotSum * 0.03;
+                // Примерный КПН/ИПН от облагаемого дохода
+                let incomeTax = Math.max(0, (lotSum - cost - delivery - bankFee) * 0.10);
+                taxAmount = vatPayable + incomeTax;
+                taxName = "НДС 16% к уплате + ИПН/КПН";
+            } else if (taxMode === 'our_novat') {
+                taxAmount = Math.max(0, (lotSum - cost - delivery - bankFee) * 0.10);
+                taxName = "ИПН/КПН (10%)";
             }
 
-            let directCosts = cost + delivery;
-            let totalExpenses = directCosts + taxes + riskAndCommissions;
+            let directCosts = cost + delivery + bankFee;
+            let totalExpenses = directCosts + taxAmount;
             let profit = lotSum - totalExpenses;
             let margin = lotSum > 0 ? (profit / lotSum) * 100 : 0;
             let breakeven = totalExpenses;
 
             let resultHTML = `
-                <p><span>Прямые затраты (закуп + доставка):</span> <strong>${directCosts.toLocaleString('ru-RU')} ₸</strong></p>
-                <p><span>Налоги (${taxName}):</span> <strong>${taxes.toLocaleString('ru-RU')} ₸</strong></p>
-            `;
-            
-            if (currentMode === 'advanced') {
-                resultHTML += `<p><span>Резервы и комиссии:</span> <strong>${riskAndCommissions.toLocaleString('ru-RU')} ₸</strong></p>`;
-            }
-
-            resultHTML += `
-                <p><span>Чистая расчетная прибыль:</span> <strong id="resProfit" style="color: #059669;">${profit.toLocaleString('ru-RU')} ₸</strong></p>
-                <p><span>Рентабельность (маржинальность):</span> <strong id="resMargin">${margin.toFixed(1)}%</strong></p>
-                <p class="total"><span>Точка безубыточности торгов:</span> <strong id="resBreakeven">${breakeven.toLocaleString('ru-RU')} ₸</strong></p>
+                <p><span>Прямые затраты (закуп + доставка + комиссия банка):</span> <strong>${directCosts.toLocaleString('ru-RU')} ₸</strong></p>
+                <p><span>Расчетный налог (${taxName}):</span> <strong>${Math.round(taxAmount).toLocaleString('ru-RU')} ₸</strong></p>
+                <p><span>Чистая расчетная прибыль:</span> <strong style="color: #059669;">${Math.round(profit).toLocaleString('ru-RU')} ₸</strong></p>
+                <p><span>Маржинальность:</span> <strong>${margin.toFixed(1)}%</strong></p>
+                <p class="total"><span>Точка безубыточности торгов:</span> <strong>${Math.round(breakeven).toLocaleString('ru-RU')} ₸</strong></p>
             `;
 
             document.getElementById('calcResultBox').innerHTML = resultHTML;
