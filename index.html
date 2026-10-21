@@ -38,8 +38,17 @@
 
         <!-- Hero / Search Section -->
         <section id="tenders" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
-            <h2 class="text-2xl font-bold text-slate-900 mb-2">Умный поиск тендеров и лотов</h2>
-            <p class="text-sm text-slate-600 mb-6">Фильтрация закупок по ключевым словам, регионам, бюджетам и требованиям площадок.</p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Умный поиск тендеров и лотов</h2>
+                    <p class="text-sm text-slate-600">Фильтрация закупок по ключевым словам, регионам и бюджетам.</p>
+                </div>
+                <div class="mt-2 sm:mt-0">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                        ● Демонстрационный режим (интеграция в разработке)
+                    </span>
+                </div>
+            </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                 <div>
@@ -68,7 +77,7 @@
             </div>
 
             <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
-                <button onclick="alert('Фильтры применены. Для автоматических пуш-уведомлений подключите Telegram-бот.')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
+                <button onclick="alert('Демонстрационный режим: поиск по тестовой выборке. Для сохранения фильтров используйте Telegram-бот.')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
                     Найти подходящие лоты
                 </button>
                 <a href="https://t.me/Kzzakupbot?start=region_all_bud_all" target="_blank" class="text-sm text-blue-600 hover:underline font-medium">
@@ -82,11 +91,11 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-4 border-b border-slate-100">
                 <div>
                     <h2 class="text-2xl font-bold text-slate-900">Финансовый калькулятор 2.0 (НК РК 2026)</h2>
-                    <p class="text-sm text-slate-600">Точный расчёт маржи, налогов и точки безубыточности с учётом актуальных норм.</p>
+                    <p class="text-sm text-slate-600">Расчёт маржи, налогов и потребности в оборотных средствах.</p>
                 </div>
                 <div class="mt-4 sm:mt-0">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        ● Аудит НК РК 2026 пройден
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300">
+                        ● Предварительный расчёт. Не является налоговой консультацией
                     </span>
                 </div>
             </div>
@@ -116,8 +125,8 @@
                             <input type="number" id="calcBankGuaranty" value="25000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Возвратный залог / обеспечение, ₸</label>
-                            <input type="number" id="calcCollateral" value="250000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" title="Не включается в расходы, учитывается как временно отвлеченные средства">
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Возвратное обеспечение договора, ₸</label>
+                            <input type="number" id="calcCollateral" value="250000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" title="Возвратный залог: не является расходом, но временно замораживает средства">
                         </div>
                     </div>
 
@@ -134,10 +143,10 @@
                             <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ставка маслихата СНР (%)</label>
                             <select id="calcMaslikhatRate" onchange="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="0.04" selected>4% (Базовая стандартная)</option>
-                                <option value="0.02">2% (Минимальная маслихата)</option>
+                                <option value="0.02">2% (Минимальная)</option>
                                 <option value="0.03">3% (Пониженная)</option>
                                 <option value="0.05">5% (Повышенная)</option>
-                                <option value="0.06">6% (Максимальная маслихата)</option>
+                                <option value="0.06">6% (Максимальная)</option>
                             </select>
                         </div>
                     </div>
@@ -156,16 +165,16 @@
                             <span class="text-slate-400">Налоговое обязательство:</span>
                             <span id="resTax" class="font-semibold text-amber-400">200 000 ₸</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Временно отвлеченные средства (залог):</span>
-                            <span id="resCollateral" class="font-semibold text-slate-300">250 000 ₸</span>
+                        <div class="flex justify-between items-center text-sm bg-slate-800/60 p-2.5 rounded-lg border border-slate-700">
+                            <span class="text-slate-300 font-medium">Оценочная потребность в оборотных средствах:</span>
+                            <span id="resCapitalNeed" class="font-bold text-sky-400 text-base">3 925 000 ₸</span>
                         </div>
                         <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
                             <span class="text-base font-medium text-slate-200">Операционная прибыль:</span>
                             <span id="resNetProfit" class="text-xl font-bold text-emerald-400">1 125 000 ₸</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-slate-300">Рентабельность / маржинальность:</span>
+                            <span class="text-sm font-medium text-slate-300">Операционная маржинальность:</span>
                             <span id="resMargin" class="text-lg font-bold text-blue-400">22.5%</span>
                         </div>
                         <div class="flex justify-between items-center text-sm border-t border-slate-800 pt-3">
@@ -175,18 +184,18 @@
                     </div>
 
                     <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400 space-y-1">
-                        <p>ℹ️ Возвратный залог не уменьшает налогооблагаемую базу и возвращается после исполнения договора.</p>
-                        <p>ℹ️ Социальные платежи (ВОСМС ИП 5 950 ₸, ОПВР/СО за штат) рассчитываются отдельно от операционной прибыли.</p>
+                        <p>ℹ️ <strong>Операционная прибыль</strong> рассчитана до уплаты личных социальных платежей ИП, налогов на ФОТ и административных расходов.</p>
+                        <p>ℹ️ <strong>Потребность в оборотных средствах</strong> = Прямые затраты + Возвратный залог. Фактическая потребность зависит от сроков оплаты и кассового разрыва.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Legal Disclaimers -->
             <div class="mt-8 pt-6 border-t border-slate-100 text-xs text-slate-500 space-y-2">
-                <p><strong>Правовое примечание (НК РК 2026):</strong></p>
-                <p>1. Условия применения специального налогового режима на основе упрощенной декларации регулируются <strong>статьей 723 НК РК</strong> (с учетом ограничений по видам деятельности и предельным доходам).</p>
-                <p>2. Базовая ставка налога составляет 4%, при этом местные представительные органы (маслихаты) вправе корректировать её в пределах ±50% в соответствии со <strong>статьей 726 НК РК</strong>.</p>
-                <p>3. Обязательные социальные платежи индивидуального предпринимателя включают фиксированные взносы на ОСМС и пенсионные отчисления, исчисляемые в установленном законом порядке отдельно от налогов на доход.</p>
+                <p><strong>Правовые условия (НК РК 2026):</strong></p>
+                <p>1. Применение специального налогового режима на основе упрощенной декларации регулируется <strong>статьей 723 НК РК</strong>.</p>
+                <p>2. Базовая ставка составляет 4%, местный маслихат по месту ведения деятельности вправе изменять её от 2% до 6% в соответствии со <strong>статьей 726 НК РК</strong>.</p>
+                <p>3. Данный расчет является предварительным ориентиром и не заменяет официальный бухгалтерский или налоговый учет.</p>
             </div>
         </section>
 
@@ -232,7 +241,6 @@
         }
 
         function calculateMargin() {
-            // Получаем значения полей с защитой от пустых строк и отрицательных чисел
             let contract = parseFloat(document.getElementById('calcContract').value) || 0;
             let goods = parseFloat(document.getElementById('calcGoods').value) || 0;
             let logistics = parseFloat(document.getElementById('calcLogistics').value) || 0;
@@ -241,17 +249,15 @@
             let taxMode = document.getElementById('calcTaxMode').value;
             let maslikhatRate = parseFloat(document.getElementById('calcMaslikhatRate').value) || 0.04;
 
-            // Защита от отрицательных значений
             if (contract < 0) contract = 0;
             if (goods < 0) goods = 0;
             if (logistics < 0) logistics = 0;
             if (bankGuaranty < 0) bankGuaranty = 0;
             if (collateral < 0) collateral = 0;
 
-            // Прямые затраты (возвратный залог не включается в расходы!)
             let directCosts = goods + logistics + bankGuaranty;
+            let capitalNeed = directCosts + collateral; // Потребность в оборотных средствах
 
-            // Расчет налога в зависимости от режима
             let taxAmount = 0;
             let effectiveTaxRate = 0;
 
@@ -259,34 +265,27 @@
                 effectiveTaxRate = maslikhatRate;
                 taxAmount = contract * effectiveTaxRate;
             } else if (taxMode === 'our_no_vat') {
-                // Условная ставка КПН/ИПН для ОУР без НДС (например, 10% от чистой прибыли или 3% упрощенно, берем стандарт 10% КПН/ИПН)
                 let taxableIncome = Math.max(0, contract - directCosts);
                 taxAmount = taxableIncome * 0.10;
             } else if (taxMode === 'our_vat') {
-                // ОУР с НДС 16%: упрощенный расчет налоговой нагрузки
                 let taxableIncome = Math.max(0, contract - directCosts);
-                taxAmount = taxableIncome * 0.20; // КПН 20% + учет НДС
+                taxAmount = taxableIncome * 0.20;
             }
 
-            // Операционная прибыль
             let netProfit = contract - directCosts - taxAmount;
-
-            // Рентабельность (маржинальность) от суммы контракта
             let margin = contract > 0 ? (netProfit / contract) * 100 : 0;
 
-            // Точка безубыточности (BEP): C_fixed / (1 - tax_rate) для СНР
             let bep = 0;
             if (taxMode === 'snr_simp') {
                 let denominator = (1 - effectiveTaxRate);
                 bep = denominator > 0 ? directCosts / denominator : directCosts;
             } else {
-                bep = directCosts; // упрощенно для ОУР
+                bep = directCosts;
             }
 
-            // Форматирование вывода
             document.getElementById('resDirectCosts').innerText = directCosts.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('resTax').innerText = taxAmount.toLocaleString('ru-RU') + ' ₸';
-            document.getElementById('resCollateral').innerText = collateral.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('resCapitalNeed').innerText = capitalNeed.toLocaleString('ru-RU') + ' ₸';
             
             let profitElem = document.getElementById('resNetProfit');
             profitElem.innerText = netProfit.toLocaleString('ru-RU') + ' ₸';
@@ -296,7 +295,6 @@
             document.getElementById('resBEP').innerText = bep > 0 ? Math.round(bep).toLocaleString('ru-RU') + ' ₸' : '0 ₸';
         }
 
-        // Первичный расчет при загрузке
         window.onload = function() {
             calculateMargin();
         };
