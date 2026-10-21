@@ -1,23 +1,17 @@
 import os
 import time
 import logging
-from threading import Thread
-from flask import Flask, send_from_directory
 from telebot import TeleBot, types
 import database
 
+# Настройка логов
 logging.basicConfig(level=logging.INFO)
 
-app = Flask(__name__, static_folder='.', static_url_path='')
-
-@app.route('/')
-def serve_index():
-    return send_from_directory('.', 'index.html')
-
-BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
+# Получаем токен из переменной окружения или вставьте его сюда напрямую
+BOT_TOKEN = os.getenv("BOT_TOKEN", "ВАШ_ТОКЕН_ОТ_BOTFATHER").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
-    logging.warning("⚠️ BOT_TOKEN не задан!")
+    logging.warning("⚠️ Внимание: BOT_TOKEN не задан!")
     bot = None
 else:
     bot = TeleBot(BOT_TOKEN)
@@ -66,19 +60,15 @@ else:
             parse_mode="Markdown", 
             reply_markup=inline_markup
         )
-        # Также отправляем нижнюю клавиатуру
         bot.send_message(
             message.chat.id,
             "Выберите интересующий раздел:",
             reply_markup=get_main_keyboard()
         )
 
-    # Обработчик всех нажатий кнопок нижней клавиатуры
     @bot.message_handler(func=lambda message: True)
     def handle_all_messages(message):
         text = message.text
-        user_id = message.from_user.id
-
         inline_markup = types.InlineKeyboardMarkup()
         inline_markup.add(types.InlineKeyboardButton("🌐 Открыть рабочий кабинет", url="https://kzzakupbot.onrender.com"))
 
@@ -95,21 +85,12 @@ else:
 
         bot.send_message(message.chat.id, ans, parse_mode="Markdown", reply_markup=inline_markup)
 
-def run_bot():
+if __name__ == "__main__":
     if bot:
-        print("Запуск Telegram-бота...")
+        print("Запуск автономного Telegram-бота на PythonAnywhere...")
         while True:
             try:
                 bot.infinity_polling(timeout=10, long_polling_timeout=5)
             except Exception as e:
                 logging.error(f"Ошибка бота, перезапуск через 5 сек: {e}")
                 time.sleep(5)
-
-if __name__ == "__main__":
-    if bot:
-        bot_thread = Thread(target=run_bot)
-        bot_thread.daemon = True
-        bot_thread.start()
-
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
