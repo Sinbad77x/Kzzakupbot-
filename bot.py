@@ -1,15 +1,23 @@
 import os
 import logging
+from threading import Thread
+from flask import Flask
 from telebot import TeleBot, types
 import database
 
 # Настройка логов
 logging.basicConfig(level=logging.INFO)
 
+# Инициализация Flask для удержания порта на Render
+app = Flask(__name__)
+
+@app.route('/')
+def health_check():
+    return "Kzzakupbot Hub & Worker is running!", 200
+
 # Получаем токен из переменных окружения
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 
-# Безопасная инициализация бота с проверкой токена
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
     logging.warning("⚠️ Внимание: BOT_TOKEN не задан или не содержит двоеточие! Telegram-бот не будет запущен.")
     bot = None
@@ -26,7 +34,6 @@ else:
         database.add_or_update_user(user_id, username, first_name)
 
         args = message.text.split()[1:] if len(message.text.split()) > 1 else []
-        
         region = "all"
         budget = "all"
 
@@ -50,13 +57,12 @@ else:
                 f"✅ **Ваш фильтр авто-уведомлений успешно сохранен!**\n\n"
                 f"📍 **Регион:** {region}\n"
                 f"💰 **Бюджет:** {budget}\n\n"
-                f"Мы отправим вам Push-уведомление, как только появится подходящая закупка."
+                f"Мы отправим вам уведомление, как только появится подходящая закупка."
             )
         else:
             reply_text = (
                 f"👋 Здравствуйте, {first_name}!\n\n"
-                f"Добро пожаловать в **Kzzakupbot** — ваш личный тендерный помощник по закупкам в Казахстане.\n\n"
-                f"Используйте наш веб-портал для точного расчета маржинальности и настройки персональных авто-уведомлений."
+                f"Добро пожаловать в **Kzzakupbot** — ваш личный тендерный помощник по закупкам в Казахстане."
             )
 
         markup = types.InlineKeyboardMarkup()
@@ -64,9 +70,18 @@ else:
         
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=markup)
 
-if __name__ == "__main__":
+def run_bot():
     if bot:
-        print("Запуск бота Kzzakupbot...")
+        print("Запуск Telegram-бота...")
         bot.infinity_polling()
-    else:
-        print("Бот пропущен (нет токена). Веб-сервер продолжает работу.")
+
+if __name__ == "__main__":
+    # Запускаем бота в отдельном потоке, чтобы он не блокировал веб-сервер
+    if bot:
+        bot_thread = Thread(target=run_bot)
+        bot_thread.daemon = True
+        bot_thread.start()
+
+    # Порт для Render выделяется автоматически через переменные окружения
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
