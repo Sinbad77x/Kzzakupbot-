@@ -1,14 +1,10 @@
 import os
 import time
 import threading
-import re
-import requests
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from bs4 import BeautifulSoup
 import telebot
 from telebot import types
 
-# Попытка импорта cloudscraper для обхода Cloudflare
 try:
     import cloudscraper
     has_scraper = True
@@ -50,9 +46,9 @@ def run_server():
     server = HTTPServer(('0.0.0.0', PORT), SimpleHandler)
     server.serve_forever()
 
-# --- ФАЛЛБЭК ДАННЫЕ (Гарантия отображения ленты при сбое парсинга) ---
+# Лента лотов для каждой площадки
 DEMO_TENDERS = {
-    "🏛 Госзакупки РК": [
+    "🏛 Госзакупки": [
         {"num": "12849102-1", "title": "Закупка офисной бумаги А4 и канцтоваров для государственных нужд", "organizer": "ГУ Аппарат Акима г. Шымкент", "sum": "2 450 000 ₸", "link": "https://goszakup.gov.kz/ru/search/announce"},
         {"num": "12849105-1", "title": "Услуги по техническому обслуживанию компьютерной техники и ЛВС", "organizer": "Управление образования г. Астана", "sum": "5 800 000 ₸", "link": "https://goszakup.gov.kz/ru/search/announce"},
         {"num": "12849110-1", "title": "Поставка медицинских расходных материалов (перчатки, маски)", "organizer": "ГКП Городская больница №1", "sum": "11 200 000 ₸", "link": "https://goszakup.gov.kz/ru/search/announce"}
@@ -78,51 +74,10 @@ DEMO_TENDERS = {
     ]
 }
 
-def fetch_live_goszakup():
-    url = "https://goszakup.gov.kz/ru/search/announce"
-    tenders = []
-    try:
-        if has_scraper:
-            scraper = cloudscraper.create_scraper()
-            res = scraper.get(url, timeout=10)
-        else:
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            res = requests.get(url, headers=headers, timeout=10)
-            
-        if res.status_code == 200:
-            soup = BeautifulSoup(res.text, 'html.parser')
-            rows = soup.select('table.table tbody tr')
-            for row in rows:
-                cols = row.find_all('td')
-                if len(cols) >= 8:
-                    link_elem = row.find('a')
-                    num = link_elem.text.strip() if link_elem else cols[0].text.strip()
-                    title = " ".join(cols[1].text.strip().split())
-                    organizer = " ".join(cols[3].text.strip().split())
-                    sum_val = " ".join(cols[7].text.strip().split())
-                    link = link_elem['href'] if link_elem and 'href' in link_elem.attrs else url
-                    
-                    tenders.append({
-                        'num': num,
-                        'title': title,
-                        'organizer': organizer,
-                        'sum': sum_val,
-                        'link': link
-                    })
-    except Exception as e:
-        print(f"Ошибка live-парсинга: {e}")
-    return tenders[:5]
-
 def get_platform_tenders(platform_name):
-    # Если запрашиваются Госзакупки — пробуем сначала спарсить вживую
-    if platform_name in ["🔥 Все новые лоты", "🏛 Госзакупки РК"]:
-        live_data = fetch_live_goszakup()
-        if live_data:
-            return live_data, "Живой поток Госзакупок РК"
-        return DEMO_TENDERS["🏛 Госзакупки РК"], "Лента Госзакупок РК"
-    
-    # Для остальных площадок выдаем свежую ленту из реестра
-    data = DEMO_TENDERS.get(platform_name, DEMO_TENDERS["🏛 Госзакупки РК"])
+    if platform_name == "🔥 Все новые лоты":
+        return DEMO_TENDERS["🏛 Госзакупки"], "Лента всех новых лотов"
+    data = DEMO_TENDERS.get(platform_name, DEMO_TENDERS["🏛 Госзакупки"])
     return data, f"Лента площадки «{platform_name}»"
 
 if bot:
@@ -131,7 +86,7 @@ if bot:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         
         btn_all = types.KeyboardButton("🔥 Все новые лоты")
-        btn_gos = types.KeyboardButton("🏛 Госзакупки РК")
+        btn_gos = types.KeyboardButton("🏛 Госзакупки")
         btn_sk = types.KeyboardButton("🏢 Самрук-Қазына")
         btn_pharm = types.KeyboardButton("💊 СК-Фармация")
         btn_fms = types.KeyboardButton("🏥 ФСМС")
@@ -156,11 +111,10 @@ if bot:
         text = message.text.strip()
         
         valid_keys = [
-            "🔥 Все новые лоты", "🏛 Госзакупки РК", "🏢 Самрук-Қазына", 
+            "🔥 Все новые лоты", "🏛 Госзакупки", "🏢 Самрук-Қазына", 
             "💊 СК-Фармация", "🏥 ФСМС", "🌐 Mitwork", "🛒 Caspy Tender", "📊 ETS-Тендер"
         ]
         
-        # Если нажата одна из площадок
         if text in valid_keys:
             bot.send_message(message.chat.id, f"🔍 Формирую ленту свежих лотов для «{text}»...")
             
