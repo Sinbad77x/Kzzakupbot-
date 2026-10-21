@@ -19,16 +19,6 @@ if TOKEN:
     except Exception as e:
         print(f"Ошибка инициализации бота: {e}")
 
-PLATFORMS = {
-    "🏛 Госзакупки": "https://goszakup.gov.kz/ru/search/announce",
-    "🏢 Самрук-Қазына": "https://zakup.sk.kz",
-    "💊 СК-Фармация": "https://sk-pharmacy.kz",
-    "🏥 ФСМС": "https://fms.kz",
-    "🌐 Mitwork": "https://mitwork.kz",
-    "🛒 Caspy Tender": "https://caspytender.kz",
-    "📊 ETS-Тендер": "https://ets-tender.kz"
-}
-
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
@@ -57,77 +47,124 @@ def run_server():
 def format_date(date_str):
     return re.sub(r'(\d{4}-\d{2}-\d{2})(\d{2}:\d{2})', r'\1 \2', date_str)
 
-def get_goszakup_tenders(limit=10):
-    url = PLATFORMS["🏛 Госзакупки"]
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    }
+# --- ПАРСЕРЫ ПЛОЩАДОК ---
+
+def parse_goszakup(limit=5):
+    url = "https://goszakup.gov.kz/ru/search/announce"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    tenders = []
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        tenders = []
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
+        res = requests.get(url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
             rows = soup.select('table.table tbody tr')
-            
             for row in rows:
                 cols = row.find_all('td')
                 if len(cols) >= 8:
                     link_elem = row.find('a')
-                    anno_num = link_elem.text.strip() if link_elem else cols[0].text.strip()
-                    
+                    num = link_elem.text.strip() if link_elem else cols[0].text.strip()
                     title = " ".join(cols[1].text.strip().split())
                     organizer = " ".join(cols[3].text.strip().split())
-                    method = " ".join(cols[4].text.strip().split())
-                    start_date = format_date("".join(cols[5].text.strip().split()))
-                    end_date = format_date("".join(cols[6].text.strip().split()))
                     sum_val = " ".join(cols[7].text.strip().split())
-                    
-                    # Без фильтрации по ключевым словам — берем все свежие лоты подряд!
                     tenders.append({
-                        'platform': 'Госзакупки РК (goszakup.gov.kz)',
-                        'num': anno_num,
-                        'title': title,
-                        'organizer': organizer,
-                        'method': method,
-                        'start_date': start_date,
-                        'end_date': end_date,
-                        'sum': sum_val,
-                        'link': url
+                        'num': num, 'title': title, 'organizer': organizer, 'sum': sum_val, 'link': url
                     })
-        return tenders[:limit]
     except Exception as e:
-        print(f"Ошибка парсинга: {e}")
-        return []
+        print(f"Goszakup error: {e}")
+    return tenders[:limit]
 
-def send_all_tenders(target_chat_id):
+def parse_generic_platform(platform_name, url, limit=5):
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    tenders = []
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            # Поиск объявлений, лотов и карточек на странице
+            items = soup.find_all(['div', 'tr', 'article'], class_=re.compile(r'(tender|lot|item|announce|card|row)', re.I))
+            for idx, item in enumerate(items):
+                text = " ".join(item.text.split())
+                if len(text) > 20:
+                    link_tag = item.find('a')
+                    link = link_tag['href'] if link_tag and 'href' in link_tag.attrs else url
+                    if link.startswith('/'):
+                        domain = "/".join(url.split('/')[:3])
+                        link = domain + link
+                    
+                    tenders.append({
+                        'num': f"№{idx+1}",
+                        'title': text[:120] + "..." if len(text) > 120 else text,
+                        'organizer': platform_name,
+                        'sum': 'Уточняется на портале',
+                        'link': link
+                    })
+                if len(tenders) >= limit:
+                    break
+    except Exception as e:
+        print(f"{platform_name} error: {e}")
+    return tenders
+
+def get_platform_tenders(platform_key):
+    if platform_key == "🏛 Госзакупки":
+        return parse_goszakup()
+    elif platform_key == "🏢 Самрук-Қазына":
+        return parse_generic_platform("Самрук-Қазына", "https://zakup.sk.kz")
+    elif platform_key == "💊 СК-Фармация":
+        return parse_generic_platform("СК-Фармация", "https://sk-pharmacy.kz")
+    elif platform_key == "🏥 ФСМС":
+        return parse_generic_platform("ФСМС", "https://fms.kz")
+    elif platform_key == "🌐 Mitwork":
+        return parse_generic_platform("Mitwork", "https://mitwork.kz")
+    elif platform_key == "🛒 Caspy Tender":
+        return parse_generic_platform("Caspy Tender", "https://caspytender.kz")
+    elif platform_key == "📊 ETS-Тендер":
+        return parse_generic_platform("ETS-Тендер", "https://ets-tender.kz")
+    return []
+
+def send_tenders(target_chat_id, platform_name):
     if not bot:
         return
     
-    tenders = get_goszakup_tenders(limit=8)
+    tenders = get_platform_tenders(platform_name)
     
     if not tenders:
-        bot.send_message(target_chat_id, "⚠️ Не удалось загрузить свежие лоты. Попробуйте повторить запрос позже.")
+        # Если автоматический парсер страницы вернул пустой список из-за скриптов/динамической загрузки
+        text = (
+            f"📢 **Площадка:** {platform_name}\n\n"
+            f"Свежие публичные объявления проверяются напрямую.\n"
+            f"🔗 [Открыть актуальный список лотов]({get_platform_url(platform_name)})"
+        )
+        bot.send_message(target_chat_id, text, parse_mode="Markdown", disable_web_page_preview=True)
         return
 
-    bot.send_message(target_chat_id, f"📢 **Последние {len(tenders)} новых объявлений с госзакупок:**")
+    bot.send_message(target_chat_id, f"📢 **Свежие закупки с площадки «{platform_name}»:**")
 
     for t in tenders:
         msg = (
-            f"🎯 **Лоты портала**\n"
-            f"🌐 **Источник:** {t['platform']}\n"
-            f"🔹 **№ лота:** `{t['num']}`\n"
+            f"🎯 **Лоты и закупки**\n"
+            f"🔹 **Обозначение:** `{t['num']}`\n"
             f"📝 **Предмет:** {t['title']}\n"
-            f"🏢 **Организатор:** {t['organizer']}\n"
-            f"📋 **Способ:** {t['method']}\n"
-            f"📅 **Прием:** с {t['start_date']} по {t['end_date']}\n"
-            f"₸ **Сумма:** `{t['sum']} ₸`\n\n"
-            f"🔗 [Открыть лот на сайте]({t['link']})"
+            f"🏢 **Организатор/Источник:** {t['organizer']}\n"
+            f"₸ **Сумма:** `{t['sum']}`\n\n"
+            f"🔗 [Перейти к лоту на портале]({t['link']})"
         )
         try:
             bot.send_message(target_chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True)
             time.sleep(0.3)
         except Exception as e:
             print(f"Ошибка отправки: {e}")
+
+def get_platform_url(key):
+    urls = {
+        "🏛 Госзакупки": "https://goszakup.gov.kz/ru/search/announce",
+        "🏢 Самрук-Қазына": "https://zakup.sk.kz",
+        "💊 СК-Фармация": "https://sk-pharmacy.kz",
+        "🏥 ФСМС": "https://fms.kz",
+        "🌐 Mitwork": "https://mitwork.kz",
+        "🛒 Caspy Tender": "https://caspytender.kz",
+        "📊 ETS-Тендер": "https://ets-tender.kz"
+    }
+    return urls.get(key, "https://goszakup.gov.kz")
 
 if bot:
     @bot.message_handler(commands=['start', 'tenders', 'menu'])
@@ -150,53 +187,31 @@ if bot:
         
         bot.send_message(
             message.chat.id, 
-            "Выберите интересующую площадку из меню ниже для просмотра свежих торгов или прямого перехода:", 
+            "Выберите интересующую площадку из меню ниже для мгновенного получения списка новых лотов:", 
             reply_markup=markup
         )
 
     @bot.message_handler(func=lambda message: message.text == "🔥 Все новые лоты")
     def handle_all_tenders(message):
-        bot.send_message(message.chat.id, "🔍 Загружаю последние опубликованные лоты без фильтров...")
-        send_all_tenders(message.chat.id)
+        bot.send_message(message.chat.id, "🔍 Сканирую портал Госзакупок...")
+        send_tenders(message.chat.id, "🏛 Госзакупки")
 
-    @bot.message_handler(func=lambda message: message.text in PLATFORMS.keys())
-    def handle_single_platform(message):
+    @bot.message_handler(func=lambda message: message.text in [
+        "🏛 Госзакупки", "🏢 Самрук-Қазына", "💊 СК-Фармация", 
+        "🏥 ФСМС", "🌐 Mitwork", "🛒 Caspy Tender", "📊 ETS-Тендер"
+    ])
+    def handle_platform_click(message):
         name = message.text
-        link = PLATFORMS[name]
-        
-        if name == "🏛 Госзакупки":
-            bot.send_message(message.chat.id, "🔍 Получаю свежие лоты с портала Госзакупок...")
-            send_all_tenders(message.chat.id)
-        else:
-            text = (
-                f"📌 **Торговая площадка:** {name}\n\n"
-                f"Из-за ограничений безопасности и требования ЭЦП для просмотра всех закуп заходите напрямую на официальный портал:\n\n"
-                f"🔗 [Перейти на {name}]({link})"
-            )
-            bot.send_message(message.chat.id, text, parse_mode="Markdown", disable_web_page_preview=True)
-
-def background_checker():
-    while True:
-        try:
-            if CHAT_ID and bot:
-                send_all_tenders(CHAT_ID)
-        except Exception as e:
-            print(f"Ошибка в фоновом цикле: {e}")
-        time.sleep(7200)
+        bot.send_message(message.chat.id, f"🔍 Получаю свежие закупки с площадки {name}...")
+        send_tenders(message.chat.id, name)
 
 if __name__ == "__main__":
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    print(f"Веб-сервер запущен на порту {PORT}")
     
-    if CHAT_ID and bot:
-        checker_thread = threading.Thread(target=background_checker, daemon=True)
-        checker_thread.start()
-
     if bot:
         print("Telegram бот слушает команды...")
         bot.infinity_polling(timeout=60, long_polling_timeout=60)
     else:
-        print("TELEGRAM_BOT_TOKEN не задан.")
         while True:
             time.sleep(3600)
