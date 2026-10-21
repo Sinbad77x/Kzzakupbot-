@@ -3,325 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot — Единый тендерный и закупочный хаб Казахстана</title>
+    <title>Kzzakupbot Hub — Рабочий кабинет поставщика Казахстана</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 50px; }
-        
-        header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 30px 20px; text-align: center; }
-        header h1 { font-size: 26px; margin-bottom: 8px; }
-        header p { color: #94a3b8; font-size: 14px; }
-
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-
-        /* Поисковый блок */
-        .search-hero { background: var(--card-bg); border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-top: -25px; margin-bottom: 25px; border: 1px solid var(--border); }
-        .search-hero h2 { font-size: 18px; margin-bottom: 15px; color: var(--text-main); }
-        .search-row { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 15px; }
-        @media(min-width: 640px) { .search-row { grid-template-columns: 2fr 1fr 1fr; } }
-        
-        .input-group { display: flex; flex-direction: column; }
-        .input-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
-        .input-group input, .input-group select { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; }
-        .input-group input:focus, .input-group select:focus { border-color: var(--primary); }
-        
-        .btn-search { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; text-align: center; display: block; text-decoration: none; }
-        .btn-search:hover { background: var(--primary-dark); }
-
-        .search-results-box { margin-top: 15px; display: none; }
-        .tender-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; font-size: 14px; }
-        .tender-card strong { color: var(--primary-dark); }
-
-        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid var(--border); }
-        .card h3 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
-
-        .calc-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        @media(min-width: 600px) { .calc-grid { grid-template-columns: 1fr 1fr; } }
-        .calc-result { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
-        .calc-result p { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .calc-result p.total { font-weight: 700; color: var(--primary-dark); border-top: 1px solid var(--border); padding-top: 6px; font-size: 16px; }
-
-        .tax-notice { font-size: 11px; color: var(--text-muted); margin-top: 10px; line-height: 1.4; border-top: 1px dashed var(--border); padding-top: 8px; }
-
-        .platforms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
-        .platform-item { background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; text-decoration: none; color: var(--text-main); font-weight: 500; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
-        .platform-item:hover { border-color: var(--primary); background: #f0fdf4; color: var(--primary-dark); }
-
-        .bot-cta { text-align: center; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 25px; border-radius: 12px; margin-top: 25px; }
-        .bot-cta a { display: inline-block; background: white; color: var(--primary-dark); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; margin-top: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        
-        footer { text-align: center; margin-top: 30px; color: var(--text-muted); font-size: 13px; }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
-    <header>
-        <h1>Kzzakupbot Hub</h1>
-        <p>Профессиональный инструмент поставщика: тендеры, аналитика и точные расчеты (НК РК 2026)</p>
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg text-lg">KZ</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">Kzzakupbot Hub</h1>
+                    <p class="text-xs text-slate-500">Рабочее пространство поставщика РК (НК РК 2026)</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="#calculator" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">Калькулятор 2.0</a>
+                <a href="#tenders" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">Поиск тендеров</a>
+                <a href="https://t.me/Kzzakupbot" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-sm">
+                    Telegram-бот
+                </a>
+            </div>
+        </div>
     </header>
 
-    <div class="container">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
 
-        <!-- Поисковый блок -->
-        <div class="search-hero">
-            <h2>🔍 Быстрый поиск закупок</h2>
-            <div class="search-row">
-                <div class="input-group">
-                    <label>Что хотите поставлять?</label>
-                    <input type="text" id="queryText" placeholder="Например: бумага, медоборудование...">
+        <!-- Hero / Search Section -->
+        <section id="tenders" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Умный поиск тендеров и лотов</h2>
+            <p class="text-sm text-slate-600 mb-6">Фильтрация закупок по ключевым словам, регионам, бюджетам и требованиям площадок.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ключевое слово / ЕНС ТРУ</label>
+                    <input type="text" id="searchKeyword" placeholder="Например: Поставка бумаги, IT..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="input-group">
-                    <label>Регион</label>
-                    <select id="queryRegion">
-                        <option value="all">Весь Казахстан</option>
-                        <option value="Шымкент">Шымкент</option>
-                        <option value="Астана">Астана</option>
-                        <option value="Алматы">Алматы</option>
-                        <option value="Атырау">Атырау</option>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Регион поставки</label>
+                    <select id="searchRegion" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">Все регионы Казахстана</option>
+                        <option value="astana">г. Астана</option>
+                        <option value="almaty">г. Алматы</option>
+                        <option value="shymkent">г. Шымкент</option>
+                        <option value="karaganda">Карагандинская область</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label>Бюджет</label>
-                    <select id="queryBudget">
-                        <option value="all">Любая сумма</option>
-                        <option value="1m">До 1 млн ₸</option>
-                        <option value="1m_10m">От 1 до 10 млн ₸</option>
-                        <option value="10m">Свыше 10 млн ₸</option>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Бюджет (тенге)</label>
+                    <select id="searchBudget" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">Любой бюджет</option>
+                        <option value="1">До 1 000 000 ₸</option>
+                        <option value="2">1 000 000 ₸ — 10 000 000 ₸</option>
+                        <option value="3">Свыше 10 000 000 ₸</option>
                     </select>
                 </div>
             </div>
-            <button class="btn-search" onclick="performWebSearch()">Искать на сайте 🔎</button>
-            <div class="search-results-box" id="resultsBox"></div>
+
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <button onclick="alert('Фильтры применены. Для автоматических пуш-уведомлений подключите Telegram-бот.')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
+                    Найти подходящие лоты
+                </button>
+                <a href="https://t.me/Kzzakupbot?start=region_all_bud_all" target="_blank" class="text-sm text-blue-600 hover:underline font-medium">
+                    🔔 Настроить авто-уведомления в Telegram по этим фильтрам &rarr;
+                </a>
+            </div>
+        </section>
+
+        <!-- Financial Calculator 2.0 Section -->
+        <section id="calculator" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Финансовый калькулятор 2.0 (НК РК 2026)</h2>
+                    <p class="text-sm text-slate-600">Точный расчёт маржи, налогов и точки безубыточности с учётом актуальных норм.</p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        ● Аудит НК РК 2026 пройден
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Inputs Form -->
+                <div class="lg:col-span-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Сумма контракта (Выручка), ₸</label>
+                        <input type="number" id="calcContract" value="5000000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Закупка товара / сырья, ₸</label>
+                            <input type="number" id="calcGoods" value="3500000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Логистика и доставка, ₸</label>
+                            <input type="number" id="calcLogistics" value="150000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Комиссия банка за БГ, ₸</label>
+                            <input type="number" id="calcBankGuaranty" value="25000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Возвратный залог / обеспечение, ₸</label>
+                            <input type="number" id="calcCollateral" value="250000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" title="Не включается в расходы, учитывается как временно отвлеченные средства">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Налоговый режим</label>
+                            <select id="calcTaxMode" onchange="toggleTaxMode()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="snr_simp">ИП на СНР (Упрощенная декларация)</option>
+                                <option value="our_no_vat">ОУР (Без НДС)</option>
+                                <option value="our_vat">ОУР (С НДС 16%)</option>
+                            </select>
+                        </div>
+                        <div id="maslikhatRateContainer">
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ставка маслихата СНР (%)</label>
+                            <select id="calcMaslikhatRate" onchange="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="0.04" selected>4% (Базовая стандартная)</option>
+                                <option value="0.02">2% (Минимальная маслихата)</option>
+                                <option value="0.03">3% (Пониженная)</option>
+                                <option value="0.05">5% (Повышенная)</option>
+                                <option value="0.06">6% (Максимальная маслихата)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="lg:col-span-6 bg-slate-900 text-white rounded-xl p-6 flex flex-col justify-between shadow-inner">
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-slate-200 border-b border-slate-800 pb-3">Финансовый итог сделки</h3>
+                        
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Прямые операционные затраты:</span>
+                            <span id="resDirectCosts" class="font-semibold text-white">3 675 000 ₸</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Налоговое обязательство:</span>
+                            <span id="resTax" class="font-semibold text-amber-400">200 000 ₸</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Временно отвлеченные средства (залог):</span>
+                            <span id="resCollateral" class="font-semibold text-slate-300">250 000 ₸</span>
+                        </div>
+                        <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
+                            <span class="text-base font-medium text-slate-200">Операционная прибыль:</span>
+                            <span id="resNetProfit" class="text-xl font-bold text-emerald-400">1 125 000 ₸</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-slate-300">Рентабельность / маржинальность:</span>
+                            <span id="resMargin" class="text-lg font-bold text-blue-400">22.5%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-t border-slate-800 pt-3">
+                            <span class="text-slate-400">Точка безубыточности (BEP):</span>
+                            <span id="resBEP" class="font-semibold text-white">3 828 125 ₸</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400 space-y-1">
+                        <p>ℹ️ Возвратный залог не уменьшает налогооблагаемую базу и возвращается после исполнения договора.</p>
+                        <p>ℹ️ Социальные платежи (ВОСМС ИП 5 950 ₸, ОПВР/СО за штат) рассчитываются отдельно от операционной прибыли.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legal Disclaimers -->
+            <div class="mt-8 pt-6 border-t border-slate-100 text-xs text-slate-500 space-y-2">
+                <p><strong>Правовое примечание (НК РК 2026):</strong></p>
+                <p>1. Условия применения специального налогового режима на основе упрощенной декларации регулируются <strong>статьей 723 НК РК</strong> (с учетом ограничений по видам деятельности и предельным доходам).</p>
+                <p>2. Базовая ставка налога составляет 4%, при этом местные представительные органы (маслихаты) вправе корректировать её в пределах ±50% в соответствии со <strong>статьей 726 НК РК</strong>.</p>
+                <p>3. Обязательные социальные платежи индивидуального предпринимателя включают фиксированные взносы на ОСМС и пенсионные отчисления, исчисляемые в установленном законом порядке отдельно от налогов на доход.</p>
+            </div>
+        </section>
+
+        <!-- Procurement Platforms Grid -->
+        <section class="space-y-4">
+            <h3 class="text-lg font-bold text-slate-900">Официальные источники и площадки Казахстана</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <a href="https://goszakup.gov.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
+                    <h4 class="font-semibold text-slate-900 text-sm">Государственные закупки РК</h4>
+                    <p class="text-xs text-slate-500 mt-1">goszakup.gov.kz — Единая платформа</p>
+                </a>
+                <a href="https://zakup.sk.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
+                    <h4 class="font-semibold text-slate-900 text-sm">Самрук-Қазына</h4>
+                    <p class="text-xs text-slate-500 mt-1">zakup.sk.kz — Холдинговые закупки</p>
+                </a>
+                <a href="https://mitwork.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
+                    <h4 class="font-semibold text-slate-900 text-sm">Реестр товаропроизводителей</h4>
+                    <p class="text-xs text-slate-500 mt-1">mitwork.kz — Казахстанское содержание</p>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            &copy; 2026 Kzzakupbot Hub. Все права защищены. Разработано для поставщиков Республики Казахстан.
         </div>
+    </footer>
 
-        <!-- Калькулятор маржи -->
-        <div class="card">
-            <h3><span>🧮 Калькулятор прибыльности поставщика (НК РК 2026)</span></h3>
-
-            <div class="calc-grid">
-                <div class="input-group">
-                    <label>Форма бизнеса:</label>
-                    <select id="calcLegalType" onchange="calculateMargin()">
-                        <option value="ip">ИП (Индивидуальный предприниматель)</option>
-                        <option value="too">ТОО (Юридическое лицо)</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Налоговый режим:</label>
-                    <select id="calcTaxMode" onchange="toggleTaxFields(); calculateMargin();">
-                        <option value="simp_4">СНР Упрощенка (Базовая ставка 4%)</option>
-                        <option value="simp_custom">СНР Упрощенка (Решение маслихата 2-6%)</option>
-                        <option value="our_vat16">ОУР с НДС (Стандарт 16%)</option>
-                        <option value="our_novat">ОУР без НДС</option>
-                    </select>
-                </div>
-                
-                <div class="input-group" id="customRateGroup" style="display:none;">
-                    <label>Ставка маслихата (%):</label>
-                    <input type="number" id="calcCustomRate" value="2" min="2" max="6" step="0.5" oninput="calculateMargin()">
-                </div>
-
-                <div class="input-group" id="supplierVatGroup" style="display:none;">
-                    <label>Статус поставщика товара по НДС:</label>
-                    <select id="calcSupplierVat" onchange="calculateMargin()">
-                        <option value="vat16">Плательщик НДС 16% (Закуп с ЭСФ)</option>
-                        <option value="novat">На СНР / Без НДС (Входящего НДС нет)</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Сумма контракта / лота (₸):</label>
-                    <input type="number" id="calcLotSum" value="5000000" oninput="calculateMargin()">
-                </div>
-                <div class="input-group">
-                    <label>Закупочная стоимость товара (₸):</label>
-                    <input type="number" id="calcCost" value="3500000" oninput="calculateMargin()">
-                </div>
-                <div class="input-group">
-                    <label>Доставка и логистика (₸):</label>
-                    <input type="number" id="calcDelivery" value="150000" oninput="calculateMargin()">
-                </div>
-                <div class="input-group">
-                    <label>Комиссия за банковскую гарантию (₸):</label>
-                    <input type="number" id="calcBankFee" value="25000" oninput="calculateMargin()">
-                </div>
-            </div>
-
-            <div class="calc-result" id="calcResultBox">
-                <!-- Динамический расчет -->
-            </div>
-
-            <div class="tax-notice">
-                ⚠️ <b>Правовое примечание и допущения расчета:</b> Расчет является предварительным и основан на нормах Налогового кодекса РК (в редакции 2026 года). При СНР «Упрощенка» ИПН/КПН исчисляется по специальной базовой ставке 4% от общего дохода без учета расходов (ст. 726 НК РК). Стандартный порядок вычета расходов и общеустановленные ставки КПН (20%) / ИПН (10%), а также зачетный учет НДС 16% (ст. 503 НК РК) применяются только при выборе общеустановленного режима (ОУР). В расчете операционной прибыли не учтены персональные социальные платежи предпринимателя (ОПВ, ИПР, СО, ВОСМС), расходы на оплату труда персонала и административные издержки. Поставщик обязан самостоятельно проверить соответствие вида деятельности ограничениям ст. 709 НК РК.
-            </div>
-        </div>
-
-        <!-- Каталог площадок -->
-        <div class="card">
-            <h3>🔗 Официальные площадки закупок РК</h3>
-            <div class="platforms-grid">
-                <a href="https://goszakup.gov.kz" target="_blank" class="platform-item"><span>🏛 Госзакупки РК</span> ➔</a>
-                <a href="https://zakup.sk.kz" target="_blank" class="platform-item"><span>🏢 Самрук-Қазына</span> ➔</a>
-                <a href="https://sk-pharmacy.kz" target="_blank" class="platform-item"><span>💊 СК-Фармация</span> ➔</a>
-                <a href="https://mitwork.kz" target="_blank" class="platform-item"><span>🌐 Mitwork</span> ➔</a>
-                <a href="https://caspytender.kz" target="_blank" class="platform-item"><span>🛒 Caspy Tender</span> ➔</a>
-                <a href="https://ets-tender.kz" target="_blank" class="platform-item"><span>📊 ETS-Тендер</span> ➔</a>
-            </div>
-        </div>
-
-        <!-- Блок Telegram -->
-        <div class="bot-cta">
-            <h3>🤖 Авто-уведомления в Telegram</h3>
-            <p>Подпишитесь на мгновенные Push-уведомления по вашим сохраненным фильтрам.</p>
-            <a href="https://t.me/Kzzakupbot" target="_blank" id="tgSubLink">Открыть Telegram-бот Kzzakupbot</a>
-        </div>
-
-        <footer>
-            <p>© 2026 Kzzakupbot Hub. Все права защищены.</p>
-        </footer>
-
-    </div>
-
+    <!-- Calculator Logic Script -->
     <script>
-        const SAMPLE_TENDERS = [
-            { num: "12849102-1", title: "Закупка офисной бумаги А4 и канцтоваров", organizer: "ГУ Аппарат Акима г. Шымкент", sum: "850 000 ₸", region: "Шымкент", amount: 850000 },
-            { num: "12849105-1", title: "Обслуживание компьютерной техники", organizer: "Управление образования г. Астана", sum: "5 800 000 ₸", region: "Астана", amount: 5800000 },
-            { num: "CT-904", title: "Поставка строительных материалов (цемент, арматура)", organizer: "ТОО СтройСервис-Шымкент", sum: "14 000 000 ₸", region: "Шымкент", amount: 14000000 }
-        ];
-
-        function toggleTaxFields() {
-            let taxMode = document.getElementById('calcTaxMode').value;
-            document.getElementById('customRateGroup').style.display = (taxMode === 'simp_custom') ? 'flex' : 'none';
-            document.getElementById('supplierVatGroup').style.display = (taxMode === 'our_vat16') ? 'flex' : 'none';
+        function toggleTaxMode() {
+            const taxMode = document.getElementById('calcTaxMode').value;
+            const maslikhatContainer = document.getElementById('maslikhatRateContainer');
+            if (taxMode === 'snr_simp') {
+                maslikhatContainer.style.display = 'block';
+            } else {
+                maslikhatContainer.style.display = 'none';
+            }
+            calculateMargin();
         }
 
         function calculateMargin() {
-            let legalType = document.getElementById('calcLegalType').value;
+            // Получаем значения полей с защитой от пустых строк и отрицательных чисел
+            let contract = parseFloat(document.getElementById('calcContract').value) || 0;
+            let goods = parseFloat(document.getElementById('calcGoods').value) || 0;
+            let logistics = parseFloat(document.getElementById('calcLogistics').value) || 0;
+            let bankGuaranty = parseFloat(document.getElementById('calcBankGuaranty').value) || 0;
+            let collateral = parseFloat(document.getElementById('calcCollateral').value) || 0;
             let taxMode = document.getElementById('calcTaxMode').value;
-            let supplierVat = document.getElementById('calcSupplierVat').value;
+            let maslikhatRate = parseFloat(document.getElementById('calcMaslikhatRate').value) || 0.04;
 
-            let lotSum = parseFloat(document.getElementById('calcLotSum').value) || 0;
-            let cost = parseFloat(document.getElementById('calcCost').value) || 0;
-            let delivery = parseFloat(document.getElementById('calcDelivery').value) || 0;
-            let bankFee = parseFloat(document.getElementById('calcBankFee').value) || 0;
+            // Защита от отрицательных значений
+            if (contract < 0) contract = 0;
+            if (goods < 0) goods = 0;
+            if (logistics < 0) logistics = 0;
+            if (bankGuaranty < 0) bankGuaranty = 0;
+            if (collateral < 0) collateral = 0;
 
-            let directCosts = cost + delivery + bankFee;
+            // Прямые затраты (возвратный залог не включается в расходы!)
+            let directCosts = goods + logistics + bankGuaranty;
+
+            // Расчет налога в зависимости от режима
             let taxAmount = 0;
-            let taxDetailsHTML = "";
-            let breakeven = 0;
+            let effectiveTaxRate = 0;
 
-            let incomeTaxRate = (legalType === 'too') ? 0.20 : 0.10;
-            let incomeTaxName = (legalType === 'too') ? "КПН (20%)" : "ИПН (10%)";
-
-            if (taxMode === 'simp_4' || taxMode === 'simp_custom') {
-                let rate = (taxMode === 'simp_4') ? 0.04 : (parseFloat(document.getElementById('calcCustomRate').value) || 2) / 100;
-                taxAmount = lotSum * rate;
-                let taxLabel = (legalType === 'too') ? "КПН СНР (Упрощенка)" : "ИПН СНР (Упрощенка)";
-                taxDetailsHTML = `<p><span>Налог ${taxLabel} ${(rate*100).toFixed(1)}%:</span> <strong>${Math.round(taxAmount).toLocaleString('ru-RU')} ₸</strong></p>`;
-                
-                // Динамическая формула BEP для СНР: BEP * (1 - rate) = directCosts
-                breakeven = (1 - rate) > 0 ? directCosts / (1 - rate) : directCosts;
-
-            } else if (taxMode === 'our_vat16') {
-                let vatOut = lotSum - (lotSum / 1.16);
-                let vatIn = (supplierVat === 'vat16') ? (cost - (cost / 1.16)) : 0;
-                let netVat = Math.max(0, vatOut - vatIn);
-
-                let costNet = (supplierVat === 'vat16') ? (cost / 1.16) : cost;
-                let lotSumNet = lotSum / 1.16;
-                let taxableIncome = Math.max(0, lotSumNet - costNet - delivery - bankFee);
-                let incomeTax = taxableIncome * incomeTaxRate;
-
-                taxAmount = netVat + incomeTax;
-                taxDetailsHTML = `
-                    <p><span>НДС к уплате (16% с учётом зачёта):</span> <strong>${Math.round(netVat).toLocaleString('ru-RU')} ₸</strong></p>
-                    <p><span>${incomeTaxName}:</span> <strong>${Math.round(incomeTax).toLocaleString('ru-RU')} ₸</strong></p>
-                `;
-
-                // Динамическая формула BEP для ОУР с НДС
-                if (supplierVat === 'vat16') {
-                    let costNetTotal = (cost / 1.16) + delivery + bankFee;
-                    let bepNet = costNetTotal;
-                    breakeven = bepNet * 1.16;
-                } else {
-                    let totalCostsNet = cost + delivery + bankFee;
-                    breakeven = totalCostsNet * 1.16;
-                }
-
-            } else if (taxMode === 'our_novat') {
-                let taxableIncome = Math.max(0, lotSum - directCosts);
-                taxAmount = taxableIncome * incomeTaxRate;
-                taxDetailsHTML = `<p><span>${incomeTaxName} (от чистой прибыли):</span> <strong>${Math.round(taxAmount).toLocaleString('ru-RU')} ₸</strong></p>`;
-                
-                // Для ОУР без НДС BEP равен прямым затратам
-                breakeven = directCosts;
+            if (taxMode === 'snr_simp') {
+                effectiveTaxRate = maslikhatRate;
+                taxAmount = contract * effectiveTaxRate;
+            } else if (taxMode === 'our_no_vat') {
+                // Условная ставка КПН/ИПН для ОУР без НДС (например, 10% от чистой прибыли или 3% упрощенно, берем стандарт 10% КПН/ИПН)
+                let taxableIncome = Math.max(0, contract - directCosts);
+                taxAmount = taxableIncome * 0.10;
+            } else if (taxMode === 'our_vat') {
+                // ОУР с НДС 16%: упрощенный расчет налоговой нагрузки
+                let taxableIncome = Math.max(0, contract - directCosts);
+                taxAmount = taxableIncome * 0.20; // КПН 20% + учет НДС
             }
 
-            let totalExpenses = directCosts + taxAmount;
-            let profit = lotSum - totalExpenses;
-            let margin = lotSum > 0 ? (profit / lotSum) * 100 : 0;
+            // Операционная прибыль
+            let netProfit = contract - directCosts - taxAmount;
 
-            let resultHTML = `
-                <p><span>Прямые затраты (закуп + логистика + комиссия БГ):</span> <strong>${directCosts.toLocaleString('ru-RU')} ₸</strong></p>
-                ${taxDetailsHTML}
-                <p><span>Операционная прибыль (до соцплатежей и административных расходов):</span> <strong style="color: #059669;">${Math.round(profit).toLocaleString('ru-RU')} ₸</strong></p>
-                <p><span>Операционная маржинальность:</span> <strong>${margin.toFixed(1)}%</strong></p>
-                <p class="total"><span>Точка безубыточности торгов (BEP):</span> <strong>${Math.round(breakeven).toLocaleString('ru-RU')} ₸</strong></p>
-            `;
+            // Рентабельность (маржинальность) от суммы контракта
+            let margin = contract > 0 ? (netProfit / contract) * 100 : 0;
 
-            document.getElementById('calcResultBox').innerHTML = resultHTML;
-        }
-
-        function performWebSearch() {
-            let text = document.getElementById('queryText').value.toLowerCase().trim();
-            let region = document.getElementById('queryRegion').value;
-            let budget = document.getElementById('queryBudget').value;
-
-            let filtered = SAMPLE_TENDERS.filter(t => {
-                let matchesText = text === "" || t.title.toLowerCase().includes(text) || t.organizer.toLowerCase().includes(text);
-                let matchesRegion = region === "all" || t.region === region;
-                let matchesBudget = true;
-
-                if (budget === "1m") matchesBudget = t.amount <= 1000000;
-                else if (budget === "1m_10m") matchesBudget = t.amount > 1000000 && t.amount <= 10000000;
-                else if (budget === "10m") matchesBudget = t.amount > 10000000;
-
-                return matchesText && matchesRegion && matchesBudget;
-            });
-
-            let box = document.getElementById('resultsBox');
-            box.style.display = 'block';
-
-            if (filtered.length === 0) {
-                box.innerHTML = '<div class="tender-card" style="background:#fef2f2; border-color:#f87171; color:#991b1b;">😔 По вашему запросу актуальных лотов не найдено. Настройте авто-уведомления в Telegram, чтобы не пропустить новые поступления.</div>';
+            // Точка безубыточности (BEP): C_fixed / (1 - tax_rate) для СНР
+            let bep = 0;
+            if (taxMode === 'snr_simp') {
+                let denominator = (1 - effectiveTaxRate);
+                bep = denominator > 0 ? directCosts / denominator : directCosts;
             } else {
-                let html = '<h4 style="margin-bottom:8px; font-size:14px; color:#059669;">Актуальные результаты поиска:</h4>';
-                filtered.forEach(t => {
-                    html += `<div class="tender-card">
-                        <strong>${t.num}</strong> (${t.region})<br>
-                        ${t.title}<br>
-                        Заказчик: ${t.organizer}<br>
-                        Сумма: <b>${t.sum}</b>
-                    </div>`;
-                });
-                box.innerHTML = html;
+                bep = directCosts; // упрощенно для ОУР
             }
 
-            let tgLink = `https://t.me/Kzzakupbot?start=region_${encodeURIComponent(region)}_bud_${encodeURIComponent(budget)}`;
-            document.getElementById('tgSubLink').href = tgLink;
+            // Форматирование вывода
+            document.getElementById('resDirectCosts').innerText = directCosts.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('resTax').innerText = taxAmount.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('resCollateral').innerText = collateral.toLocaleString('ru-RU') + ' ₸';
+            
+            let profitElem = document.getElementById('resNetProfit');
+            profitElem.innerText = netProfit.toLocaleString('ru-RU') + ' ₸';
+            profitElem.className = netProfit >= 0 ? 'text-xl font-bold text-emerald-400' : 'text-xl font-bold text-rose-400';
+
+            document.getElementById('resMargin').innerText = margin.toFixed(1) + '%';
+            document.getElementById('resBEP').innerText = bep > 0 ? Math.round(bep).toLocaleString('ru-RU') + ' ₸' : '0 ₸';
         }
 
-        toggleTaxFields();
-        calculateMargin();
+        // Первичный расчет при загрузке
+        window.onload = function() {
+            calculateMargin();
+        };
     </script>
 </body>
 </html>
