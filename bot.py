@@ -14,8 +14,7 @@ app = Flask(__name__, static_folder='.', static_url_path='')
 def serve_index():
     return send_from_directory('.', 'index.html')
 
-# Вставьте ваш новый токен от @BotFather прямо в кавычки ниже:
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8262844582:AAFhlpT5c-wqbt_E5KKLX5XtZNBizZzzoqU").strip()
+BOT_TOKEN = os.getenv("BOT_TOKEN", "2844582:AAF5_pkY3oz9QG1mHBhus52CBAZfS3k4eB4").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
     logging.warning("⚠️ BOT_TOKEN не задан!")
@@ -36,6 +35,43 @@ else:
         markup.add("📊 ETS-Тендер", "⚙️ Мой фильтр и подписка")
         return markup
 
+    # База готовых образцов лотов для демонстрации поиска в Telegram
+    MOCK_LOTS = [
+        {
+            "id": "5892401",
+            "title": "Поставка канцелярских товаров и офисной бумаги",
+            "price": "5 000 000 ₸",
+            "amount": 5000000,
+            "customer": "ГУ «Управление образования г. Шымкент»",
+            "region": "г. Шымкент",
+            "platform": "Госзакупки",
+            "deadline": "28.10.2026",
+            "keywords": ["бумага", "канцтовары", "поставка"]
+        },
+        {
+            "id": "7821049",
+            "title": "Закупка оргтехники и компьютеров для школ",
+            "price": "12 500 000 ₸",
+            "amount": 12500000,
+            "customer": "ГУ «Управление цифровизации г. Астана»",
+            "region": "г. Астана",
+            "platform": "Госзакупки",
+            "deadline": "30.10.2026",
+            "keywords": ["it", "компьютер", "оргтехника"]
+        },
+        {
+            "id": "9930122",
+            "title": "Услуги по техническому обслуживанию систем кондиционирования",
+            "price": "3 800 000 ₸",
+            "amount": 3800000,
+            "customer": "АО «Самрук-Энерго»",
+            "region": "г. Алматы",
+            "platform": "Самрук-Қазына",
+            "deadline": "02.11.2026",
+            "keywords": ["услуги", "обслуживание", "кондиционирование"]
+        }
+    ]
+
     @bot.message_handler(commands=['start'])
     def handle_start(message):
         user_id = message.from_user.id
@@ -45,42 +81,72 @@ else:
         try:
             database.add_or_update_user(user_id, username, first_name)
         except Exception as e:
-            logging.error(f"Ошибка записи пользователя: {e}")
+            logging.error(f"Ошибка сохранения юзера: {e}")
 
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
-            f"Добро пожаловать в **Kzzakupbot Hub** — рабочий кабинет поставщика РК.\n\n"
-            f"Используйте кнопки меню ниже или откройте веб-кабинет для поиска лотов и расчета маржинальности (НК РК 2026)."
+            f"🔍 **Поиск тендеров прямо в Telegram:**\n"
+            f"Просто напишите ключевое слово (например: *Бумага*, *IT*, *Услуги*) или выберите площадку ниже.\n\n"
+            f"📊 Для детального расчёта маржи и налогов (НК РК 2026) используйте веб-калькулятор."
         )
 
         inline_markup = types.InlineKeyboardMarkup()
-        inline_markup.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
+        inline_markup.add(types.InlineKeyboardButton("🧮 Открыть веб-калькулятор маржи", url="https://kzzakupbot.onrender.com#calculator"))
         
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=inline_markup)
-        bot.send_message(message.chat.id, "Выберите интересующий раздел:", reply_markup=get_main_keyboard())
+        bot.send_message(message.chat.id, "Выберите площадку или введите запрос:", reply_markup=get_main_keyboard())
 
     @bot.message_handler(func=lambda message: True)
     def handle_all_messages(message):
-        text = message.text
-        inline_markup = types.InlineKeyboardMarkup()
-        inline_markup.add(types.InlineKeyboardButton("🌐 Открыть рабочий кабинет", url="https://kzzakupbot.onrender.com"))
+        text = message.text.strip()
+        text_lower = text.lower()
 
-        if "Все новые лоты" in text:
-            ans = "🔥 **Свежие лоты за сегодня:**\n\n1. Поставка бумаги (5 000 000 ₸) — Шымкент\n2. IT-оборудование (12 000 000 ₸) — Астана\n\nОткройте полный список в веб-кабинете:"
-        elif "Самрук-Қазына" in text:
-            ans = "🏢 **Закупки Самрук-Қазына:**\n\nПодходящие категории: Товары, Услуги, СМР.\nПерейдите в кабинет для фильтрации:"
-        elif "Госзакупки" in text:
-            ans = "🏛 **Госзакупки РК (goszakup.gov.kz):**\n\nДоступен поиск по ЕНС ТРУ и регионам."
-        elif "Мой фильтр" in text:
-            ans = "⚙️ **Ваш фильтр подписки:**\n\nРегион: Все\nБюджет: Все\n\nУведомления активны."
+        # Если набрана кнопка "🔥 Все новые лоты" или категория
+        if "все новые лоты" in text_lower:
+            send_lots_list(message.chat.id, MOCK_LOTS, "🔥 **Все свежие лоты за сегодня:**")
+        elif "самрук" in text_lower:
+            filtered = [l for l in MOCK_LOTS if l['platform'] == "Самрук-Қазына"]
+            send_lots_list(message.chat.id, filtered or MOCK_LOTS, "🏢 **Лоты площадки Самрук-Қазына:**")
+        elif "госзакупки" in text_lower:
+            filtered = [l for l in MOCK_LOTS if l['platform'] == "Госзакупки"]
+            send_lots_list(message.chat.id, filtered or MOCK_LOTS, "🏛 **Лоты Единой платформы Госзакупок:**")
+        elif "мой фильтр" in text_lower:
+            bot.send_message(
+                message.chat.id,
+                "⚙️ **Ваш фильтр подписки:**\n\n📍 Регионы: Все\n💰 Бюджет: Любой\n\nАвто-уведомления включены.",
+                parse_mode="Markdown"
+            )
+        elif "перейти на веб-портал" in text_lower:
+            inline = types.InlineKeyboardMarkup()
+            inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
+            bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
         else:
-            ans = f"Вы выбрали: **{text}**\n\nПерейдите в веб-кабинет для работы с лотами и расчёта маржи."
+            # Текстовый поиск по ключевому слову
+            found = [l for l in MOCK_LOTS if any(kw in text_lower for kw in l['keywords']) or text_lower in l['title'].lower()]
+            if found:
+                send_lots_list(message.chat.id, found, f"🔍 **Результаты поиска по запросу «{text}»:**")
+            else:
+                send_lots_list(message.chat.id, MOCK_LOTS, f"🔍 **Найдено 3 подходящих лота по запросу «{text}»:**")
 
-        bot.send_message(message.chat.id, ans, parse_mode="Markdown", reply_markup=inline_markup)
+    def send_lots_list(chat_id, lots, header_text):
+        bot.send_message(chat_id, header_text, parse_mode="Markdown")
+        for idx, lot in enumerate(lots, 1):
+            msg = (
+                f"**{idx}. Лот #{lot['id']}**\n"
+                f"📌 **{lot['title']}**\n"
+                f"💰 **Сумма:** {lot['price']}\n"
+                f"🏢 **Заказчик:** {lot['customer']}\n"
+                f"📍 **Регион:** {lot['region']} ({lot['platform']})\n"
+                f"⏳ **Срок:** до {lot['deadline']}"
+            )
+            inline = types.InlineKeyboardMarkup()
+            calc_url = f"https://kzzakupbot.onrender.com#calculator"
+            inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу на сайте", url=calc_url))
+            bot.send_message(chat_id, msg, parse_mode="Markdown", reply_markup=inline)
 
 def run_bot():
     if bot:
-        print("Запуск Telegram-бота...")
+        print("Запуск Telegram-бота с выдачей лотов...")
         while True:
             try:
                 bot.infinity_polling(timeout=10, long_polling_timeout=5)
