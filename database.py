@@ -1,83 +1,47 @@
 import sqlite3
-from datetime import datetime
+import os
 
-DB_NAME = "users_settings.db"
+DB_NAME = "zakupbot.db"
+
+def get_connection():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def init_db():
-    """Инициализация таблиц базы данных."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                first_name TEXT,
+                username TEXT,
+                source TEXT DEFAULT 'direct',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
 
-    # Таблица пользователей
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            username TEXT,
-            first_name TEXT,
-            registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            is_active INTEGER DEFAULT 1
-        )
-    ''')
+def register_user(user_id, first_name, username, source='direct'):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO users (user_id, first_name, username, source)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                first_name=excluded.first_name,
+                username=excluded.username
+        ''', (user_id, first_name, username, source))
+        conn.commit()
 
-    # Таблица сохраненных поисковых фильтров (для Push-уведомлений)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS user_filters (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            keywords TEXT,
-            region TEXT DEFAULT 'all',
-            budget_category TEXT DEFAULT 'all',
-            ens_tru_code TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(user_id) REFERENCES users(user_id)
-        )
-    ''')
-
-    # Таблица кэша лотов (для последующего парсинга/агрегации)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tenders_cache (
-            tender_id TEXT PRIMARY KEY,
-            title TEXT,
-            organizer TEXT,
-            sum_amount REAL,
-            region TEXT,
-            platform TEXT,
-            url TEXT,
-            published_at TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    conn.commit()
-    conn.close()
-
-def add_or_update_user(user_id: int, username: str, first_name: str):
-    """Регистрация или обновление данных пользователя."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO users (user_id, username, first_name)
-        VALUES (?, ?, ?)
-        ON CONFLICT(user_id) DO UPDATE SET
-            username=excluded.username,
-            first_name=excluded.first_name,
-            is_active=1
-    ''', (user_id, username, first_name))
-    conn.commit()
-    conn.close()
-
-def save_user_filter(user_id: int, region: str = 'all', budget: str = 'all', keywords: str = ''):
-    """Сохранение фильтра поиска пользователя."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO user_filters (user_id, region, budget_category, keywords)
-        VALUES (?, ?, ?, ?)
-    ''', (user_id, region, budget, keywords))
-    conn.commit()
-    conn.close()
-
-if __name__ == "__main__":
-    init_db()
-    print("База данных успешно инициализирована.")
-  
+def get_traffic_stats():
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT source, COUNT(*) as count 
+            FROM users 
+            GROUP BY source 
+            ORDER BY count DESC
+        ''')
+        rows = cursor.fetchall()
+        return {row['source']: row['count'] for row in rows}
