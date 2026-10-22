@@ -214,8 +214,8 @@
                             <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Налоговый режим</label>
                             <select id="calcTaxMode" onchange="toggleTaxMode()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="snr_simp">ИП на СНР (Упрощенная декларация)</option>
-                                <option value="our_no_vat">ОУР (Без НДС)</option>
-                                <option value="our_vat">ОУР (С НДС 16%)</option>
+                                <option value="our_no_vat">ОУР (Ориентировочная оценка без НДС)</option>
+                                <option value="our_vat">ОУР (Ориентировочная оценка с НДС 16%)</option>
                             </select>
                         </div>
                     </div>
@@ -233,7 +233,7 @@
                         <!-- Официальные источники маслихатов -->
                         <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1">
                             <p class="font-semibold text-slate-700">📍 Проверка решения вашего маслихата:</p>
-                            <p>Базовая ставка 4% может изменяться местным маслихатом от 2% до 6% (ст. 726 НК РК). Убедитесь, что ваш вид деятельности (ОКЭД) подпадает под СНР (ст. 723 НК РК).</p>
+                            <p>Базовая ставка 4% может изменяться местным маслихатом от 2% до 6% (ст. 726 НК РК). Убедитесь в праве применения СНР для вашего ОКЭД по ст. 723 НК РК и уточните актуальную ставку вашего маслихата.</p>
                             <div class="flex flex-wrap gap-3 pt-1 font-medium text-blue-600">
                                 <a href="https://adilet.zan.kz/" target="_blank" class="hover:underline">📜 Поиск решений маслихатов в «Әділет» &rarr;</a>
                                 <a href="https://www.gov.kz/memleket/entities/kgd" target="_blank" class="hover:underline">🏛 Официальный портал КГД МФ РК &rarr;</a>
@@ -305,7 +305,7 @@
 
                     <div class="pt-2">
                         <a id="btnSendToTg" href="https://t.me/Kzzakupbot" target="_blank" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl transition text-center block text-sm shadow-md">
-                            📲 Передать и сохранить расчёт в Telegram &rarr;
+                            📲 Передать расчёт в Telegram &rarr;
                         </a>
                     </div>
 
@@ -340,7 +340,7 @@
                 </div>
                 <div class="space-y-1">
                     <h4 class="font-bold text-slate-900">Где сохраняются мои расчёты?</h4>
-                    <p class="text-xs text-slate-600">При нажатии кнопки «Передать расчёт в Telegram» результаты отправляются в диалог с вашим Telegram-ботом, где сохраняются в истории переписки.</p>
+                    <p class="text-xs text-slate-600">При нажатии кнопки «Передать расчёт в Telegram» результаты отправляются в диалог с вашим Telegram-ботом, куда передаются параметры расчёта для дальнейшей работы в боте.</p>
                 </div>
             </div>
         </section>
