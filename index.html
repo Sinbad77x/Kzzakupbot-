@@ -1,10 +1,12 @@
+    
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kzzakupbot Hub — Бесплатное рабочее пространство поставщика Казахстана</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Подключение надежного Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -30,7 +32,7 @@
             <div class="flex items-center space-x-4">
                 <a href="#tender-search" class="hidden sm:inline-block text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Поиск закупок</a>
                 <a href="#calculator" class="hidden sm:inline-block text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Калькулятор</a>
-                <a href="#academy" class="hidden sm:inline-block text-sm font-semibold text-blue-600 font-bold transition">🎓 Академия</a>
+                <a href="#academy" class="hidden sm:inline-block text-sm font-semibold text-blue-600 transition">🎓 Академия</a>
                 <a id="navTgBtn" href="https://t.me/Kzzakupbot?start=website" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5">
                     <span>💬 Запустить в Telegram</span>
                 </a>
@@ -70,7 +72,7 @@
             </div>
         </div>
 
-        <!-- Tender Search Section (ADDED) -->
+        <!-- Tender Search Section -->
         <section id="tender-search" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
             <div class="pb-4 border-b border-slate-100">
                 <h2 class="text-2xl font-bold text-slate-950">🔍 Поиск актуальных закупок РК</h2>
@@ -264,4 +266,173 @@
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
                                 <span class="text-[11px] font-bold text-blue-700 uppercase">Урок 1.1 • Практикум</span>
-    
+                                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">Доступен</span>
+                            </div>
+                            <h4 class="font-bold text-slate-950 text-sm">Расчёт маржи и финансовая модель лота</h4>
+                            <p class="text-xs text-slate-700 leading-relaxed">Методика учёта себестоимости, налогов СНР (4%), отсрочки платежа и комиссии БГ до подачи заявки.</p>
+                        </div>
+                        <a href="#calculator" class="text-xs font-bold text-blue-700 hover:underline pt-2 border-t border-blue-100 block">Перейти к калькулятору P&L &rarr;</a>
+                    </div>
+
+                    <!-- Lesson 1.2 -->
+                    <div class="p-4 rounded-xl border border-slate-200 space-y-3 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase">Урок 1.2 • Официальный гайд</span>
+                                <span class="text-[10px] bg-slate-200 text-slate-700 font-bold px-2 py-0.5 rounded">В базе</span>
+                            </div>
+                            <h4 class="font-bold text-slate-950 text-sm">Регистрация и работа с ЭЦП на портале</h4>
+                            <p class="text-xs text-slate-700 leading-relaxed">Пошаговое руководство по первичной настройке рабочего места и прохождению аккредитации.</p>
+                        </div>
+                        <a href="https://zakup.gov.kz" target="_blank" class="text-xs font-bold text-blue-700 hover:underline pt-2 border-t border-slate-100 block">Перейти на веб-портал &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+        <p>Kzzakupbot Hub — Инструменты автоматизации для поставщиков Республики Казахстан.</p>
+    </footer>
+
+    <!-- JavaScript logic -->
+    <script>
+    // --- Логика калькулятора ---
+    let currentMode = 'profit';
+
+    function setCalcMode(mode) {
+        currentMode = mode;
+        const btnProfit = document.getElementById('btnModeProfit');
+        const btnCashFlow = document.getElementById('btnModeCashFlow');
+        const viewProfit = document.getElementById('viewProfit');
+        const viewCashFlow = document.getElementById('viewCashFlow');
+
+        if (mode === 'profit') {
+            btnProfit.className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm transition";
+            btnCashFlow.className = "px-4 py-2 text-xs font-bold rounded-lg text-slate-700 hover:text-slate-950 transition";
+            viewProfit.classList.remove('hidden');
+            viewCashFlow.classList.add('hidden');
+        } else {
+            btnCashFlow.className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm transition";
+            btnProfit.className = "px-4 py-2 text-xs font-bold rounded-lg text-slate-700 hover:text-slate-950 transition";
+            viewCashFlow.classList.remove('hidden');
+            viewProfit.classList.add('hidden');
+        }
+    }
+
+    function toggleTaxMode() {
+        const mode = document.getElementById('calcTaxMode').value;
+        const maslikhatContainer = document.getElementById('maslikhatRateContainer');
+        if (mode === 'snr_simp') {
+            maslikhatContainer.style.display = 'block';
+        } else {
+            maslikhatContainer.style.display = 'none';
+        }
+        calculateMargin();
+    }
+
+    function calculateMargin() {
+        const contract = parseFloat(document.getElementById('calcContract').value) || 0;
+        const goods = parseFloat(document.getElementById('calcGoods').value) || 0;
+        const logistics = parseFloat(document.getElementById('calcLogistics').value) || 0;
+        const bankGuaranty = parseFloat(document.getElementById('calcBankGuaranty').value) || 0;
+        const collateral = parseFloat(document.getElementById('calcCollateral').value) || 0;
+        
+        const financeRate = parseFloat(document.getElementById('calcFinanceRate').value) || 0;
+        const paymentDelay = parseFloat(document.getElementById('calcPaymentDelay').value) || 0;
+        
+        const taxMode = document.getElementById('calcTaxMode').value;
+        
+        const directCosts = goods + logistics + bankGuaranty;
+        
+        // Финансирование (простые проценты за дни отсрочки)
+        const financeCost = directCosts * (financeRate / 100) * (paymentDelay / 365);
+        
+        let taxAmount = 0;
+        if (taxMode === 'snr_simp') {
+            const maslikhatRate = parseFloat(document.getElementById('calcMaslikhatRate').value) || 0.04;
+            taxAmount = contract * maslikhatRate;
+        } else if (taxMode === 'our_no_vat') {
+            taxAmount = Math.max(0, (contract - directCosts - financeCost) * 0.10);
+        } else {
+            taxAmount = contract * 0.12; // условная оценка НДС
+        }
+
+        const netProfit = contract - directCosts - financeCost - taxAmount;
+        const margin = contract > 0 ? (netProfit / contract) * 100 : 0;
+
+        // Вывод результатов P&L
+        document.getElementById('resDirectCosts').innerText = Math.round(directCosts).toLocaleString() + ' ₸';
+        document.getElementById('resFinanceCost').innerText = Math.round(financeCost).toLocaleString() + ' ₸';
+        document.getElementById('resTax').innerText = Math.round(taxAmount).toLocaleString() + ' ₸';
+        document.getElementById('resNetProfit').innerText = Math.round(netProfit).toLocaleString() + ' ₸';
+        document.getElementById('resMargin').innerText = margin.toFixed(1) + '%';
+
+        // Вывод результатов Cash Flow
+        document.getElementById('cfDirect').innerText = Math.round(directCosts).toLocaleString() + ' ₸';
+        document.getElementById('cfCollateral').innerText = Math.round(collateral).toLocaleString() + ' ₸';
+        document.getElementById('cfCapitalNeed').innerText = Math.round(directCosts + collateral).toLocaleString() + ' ₸';
+    }
+
+    // --- Логика поиска закупок через бэкенд ---
+    async function searchTenders() {
+        const query = document.getElementById('searchInput').value.trim();
+        const resultsContainer = document.getElementById('searchResults');
+        
+        if (!query) {
+            alert('Введите ключевое слово для поиска');
+            return;
+        }
+
+        resultsContainer.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Поиск актуальных данных на портале госзакупок...</p>';
+
+        try {
+            const response = await fetch(`https://Sinbad7777.pythonanywhere.com/api/search?q=${encodeURIComponent(query)}`);
+            const result = await response.json();
+
+            if (result.success && result.data.length > 0) {
+                resultsContainer.innerHTML = '';
+                result.data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm space-y-2";
+                    card.innerHTML = `
+                        <div class="text-xs text-slate-500">Лот №: ${item.number} | Заказчик: ${item.organizer}</div>
+                        <h4 class="font-bold text-base"><a href="${item.url}" target="_blank" class="text-blue-600 hover:underline">${item.name}</a></h4>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 border-t border-slate-200">
+                            <div>
+                                <span class="text-xs text-slate-600 uppercase font-semibold">Бюджет:</span> 
+                                <span class="text-emerald-600 font-bold text-lg">${item.amount.toLocaleString()} ₸</span>
+                            </div>
+                            <button onclick="sendToCalculator(${item.amount})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">
+                                📈 Рассчитать в калькуляторе
+                            </button>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(card);
+                });
+            } else {
+                resultsContainer.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">По вашему запросу ничего не найдено или внешний сервис временно недоступен.</p>';
+            }
+        } catch (error) {
+            resultsContainer.innerHTML = '<p class="text-red-600 text-sm text-center py-6">Ошибка соединения с сервером поиска.</p>';
+            console.error(error);
+        }
+    }
+
+    function sendToCalculator(amount) {
+        const calcInput = document.getElementById('calcContract');
+        if (calcInput) {
+            calcInput.value = amount;
+            calculateMargin();
+            document.getElementById('calculator').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // Инициализация при загрузке
+    calculateMargin();
+    </script>
+
+</body>
+</html>
