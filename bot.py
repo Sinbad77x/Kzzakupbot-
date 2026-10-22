@@ -11,7 +11,7 @@ app = Flask(__name__, static_folder='.', static_url_path='')
 # ==============================================================================
 # ВСТАВЬТЕ ВАШ ПОЛНЫЙ ТОКЕН ОТ @BotFather В СТРОКУ НИЖЕ:
 # ==============================================================================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВЬТЕ_СУДА_ПОЛНЫЙ_ТОКЕН_ОТ_BOTFATHER").strip()
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8262844582:AAGegZ-0o24o63e8_a9Ixp8mG1wv33QJuoA").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
