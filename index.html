@@ -222,7 +222,7 @@
                         </div>
                     </div>
 
-                    <div id="maslikhatRateContainer">
+                    <div id="maslikhatRateContainer" class="space-y-2">
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ставка маслихата СНР (%)</label>
                         <select id="calcMaslikhatRate" onchange="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="0.04" selected>4% (Базовая стандартная)</option>
@@ -231,6 +231,16 @@
                             <option value="0.05">5% (Повышенная)</option>
                             <option value="0.06">6% (Максимальная)</option>
                         </select>
+
+                        <!-- Официальные источники маслихатов -->
+                        <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1">
+                            <p class="font-semibold text-slate-700">📍 Как проверить актуальную ставку вашего маслихата?</p>
+                            <p>Ставка утверждается местным маслихатом от 2% до 6% (ст. 726 НК РК).</p>
+                            <div class="flex flex-wrap gap-3 pt-1 font-medium text-blue-600">
+                                <a href="https://adilet.zan.kz/" target="_blank" class="hover:underline">📜 Поиск НПА в «Әділет» &rarr;</a>
+                                <a href="https://www.gov.kz/memleket/entities/kgd" target="_blank" class="hover:underline">🏛 Официальный сайт КГД РК &rarr;</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -339,7 +349,7 @@
             </div>
         </section>
 
-        <!-- Procurement Platforms Grid (Updated with zakup.gov.kz) -->
+        <!-- Procurement Platforms Grid -->
         <section class="space-y-4">
             <h3 class="text-lg font-bold text-slate-900">Официальные источники и площадки Казахстана</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
