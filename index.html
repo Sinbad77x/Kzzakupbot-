@@ -142,6 +142,29 @@
             gap: 8px;
         }
 
+        .calc-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .calc-tab {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: #F1F5F9;
+            color: var(--text-muted);
+        }
+
+        .calc-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
         .calc-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -256,7 +279,10 @@
     <!-- Калькулятор сделки и финансирования -->
     <div class="card" id="calculator">
         <h2>🧮 1. Калькулятор сделки и финансирования</h2>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Оценка расчётной прибыли по ставкам НК РК 2026 и временной стоимости капитала.</p>
+        <div class="calc-tabs">
+            <div class="calc-tab active" id="tab-pl" onclick="switchTab('pl')">📈 Прибыль (P&L)</div>
+            <div class="calc-tab" id="tab-cf" onclick="switchTab('cf')">💧 Денежный поток (Cash Flow)</div>
+        </div>
         
         <div class="calc-grid">
             <div class="input-group">
@@ -296,18 +322,24 @@
         <div class="input-group" style="margin-top: 10px;">
             <label>Налоговый режим</label>
             <select id="tax_mode" onchange="calculateProfit()">
-                <option value="0.04">ИП на СНР (Упрощенная декларация) - 4%</option>
+                <option value="0.04">ИП на СНР (Упрощенная декларация) - 4% (ст. 726 НК РК)</option>
                 <option value="0.03">ИП на СНР (льготная ставка) - 3%</option>
                 <option value="0.16">Общеустановленный режим (ОУР / ИП)</option>
             </select>
         </div>
         
-        <div class="calc-results">
+        <div class="calc-results" id="results-pl">
             <p>Прямые затраты (товар + логистика + БГ): <span id="res-costs">3 675 000 ₸</span></p>
             <p>Плата за финансирование капитала: <span id="res-financing">60 411 ₸</span></p>
             <p>Расчётный налог: <span id="res-tax">200 000 ₸</span></p>
             <p class="total">Расчётная прибыль сделки: <span id="res-profit">1 064 589 ₸</span></p>
             <p>Операционная маржинальность: <span id="res-margin" style="font-weight: bold; color: var(--success);">21.3%</span></p>
+        </div>
+
+        <div class="calc-results" id="results-cf" style="display: none;">
+            <p>Требуемый начальный капитал (закупка + залог): <span id="res-capital">3 750 000 ₸</span></p>
+            <p>Максимальная кассовая заморозка: <span id="res-cashgap">3 750 000 ₸</span></p>
+            <p class="total">Чистый денежный поток по сделке: <span id="res-net-cf">1 064 589 ₸</span></p>
         </div>
     </div>
 
@@ -328,6 +360,16 @@
 </div>
 
 <script>
+let currentMode = 'pl';
+
+function switchTab(mode) {
+    currentMode = mode;
+    document.getElementById('tab-pl').classList.toggle('active', mode === 'pl');
+    document.getElementById('tab-cf').classList.toggle('active', mode === 'cf');
+    document.getElementById('results-pl').style.display = mode === 'pl' ? 'block' : 'none';
+    document.getElementById('results-cf').style.display = mode === 'cf' ? 'block' : 'none';
+}
+
 async function performSearch() {
     const query = document.getElementById('searchInput').value.trim();
     const resultsContainer = document.getElementById('searchResults');
@@ -387,8 +429,6 @@ function calculateProfit() {
     const taxRate = parseFloat(document.getElementById('tax_mode').value) || 0.04;
 
     const directCosts = cost + logistics + bgFee;
-    
-    // Расчет стоимости финансирования (на основе суммы закупки и депозита)
     const capitalNeeded = cost + deposit;
     const financingCost = capitalNeeded * (loanRate / 100) * (loanDays / 365);
     
@@ -401,6 +441,10 @@ function calculateProfit() {
     document.getElementById('res-tax').innerText = Math.round(tax).toLocaleString('ru-RU') + ' ₸';
     document.getElementById('res-profit').innerText = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
     document.getElementById('res-margin').innerText = margin.toFixed(1) + '%';
+
+    document.getElementById('res-capital').innerText = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-cashgap').innerText = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-net-cf').innerText = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
 }
 
 function escapeHtml(text) {
