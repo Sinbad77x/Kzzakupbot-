@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "2844582:AAF5_pkY3oz9QG1mHBhus52CBAZfS3k4eB4").strip()
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8262844582:AAGlNL-AfRKTKurq90IjdVqUojC_TqShiAs").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
