@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot Hub — Рабочий кабинет поставщика Казахстана</title>
+    <title>Kzzakupbot Hub — Экспресс-расчёт маржи и Cash Flow для поставщиков РК</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -19,15 +19,15 @@
                 <div class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg text-lg">KZ</div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-slate-900">Kzzakupbot Hub</h1>
-                    <p class="text-xs text-slate-500">Рабочее пространство поставщика РК (НК РК 2026)</p>
+                    <p class="text-xs text-slate-500">Помощник поставщика Госзакупок и Самрук-Қазына</p>
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <a href="#how-it-works" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Как это работает</a>
-                <a href="#calculator" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Калькулятор 2.0</a>
-                <a href="#faq" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">FAQ</a>
+                <a href="#how-it-works" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Как работать</a>
+                <a href="#calculator" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Калькулятор сделки</a>
+                <a href="#faq" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Правовой FAQ</a>
                 <a id="navTgBtn" href="https://t.me/Kzzakupbot?start=website" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5">
-                    <span>💬 Открыть в Telegram</span>
+                    <span>💬 Запустить в Telegram</span>
                 </a>
             </div>
         </div>
@@ -43,60 +43,60 @@
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span class="font-medium text-slate-200">Система активна и обновлена: <strong class="text-emerald-400">Октябрь 2026</strong></span>
+                <span class="font-medium text-slate-200">Формулы калькулятора актуализированы: <strong class="text-emerald-400">Нормы НК РК 2026</strong></span>
             </div>
             <div class="flex items-center space-x-6 text-slate-400">
-                <span>🏛 Ставки НК РК: <strong>СНР 4% (ст. 723, 726)</strong></span>
-                <span>🛡 Доступ: <strong>100% Бесплатно</strong></span>
+                <span>🏛 Базовая ставка СНР: <strong>4% (ст. 723 НК РК)</strong></span>
+                <span>🛡 Открытый инструмент</span>
             </div>
         </div>
 
         <!-- Banner Offer -->
         <div class="bg-gradient-to-r from-blue-900 via-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
             <div class="space-y-2 max-w-2xl">
-                <span class="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-400/30">100% Бесплатный инструмент</span>
-                <h2 class="text-xl sm:text-2xl font-bold">Находите тендеры и считайте экономику сделки</h2>
-                <p class="text-sm text-slate-300">Получайте свежие подходящие лоты Госзакупок (zakup.gov.kz) и Самрук-Қазына прямо в Telegram с детальным финансовым анализом.</p>
+                <span class="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-400/30">Инструмент предварительного анализа</span>
+                <h2 class="text-xl sm:text-2xl font-bold">Оценивайте маржу и потребность в деньгах до подачи заявки</h2>
+                <p class="text-sm text-slate-300">Расчёт операционной прибыли по ставкам СНР/ОУР и анализ заморозки капитала на залог договора с учётом отсрочки платежа.</p>
             </div>
             <div class="shrink-0">
                 <a id="heroTgBtn" href="https://t.me/Kzzakupbot?start=website_hero" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition text-sm inline-block shadow-lg">
-                    Запустить Telegram-бота &rarr;
+                    Открыть бот в Telegram &rarr;
                 </a>
             </div>
         </div>
 
         <!-- How It Works Section -->
         <section id="how-it-works" class="space-y-4">
-            <h3 class="text-xl font-bold text-slate-900">Как работать с Kzzakupbot Hub за 3 шага</h3>
+            <h3 class="text-xl font-bold text-slate-900">Как оценить закупку за 3 шага</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                     <div class="w-8 h-8 bg-blue-100 text-blue-600 font-bold rounded-lg flex items-center justify-center text-sm">1</div>
-                    <h4 class="font-bold text-slate-900 text-base">Поиск закупки</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed">Введите ключевое слово или выберите площадку в Telegram-боте. Получите карточки лотов с суммой, сроками и заказчиком.</p>
+                    <h4 class="font-bold text-slate-900 text-base">Укажите параметры лота</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">Введите сумму контракта из объявления на zakup.gov.kz или Самрук-Қазына, стоимость товара у поставщика и логистику.</p>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                     <div class="w-8 h-8 bg-blue-100 text-blue-600 font-bold rounded-lg flex items-center justify-center text-sm">2</div>
-                    <h4 class="font-bold text-slate-900 text-base">Расчёт маржи и Cash Flow</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed">Перейдите в калькулятор, укажите закупку и логистику. Оцените чистую прибыль и заблокированный капитал с учетом отсрочки оплаты.</p>
+                    <h4 class="font-bold text-slate-900 text-base">Выберите налоговый режим</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">Укажите ваш режим (СНР или ОУР) и ставку маслихата вашего региона (2–6%), чтобы получить предварительный расчёт налога.</p>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                     <div class="w-8 h-8 bg-blue-100 text-blue-600 font-bold rounded-lg flex items-center justify-center text-sm">3</div>
-                    <h4 class="font-bold text-slate-900 text-base">Контроль и Подписка</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed">Сохраните расчет и подпишитесь на уведомления в Telegram. Новые лоты по вашим критериям будут приходить автоматически.</p>
+                    <h4 class="font-bold text-slate-900 text-base">Оцените Cash Flow</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">Переключите калькулятор в режим «Денежный поток», чтобы узнать реальный объём оборотных средств с учётом залога и отсрочки.</p>
                 </div>
             </div>
         </section>
 
-        <!-- Search Section -->
+        <!-- Search Section (Explicitly set as Demo Search) -->
         <section id="tenders" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Умный поиск тендеров</h2>
-                    <p class="text-sm text-slate-600">Поиск закупок по ключевым словам, регионам и бюджетам.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Поиск и демо-база лотов</h2>
+                    <p class="text-sm text-slate-600">Тестовый просмотр структуры закупки и переход к расчёту.</p>
                 </div>
                 <div class="mt-2 sm:mt-0">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        ● Доступ свободный
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                        ● Демонстрационный режим
                     </span>
                 </div>
             </div>
@@ -113,7 +113,6 @@
                         <option value="astana">г. Астана</option>
                         <option value="almaty">г. Алматы</option>
                         <option value="shymkent">г. Шымкент</option>
-                        <option value="karaganda">Карагандинская область</option>
                     </select>
                 </div>
                 <div>
@@ -122,25 +121,24 @@
                         <option value="all">Любой бюджет</option>
                         <option value="1">До 1 000 000 ₸</option>
                         <option value="2">1 000 000 ₸ — 10 000 000 ₸</option>
-                        <option value="3">Свыше 10 000 000 ₸</option>
                     </select>
                 </div>
             </div>
 
             <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
                 <button onclick="showSearchResult()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer">
-                    Найти подходящие лоты
+                    Показать пример карточки лота
                 </button>
-                <a id="subTgBtn" href="https://t.me/Kzzakupbot?start=region_all_bud_all" target="_blank" class="text-sm text-blue-600 hover:underline font-medium">
-                    🔔 Подписаться на авто-уведомления по этим фильтрам в Telegram &rarr;
+                <a id="subTgBtn" href="https://t.me/Kzzakupbot?start=search_demo" target="_blank" class="text-sm text-blue-600 hover:underline font-medium">
+                    💬 Запросить примеры лотов в Telegram-боте &rarr;
                 </a>
             </div>
 
             <!-- Dynamic Search Result Card -->
             <div id="searchResultCard" class="hidden mt-6 bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded">Найдено 3 подходящих лота</span>
-                    <span class="text-xs text-slate-500">Источник: zakup.gov.kz</span>
+                    <span class="text-xs font-bold uppercase text-slate-600 bg-slate-200 px-2.5 py-0.5 rounded">Образец карточки закупки</span>
+                    <span class="text-xs text-slate-500">Структура данных zakup.gov.kz</span>
                 </div>
                 <div class="bg-white p-4 rounded-lg border border-slate-200 space-y-2">
                     <div class="flex justify-between items-start">
@@ -149,27 +147,27 @@
                     </div>
                     <p class="text-xs text-slate-600">Заказчик: ГУ «Управление образования г. Шымкент» • Способ: Открытый конкурс</p>
                     <div class="flex items-center justify-between pt-2 text-xs text-slate-500 border-t border-slate-100">
-                        <span>Срок подачи: до 28 октября 2026</span>
-                        <a href="https://t.me/Kzzakupbot?start=lot_5892401" target="_blank" class="text-blue-600 font-bold hover:underline">
-                            Получить полный список лотов в Telegram &rarr;
+                        <span>Ориентировочный дедлайн: 28 октября 2026</span>
+                        <a href="#calculator" class="text-blue-600 font-bold hover:underline">
+                            Загрузить эти цифры в калькулятор &rarr;
                         </a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Financial Calculator 2.0 Section -->
+        <!-- Financial Calculator Section -->
         <section id="calculator" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-4 border-b border-slate-100 gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Финансовый калькулятор 2.0 (НК РК 2026)</h2>
-                    <p class="text-sm text-slate-600">Расчёт прибыльности сделки, налогообложения и управления кассовым разрывом.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Экспресс-калькулятор сделки (НК РК 2026)</h2>
+                    <p class="text-sm text-slate-600">Оценка операционной маржи и кассового разрыва перед подачей заявки.</p>
                 </div>
                 
                 <!-- Toggle Mode Selector -->
                 <div class="bg-slate-100 p-1 rounded-xl flex items-center space-x-1 shrink-0 border border-slate-200">
                     <button id="btnModeProfit" onclick="setCalcMode('profit')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition">
-                        📈 Прибыль сделки
+                        📈 Прибыль сделки (P&L)
                     </button>
                     <button id="btnModeCashFlow" onclick="setCalcMode('cashflow')" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">
                         💧 Денежный поток (Cash Flow)
@@ -187,7 +185,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Закупка товара / сырья, ₸</label>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Закупка товара / себестоимость, ₸</label>
                             <input type="number" id="calcGoods" value="3500000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
@@ -198,18 +196,18 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Комиссия банка за БГ, ₸</label>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Комиссия за БГ (Банковскую гарантию), ₸</label>
                             <input type="number" id="calcBankGuaranty" value="25000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Возвратное обеспечение договора, ₸</label>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Обеспечение исполнения договора (залог), ₸</label>
                             <input type="number" id="calcCollateral" value="250000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Срок отсрочки оплаты (дней)</label>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Срок отсрочки оплаты заказчиком (дней)</label>
                             <input type="number" id="calcPaymentDelay" value="30" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
@@ -225,20 +223,20 @@
                     <div id="maslikhatRateContainer" class="space-y-2">
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ставка маслихата СНР (%)</label>
                         <select id="calcMaslikhatRate" onchange="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="0.04" selected>4% (Базовая стандартная)</option>
-                            <option value="0.02">2% (Минимальная)</option>
-                            <option value="0.03">3% (Пониженная)</option>
-                            <option value="0.05">5% (Повышенная)</option>
-                            <option value="0.06">6% (Максимальная)</option>
+                            <option value="0.04" selected>4% (Базовая ставка по умолчанию)</option>
+                            <option value="0.02">2% (Пониженная ставка)</option>
+                            <option value="0.03">3% (Пониженная ставка)</option>
+                            <option value="0.05">5% (Повышенная ставка)</option>
+                            <option value="0.06">6% (Максимальная ставка)</option>
                         </select>
 
                         <!-- Официальные источники маслихатов -->
                         <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1">
-                            <p class="font-semibold text-slate-700">📍 Как проверить актуальную ставку вашего маслихата?</p>
-                            <p>Ставка утверждается местным маслихатом от 2% до 6% (ст. 726 НК РК).</p>
+                            <p class="font-semibold text-slate-700">📍 Проверка решения вашего маслихата:</p>
+                            <p>Базовая ставка 4% может изменяться местным маслихатом от 2% до 6% (ст. 726 НК РК). Убедитесь, что ваш вид деятельности (ОКЭД) подпадает под СНР (ст. 723 НК РК).</p>
                             <div class="flex flex-wrap gap-3 pt-1 font-medium text-blue-600">
-                                <a href="https://adilet.zan.kz/" target="_blank" class="hover:underline">📜 Поиск НПА в «Әділет» &rarr;</a>
-                                <a href="https://www.gov.kz/memleket/entities/kgd" target="_blank" class="hover:underline">🏛 Официальный сайт КГД РК &rarr;</a>
+                                <a href="https://adilet.zan.kz/" target="_blank" class="hover:underline">📜 Поиск решений маслихатов в «Әділет» &rarr;</a>
+                                <a href="https://www.gov.kz/memleket/entities/kgd" target="_blank" class="hover:underline">🏛 Официальный портал КГД МФ РК &rarr;</a>
                             </div>
                         </div>
                     </div>
@@ -249,16 +247,16 @@
                     
                     <div id="viewProfit" class="space-y-4">
                         <h3 class="text-lg font-semibold text-slate-200 border-b border-slate-800 pb-3 flex items-center justify-between">
-                            <span>📈 Расчёт прибыли сделки</span>
-                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">P&L Модель</span>
+                            <span>📈 Операционный расчет прибыли</span>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Предварительный P&L</span>
                         </h3>
                         
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Прямые операционные затраты:</span>
+                            <span class="text-slate-400">Прямые затраты (товар + логистика + БГ):</span>
                             <span id="resDirectCosts" class="font-semibold text-white">3 675 000 ₸</span>
                         </div>
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Налоговое обязательство (НК РК 2026):</span>
+                            <span class="text-slate-400">Расчётный налог с выручки:</span>
                             <span id="resTax" class="font-semibold text-amber-400">200 000 ₸</span>
                         </div>
                         <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
@@ -282,11 +280,11 @@
                         </h3>
                         
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Затраты на исполнение (товар + доставка):</span>
+                            <span class="text-slate-400">Прямые затраты на исполнение:</span>
                             <span id="cfDirect" class="font-semibold text-white">3 675 000 ₸</span>
                         </div>
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Заморозка возвратного обеспечения:</span>
+                            <span class="text-slate-400">Заморозка залогового обеспечения:</span>
                             <span id="cfCollateral" class="font-semibold text-amber-400">250 000 ₸</span>
                         </div>
                         <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700 space-y-1">
@@ -294,35 +292,33 @@
                                 <span class="text-slate-300 font-medium">Потребность в оборотных средствах:</span>
                                 <span id="cfCapitalNeed" class="font-bold text-sky-400 text-base">3 925 000 ₸</span>
                             </div>
-                            <p class="text-xs text-slate-400">Сумма личных или заёмных средств, необходимая на старте.</p>
+                            <p class="text-xs text-slate-400">Минимальный капитал, необходимый до момента получения оплаты.</p>
                         </div>
                         <div class="bg-amber-950/40 p-3 rounded-lg border border-amber-800/40 space-y-1">
                             <div class="flex justify-between items-center text-sm">
                                 <span class="text-amber-200 font-medium">Срок заморозки капитала:</span>
                                 <span id="cfDelayDays" class="font-bold text-amber-400">30 дней</span>
                             </div>
-                            <p class="text-xs text-amber-300/80">Ориентировочный период ожидания оплаты от заказчика после поставки.</p>
+                            <p class="text-xs text-amber-300/80">Ориентировочный период ожидания оплаты от заказчика.</p>
                         </div>
                     </div>
 
                     <div class="pt-2">
                         <a id="btnSendToTg" href="https://t.me/Kzzakupbot" target="_blank" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl transition text-center block text-sm shadow-md">
-                            📲 Отправить расчёт в Telegram &rarr;
+                            📲 Передать и сохранить расчёт в Telegram &rarr;
                         </a>
                     </div>
 
                     <div class="pt-3 border-t border-slate-800 text-xs text-slate-400 space-y-1">
-                        <p>ℹ️ <strong>Возвратное обеспечение</strong> является замороженным капиталом, а не постоянным расходом.</p>
-                        <p>ℹ️ <strong>Расчёт прибыли</strong> выведен до личных соц. отчислений ИП и административных расходов.</p>
+                        <p>⚠️ <strong>Ограничения расчёта:</strong> Возвратное обеспечение является временно замороженным капиталом, а не расходом. Операционная прибыль выведена до уплаты личных обязательных соц. отчислений ИП (ОПВ, СО, ВОСМС) и расходов на банковские переводы.</p>
                     </div>
                 </div>
             </div>
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-xs text-slate-500 space-y-2">
-                <p><strong>Правовые условия (НК РК 2026):</strong></p>
-                <p>1. СНР на основе упрощенной декларации регулируется <strong>статьей 723 НК РК</strong>.</p>
-                <p>2. Базовая ставка 4% может изменяться маслихатами от 2% до 6% согласно <strong>статье 726 НК РК</strong>.</p>
-                <p>3. Данный расчет является предварительным ориентиром и не заменяет официальный бухгалтерский учет.</p>
+                <p><strong>Правовое примечание:</strong></p>
+                <p>1. Настоящий калькулятор является вспомогательным инструментом экспресс-оценки и не заменяет официальный бухгалтерский или налоговый учёт.</p>
+                <p>2. Порядок применения СНР регулируется <strong>ст. 723 и 726 НК РК</strong>.</p>
             </div>
         </section>
 
@@ -331,39 +327,39 @@
             <h3 class="text-2xl font-bold text-slate-900">Часто задаваемые вопросы (FAQ)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div class="space-y-1">
-                    <h4 class="font-bold text-slate-900">Сервис действительно бесплатный?</h4>
-                    <p class="text-xs text-slate-600">Да, весь функционал поиска тендеров, расчёта калькулятора маржи и Telegram-уведомлений абсолютно бесплатен для поставщиков РК.</p>
+                    <h4 class="font-bold text-slate-900">Какова стоимость использования сервиса?</h4>
+                    <p class="text-xs text-slate-600">Базовый онлайн-калькулятор сделки и Telegram-бот доступны без платы и без обязательной регистрации.</p>
                 </div>
                 <div class="space-y-1">
-                    <h4 class="font-bold text-slate-900">Откуда берутся данные о тендерах?</h4>
-                    <p class="text-xs text-slate-600">Мы используем Единую платформу государственных закупок (zakup.gov.kz), квазигосударственный сектор (Самрук-Қазына) и открытые реестры.</p>
+                    <h4 class="font-bold text-slate-900">Официальные источники данных</h4>
+                    <p class="text-xs text-slate-600">Для работы с закупками используйте официальные государственные порталы: Единую платформу госзакупок (zakup.gov.kz) и портал Самрук-Қазына (zakup.sk.kz).</p>
                 </div>
                 <div class="space-y-1">
-                    <h4 class="font-bold text-slate-900">Учитывает ли калькулятор изменения НК РК 2026?</h4>
-                    <p class="text-xs text-slate-600">Да, расчёт учитывает нормативные базовые ставки СНР 4% (ст. 723 НК РК) с возможностью выбора гибкой ставки маслихата (2–6% согласно ст. 726 НК РК).</p>
+                    <h4 class="font-bold text-slate-900">Учитывает ли калькулятор нормы НК РК 2026?</h4>
+                    <p class="text-xs text-slate-600">Да, калькулятор закладывает базовую ставку СНР 4% (ст. 723 НК РК) и позволяет выбрать актуальную ставку маслихата (2–6% по ст. 726 НК РК).</p>
                 </div>
                 <div class="space-y-1">
-                    <h4 class="font-bold text-slate-900">Нужна ли регистрация на сайте?</h4>
-                    <p class="text-xs text-slate-600">Нет, регистрация не требуется. Вы можете производить расчеты на сайте и сразу передавать их в свой Telegram-аккаунт.</p>
+                    <h4 class="font-bold text-slate-900">Где сохраняются мои расчёты?</h4>
+                    <p class="text-xs text-slate-600">При нажатии кнопки «Передать расчёт в Telegram» результаты отправляются в диалог с вашим Telegram-ботом, где вы можете обратиться к ним в любое время.</p>
                 </div>
             </div>
         </section>
 
         <!-- Procurement Platforms Grid -->
         <section class="space-y-4">
-            <h3 class="text-lg font-bold text-slate-900">Официальные источники и площадки Казахстана</h3>
+            <h3 class="text-lg font-bold text-slate-900">Официальные порталы закупок Республики Казахстан</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <a href="https://zakup.gov.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
                     <h4 class="font-semibold text-slate-900 text-sm">Единая платформа закупок РК</h4>
-                    <p class="text-xs text-slate-500 mt-1">zakup.gov.kz — Основной актуальный портал</p>
+                    <p class="text-xs text-slate-500 mt-1">zakup.gov.kz — Актуальный портал</p>
                 </a>
                 <a href="https://zakup.sk.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
                     <h4 class="font-semibold text-slate-900 text-sm">Самрук-Қазына</h4>
                     <p class="text-xs text-slate-500 mt-1">zakup.sk.kz — Холдинговые закупки</p>
                 </a>
                 <a href="https://old.goszakup.gov.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
-                    <h4 class="font-semibold text-slate-900 text-sm">Старый интерфейс (Архив)</h4>
-                    <p class="text-xs text-slate-500 mt-1">old.goszakup.gov.kz — Переходный период</p>
+                    <h4 class="font-semibold text-slate-900 text-sm">Прежний интерфейс (Архив)</h4>
+                    <p class="text-xs text-slate-500 mt-1">old.goszakup.gov.kz — Архивных лоты</p>
                 </a>
             </div>
         </section>
@@ -374,10 +370,10 @@
     <footer class="bg-white border-t border-slate-200 mt-auto py-6">
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
             <div>
-                &copy; 2026 Kzzakupbot Hub. Все права защищены. Разработано для поставщиков Республики Казахстан.
+                &copy; 2026 Kzzakupbot Hub. Вспомогательный инструмент поставщика РК.
             </div>
             <div>
-                <a href="https://t.me/Kzzakupbot" target="_blank" class="text-blue-600 hover:underline font-medium">Сообщить об ошибке или предложить идею</a>
+                <a href="https://t.me/Kzzakupbot" target="_blank" class="text-blue-600 hover:underline font-medium">Обратная связь и предложения</a>
             </div>
         </div>
     </footer>
