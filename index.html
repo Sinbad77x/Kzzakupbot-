@@ -23,8 +23,9 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
+                <a href="#how-it-works" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Как это работает</a>
                 <a href="#calculator" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Калькулятор 2.0</a>
-                <a href="#tenders" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Поиск тендеров</a>
+                <a href="#faq" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">FAQ</a>
                 <a href="https://t.me/Kzzakupbot?start=website" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5">
                     <span>💬 Открыть в Telegram</span>
                 </a>
@@ -34,6 +35,21 @@
 
     <!-- Main Content -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+        <!-- System Live Status & Trust Bar -->
+        <div class="bg-slate-900 text-white rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="flex items-center space-x-3">
+                <span class="flex h-2.5 w-2.5 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="font-medium text-slate-200">Система активна и обновлена: <strong class="text-emerald-400">Октябрь 2026</strong></span>
+            </div>
+            <div class="flex items-center space-x-6 text-slate-400">
+                <span>🏛 Ставки НК РК: <strong>СНР 4% (ст. 723, 726)</strong></span>
+                <span>🛡 Доступ: <strong>100% Бесплатно</strong></span>
+            </div>
+        </div>
 
         <!-- Banner Offer -->
         <div class="bg-gradient-to-r from-blue-900 via-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
@@ -49,7 +65,29 @@
             </div>
         </div>
 
-        <!-- Hero / Search Section -->
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="space-y-4">
+            <h3 class="text-xl font-bold text-slate-900">Как работать с Kzzakupbot Hub за 3 шага</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="w-8 h-8 bg-blue-100 text-blue-600 font-bold rounded-lg flex items-center justify-center text-sm">1</div>
+                    <h4 class="font-bold text-slate-900 text-base">Поиск закупки</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">Введите ключевое слово или выберите площадку в Telegram-боте. Получите карточки лотов с суммой, сроками и заказчиком.</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="w-8 h-8 bg-blue-100 text-blue-600 font-bold rounded-lg flex items-center justify-center text-sm">2</div>
+                    <h4 class="font-bold text-slate-900 text-base">Расчёт маржи и Cash Flow</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">Перейдите в калькулятор, укажите закупку и логистику. Оцените чистую прибыль и заблокированный капитал с учетом отсрочки оплаты.</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="w-8 h-8 bg-blue-100 text-blue-600 font-bold rounded-lg flex items-center justify-center text-sm">3</div>
+                    <h4 class="font-bold text-slate-900 text-base">Контроль и Подписка</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">Сохраните расчет и подпишитесь на уведомления в Telegram. Новые лоты по вашим критериям будут приходить автоматически.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Section -->
         <section id="tenders" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
                 <div>
@@ -282,6 +320,29 @@
             </div>
         </section>
 
+        <!-- FAQ Section -->
+        <section id="faq" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+            <h3 class="text-2xl font-bold text-slate-900">Часто задаваемые вопросы (FAQ)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div class="space-y-1">
+                    <h4 class="font-bold text-slate-900">Сервис действительно бесплатный?</h4>
+                    <p class="text-xs text-slate-600">Да, весь функционал поиска тендеров, расчёта калькулятора маржи и Telegram-уведомлений абсолютно бесплатен для поставщиков РК.</p>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="font-bold text-slate-900">Откуда берутся данные о тендерах?</h4>
+                    <p class="text-xs text-slate-600">Мы используем открытые реестры государственных закупок (goszakup.gov.kz), квазигосударственного сектора (Самрук-Қазына) и коммерческих площадок.</p>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="font-bold text-slate-900">Учитывает ли калькулятор изменения НК РК 2026?</h4>
+                    <p class="text-xs text-slate-600">Да, расчёт учитывает нормативные базовые ставки СНР 4% (ст. 723 НК РК) с возможностью выбора гибкой ставки маслихата (2–6% согласно ст. 726 НК РК).</p>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="font-bold text-slate-900">Нужна ли регистрация на сайте?</h4>
+                    <p class="text-xs text-slate-600">Нет, регистрация не требуется. Вы можете производить расчеты на сайте и сразу передавать их в свой Telegram-аккаунт.</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Procurement Platforms Grid -->
         <section class="space-y-4">
             <h3 class="text-lg font-bold text-slate-900">Официальные источники и площадки Казахстана</h3>
@@ -305,8 +366,13 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-auto py-6">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            &copy; 2026 Kzzakupbot Hub. Все права защищены. Разработано для поставщиков Республики Казахстан.
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+            <div>
+                &copy; 2026 Kzzakupbot Hub. Все права защищены. Разработано для поставщиков Республики Казахстан.
+            </div>
+            <div>
+                <a href="https://t.me/Kzzakupbot" target="_blank" class="text-blue-600 hover:underline font-medium">Сообщить об ошибке или предложить идею</a>
+            </div>
         </div>
     </footer>
 
