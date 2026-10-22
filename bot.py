@@ -8,11 +8,14 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8262844582:AAGlNL-AfRKTKurq90IjdVqUojC_TqShiAs").strip()
+# ==============================================================================
+# ВСТАВЬТЕ ВАШ ПОЛНЫЙ ТОКЕН ОТ @BotFather В СТРОКУ НИЖЕ:
+# ==============================================================================
+BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВЬТЕ_СУДА_ПОЛНЫЙ_ТОКЕН_ОТ_BOTFATHER").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
-    logging.warning("⚠️ BOT_TOKEN не задан!")
+    logging.warning("⚠️ BOT_TOKEN не задан или указан неверно!")
     bot = None
 else:
     bot = TeleBot(BOT_TOKEN)
@@ -71,14 +74,42 @@ else:
         }
     ]
 
+    # --------------------------------------------------------------------------
+    # 1. ОБРАБОТЧИК КОМАНДЫ /start (С ФИКСАЦИЕЙ ИСТОЧНИКА ТРАФИКА)
+    # --------------------------------------------------------------------------
     @bot.message_handler(commands=['start'])
     def handle_start(message):
         first_name = message.from_user.first_name or "Пользователь"
+        username = message.from_user.username or ""
+        user_id = message.from_user.id
+
+        # Извлекаем источник из параметра /start (например, /start src_facebook)
+        args = message.text.split()
+        source = "direct"
+        if len(args) > 1:
+            raw_arg = args[1]
+            if "src_" in raw_arg:
+                source = raw_arg.replace("src_", "").split("_")[0]
+            elif "fb" in raw_arg or "facebook" in raw_arg:
+                source = "facebook"
+            elif "wa" in raw_arg or "whatsapp" in raw_arg:
+                source = "whatsapp"
+            elif "tg" in raw_arg or "telegram" in raw_arg:
+                source = "telegram"
+            elif "olx" in raw_arg:
+                source = "olx"
+
+        # Фиксируем переход в автономной БД
+        try:
+            database.register_user(user_id, first_name, username, source)
+        except Exception as e:
+            logging.error(f"Ошибка записи пользователя в БД: {e}")
+
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
-            f"🔍 **Поиск тендеров прямо в Telegram:**\n"
+            f"🔍 **Kzzakupbot Hub** — ваш бесплатный рабочий кабинет поставщика РК.\n"
             f"Просто напишите ключевое слово (например: *Бумага*, *IT*, *Услуги*) или выберите площадку ниже.\n\n"
-            f"📊 Для детального расчёта маржи и налогов (НК РК 2026) используйте веб-калькулятор."
+            f"📊 Для детального расчёта маржи и кассового разрыва (НК РК 2026) используйте калькулятор."
         )
         inline_markup = types.InlineKeyboardMarkup()
         inline_markup.add(types.InlineKeyboardButton("🧮 Открыть веб-калькулятор маржи", url="https://kzzakupbot.onrender.com#calculator"))
@@ -86,6 +117,24 @@ else:
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=inline_markup)
         bot.send_message(message.chat.id, "Выберите площадку или введите запрос:", reply_markup=get_main_keyboard())
 
+    # --------------------------------------------------------------------------
+    # 2. КОМАНДА /stats ДЛЯ ПРОСМОТРА СТАТИСТИКИ ТРАФИКА В TELEGRAM
+    # --------------------------------------------------------------------------
+    @bot.message_handler(commands=['stats'])
+    def handle_stats(message):
+        try:
+            stats = database.get_traffic_stats()
+            total = sum(stats.values())
+            msg = f"📊 **Статистика поставщиков (Всего: {total}):**\n\n"
+            for src, count in stats.items():
+                msg += f"• **{src.upper()}**: {count} чел.\n"
+        except Exception as e:
+            msg = f"Ошибка получения статистики из БД: {e}"
+        bot.send_message(message.chat.id, msg, parse_mode="Markdown")
+
+    # --------------------------------------------------------------------------
+    # 3. ОБРАБОТКА ВСЕХ ОСТАЛЬНЫХ СООБЩЕНИЙ И ПОИСКА
+    # --------------------------------------------------------------------------
     @bot.message_handler(func=lambda message: True)
     def handle_all_messages(message):
         text = message.text.strip().lower()
