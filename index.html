@@ -52,7 +52,7 @@
             </div>
             <div class="flex items-center space-x-6 text-slate-300">
                 <span>🏛 СНР: базовая ставка <strong class="text-white">4% (ст. 726 НК РК)</strong></span>
-                <span>🎓 Бесплатная Академия</span>
+                <span>⚖️ НДС: ст. 503 (16%)</span>
             </div>
         </div>
 
@@ -153,8 +153,8 @@
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Налоговый режим</label>
                         <select id="calcTaxMode" onchange="toggleTaxMode()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500">
                             <option value="snr_simp">ИП на СНР (Упрощенная декларация)</option>
-                            <option value="our_no_vat">ОУР (Экспериментально / Оценка без вычетов)</option>
-                            <option value="our_vat">ОУР (Экспериментально / Оценка с НДС)</option>
+                            <option value="our_no_vat">ОУР (Оценка без НДС)</option>
+                            <option value="our_vat">ОУР (Оценка с НДС по ст. 503 НК РК - 16%)</option>
                         </select>
                     </div>
 
@@ -182,23 +182,23 @@
                         
                         <div class="flex justify-between items-center text-sm font-medium">
                             <span class="text-slate-300">Прямые затраты (товар + логистика + БГ):</span>
-                            <span id="resDirectCosts" class="font-bold text-white">3 675 000 ₸</span>
+                            <span id="resDirectCosts" class="font-bold text-white">0 ₸</span>
                         </div>
                         <div class="flex justify-between items-center text-sm font-medium">
                             <span class="text-slate-300">Плата за финансирование капитала:</span>
-                            <span id="resFinanceCost" class="font-bold text-amber-300">64 521 ₸</span>
+                            <span id="resFinanceCost" class="font-bold text-amber-300">0 ₸</span>
                         </div>
                         <div class="flex justify-between items-center text-sm font-medium">
-                            <span class="text-slate-300">Расчётный налог с выручки:</span>
-                            <span id="resTax" class="font-bold text-amber-300">200 000 ₸</span>
+                            <span class="text-slate-300">Расчётный налог:</span>
+                            <span id="resTax" class="font-bold text-amber-300">0 ₸</span>
                         </div>
                         <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
                             <span class="text-base font-semibold text-slate-100">Расчётная прибыль сделки:</span>
-                            <span id="resNetProfit" class="text-xl font-extrabold text-emerald-400">1 060 479 ₸</span>
+                            <span id="resNetProfit" class="text-xl font-extrabold text-emerald-400">0 ₸</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-medium text-slate-300">Операционная маржинальность:</span>
-                            <span id="resMargin" class="text-lg font-bold text-blue-400">21.2%</span>
+                            <span id="resMargin" class="text-lg font-bold text-blue-400">0%</span>
                         </div>
                     </div>
 
@@ -210,18 +210,18 @@
                         
                         <div class="flex justify-between items-center text-sm font-medium">
                             <span class="text-slate-300">Прямые затраты на исполнение:</span>
-                            <span id="cfDirect" class="font-bold text-white">3 675 000 ₸</span>
+                            <span id="cfDirect" class="font-bold text-white">0 ₸</span>
                         </div>
                         <div class="flex justify-between items-center text-sm font-medium">
                             <span class="text-slate-300">Заморозка залога исполнения:</span>
-                            <span id="cfCollateral" class="font-bold text-amber-300">250 000 ₸</span>
+                            <span id="cfCollateral" class="font-bold text-amber-300">0 ₸</span>
                         </div>
                         <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 space-y-1">
                             <div class="flex justify-between items-center text-sm">
-                                <span class="text-slate-200 font-semibold">Потребность в оборотных средствах:</span>
-                                <span id="cfCapitalNeed" class="font-extrabold text-sky-400 text-base">3 925 000 ₸</span>
+                                <span class="text-slate-200 font-semibold">Пиковая потребность в капитале:</span>
+                                <span id="cfCapitalNeed" class="font-extrabold text-sky-400 text-base">0 ₸</span>
                             </div>
-                            <p class="text-xs text-slate-400 font-medium">Залог не является прямым расходом, но временно замораживает ликвидность до приемки.</p>
+                            <p class="text-xs text-slate-400 font-medium">Снепшот обеспечения и затрат (требуется собственный капитал или финансирование до оплаты контракта).</p>
                         </div>
                     </div>
 
@@ -262,4 +262,5 @@
                     <!-- Lesson 1.1 -->
                     <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-3 flex flex-col justify-between">
                         <div class="space-y-2">
-                            <div class="flex justify-between items-
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] fo
