@@ -219,8 +219,8 @@
                             <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Налоговый режим</label>
                             <select id="calcTaxMode" onchange="toggleTaxMode()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="snr_simp">ИП на СНР (Упрощенная декларация)</option>
-                                <option value="our_no_vat">ОУР (Ориентировочная оценка без НДС)</option>
-                                <option value="our_vat">ОУР (Ориентировочная оценка с НДС 16%)</option>
+                                <option value="our_no_vat">ОУР (Экспериментально / без НДС)</option>
+                                <option value="our_vat">ОУР (Экспериментально / с НДС 16%)</option>
                             </select>
                         </div>
                     </div>
@@ -436,21 +436,14 @@
         }
 
         function calculateMargin() {
-            let contract = parseFloat(document.getElementById('calcContract').value) || 0;
-            let goods = parseFloat(document.getElementById('calcGoods').value) || 0;
-            let logistics = parseFloat(document.getElementById('calcLogistics').value) || 0;
-            let bankGuaranty = parseFloat(document.getElementById('calcBankGuaranty').value) || 0;
-            let collateral = parseFloat(document.getElementById('calcCollateral').value) || 0;
-            let paymentDelay = parseInt(document.getElementById('calcPaymentDelay').value) || 0;
+            let contract = Math.max(0, parseFloat(document.getElementById('calcContract').value) || 0);
+            let goods = Math.max(0, parseFloat(document.getElementById('calcGoods').value) || 0);
+            let logistics = Math.max(0, parseFloat(document.getElementById('calcLogistics').value) || 0);
+            let bankGuaranty = Math.max(0, parseFloat(document.getElementById('calcBankGuaranty').value) || 0);
+            let collateral = Math.max(0, parseFloat(document.getElementById('calcCollateral').value) || 0);
+            let paymentDelay = Math.max(0, parseInt(document.getElementById('calcPaymentDelay').value) || 0);
             let taxMode = document.getElementById('calcTaxMode').value;
             let maslikhatRate = parseFloat(document.getElementById('calcMaslikhatRate').value) || 0.04;
-
-            if (contract < 0) contract = 0;
-            if (goods < 0) goods = 0;
-            if (logistics < 0) logistics = 0;
-            if (bankGuaranty < 0) bankGuaranty = 0;
-            if (collateral < 0) collateral = 0;
-            if (paymentDelay < 0) paymentDelay = 0;
 
             let directCosts = goods + logistics + bankGuaranty;
             let capitalNeed = directCosts + collateral;
@@ -473,11 +466,13 @@
             let margin = contract > 0 ? (netProfit / contract) * 100 : 0;
 
             let bep = 0;
-            if (taxMode === 'snr_simp') {
-                let denominator = (1 - effectiveTaxRate);
-                bep = denominator > 0 ? directCosts / denominator : directCosts;
-            } else {
-                bep = directCosts;
+            if (contract > 0) {
+                if (taxMode === 'snr_simp') {
+                    let denominator = (1 - effectiveTaxRate);
+                    bep = denominator > 0 ? directCosts / denominator : directCosts;
+                } else {
+                    bep = directCosts;
+                }
             }
 
             document.getElementById('resDirectCosts').innerText = directCosts.toLocaleString('ru-RU') + ' ₸';
@@ -496,7 +491,7 @@
             document.getElementById('cfDelayDays').innerText = paymentDelay + ' дней';
 
             let source = getUTMSource();
-            let tgLink = `https://t.me/Kzzakupbot?start=calc_src_${source}_c${Math.round(contract)}_p${Math.round(netProfit)}`;
+            let tgLink = `https://t.me/Kzzakupbot?start=calc_src_${source}`;
             document.getElementById('btnSendToTg').href = tgLink;
         }
 
