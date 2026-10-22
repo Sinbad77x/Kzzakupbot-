@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -61,7 +62,7 @@
             <div class="space-y-2 max-w-2xl">
                 <span class="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-400/30">Единый портал поставщика</span>
                 <h2 class="text-xl sm:text-2xl font-bold tracking-tight">Поиск лотов, расчёт прибыли и финансовые инструменты</h2>
-                <p class="text-sm text-slate-200 font-normal leading-relaxed">Ищите актуальные закупки, оценивайте расчётную прибыль сделки, кассовые разрывы при отсрочке и проходите практические уроки.</p>
+                <p class="text-sm text-slate-200 font-normal leading-relaxed">Ищите актуальные закупки, оценивайте расчётную прибыль сделки, потребность в капитале при отсрочке и проходите практические уроки.</p>
             </div>
             <div class="shrink-0">
                 <a id="heroTgBtn" href="https://t.me/Kzzakupbot?start=website_hero" target="_blank" rel="noopener noreferrer" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition text-sm inline-block shadow-lg">
@@ -263,4 +264,252 @@
                     <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-3 flex flex-col justify-between">
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
-                                <span class="text-[11px] fo
+                                <span class="text-[11px] font-bold text-blue-700 uppercase">Урок 1.1 • Практикум</span>
+                                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">Доступен</span>
+                            </div>
+                            <h4 class="font-bold text-slate-950 text-sm">Расчёт маржи и финансовая модель лота</h4>
+                            <p class="text-xs text-slate-700 leading-relaxed">Методика учёта себестоимости, налогов СНР (4%), отсрочки платежа и комиссии БГ до подачи заявки.</p>
+                        </div>
+                        <a href="#calculator" class="text-xs font-bold text-blue-700 hover:underline pt-2 border-t border-blue-100 block">Перейти к калькулятору P&L &rarr;</a>
+                    </div>
+
+                    <!-- Lesson 1.2 -->
+                    <div class="p-4 rounded-xl border border-slate-200 space-y-3 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase">Урок 1.2 • Официальный гайд</span>
+                                <span class="text-[10px] bg-slate-200 text-slate-700 font-bold px-2 py-0.5 rounded">В базе</span>
+                            </div>
+                            <h4 class="font-bold text-slate-950 text-sm">Регистрация и работа с ЭЦП на портале</h4>
+                            <p class="text-xs text-slate-700 leading-relaxed">Пошаговое руководство по первичной настройке рабочего места и прохождению аккредитации.</p>
+                        </div>
+                        <a href="https://zakup.gov.kz" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-blue-700 hover:underline pt-2 border-t border-blue-100 block">Перейти на веб-портал &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+        <p>Kzzakupbot Hub — Инструменты автоматизации для поставщиков Республики Казахстан.</p>
+    </footer>
+
+    <!-- JavaScript logic -->
+    <script>
+    let currentMode = 'profit';
+
+    function setCalcMode(mode) {
+        currentMode = mode;
+        const btnProfit = document.getElementById('btnModeProfit');
+        const btnCashFlow = document.getElementById('btnModeCashFlow');
+        const viewProfit = document.getElementById('viewProfit');
+        const viewCashFlow = document.getElementById('viewCashFlow');
+
+        if (mode === 'profit') {
+            btnProfit.className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm transition";
+            btnCashFlow.className = "px-4 py-2 text-xs font-bold rounded-lg text-slate-700 hover:text-slate-950 transition";
+            viewProfit.classList.remove('hidden');
+            viewCashFlow.classList.add('hidden');
+        } else {
+            btnCashFlow.className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm transition";
+            btnProfit.className = "px-4 py-2 text-xs font-bold rounded-lg text-slate-700 hover:text-slate-950 transition";
+            viewCashFlow.classList.remove('hidden');
+            viewProfit.classList.add('hidden');
+        }
+    }
+
+    function toggleTaxMode() {
+        const mode = document.getElementById('calcTaxMode').value;
+        const maslikhatContainer = document.getElementById('maslikhatRateContainer');
+        if (mode === 'snr_simp') {
+            maslikhatContainer.style.display = 'block';
+        } else {
+            maslikhatContainer.style.display = 'none';
+        }
+        calculateMargin();
+    }
+
+    // --- Корректный расчет налогов с учетом НК РК 2026 ---
+    function calculateMargin() {
+        const contract = Math.max(0, parseFloat(document.getElementById('calcContract').value) || 0);
+        const goods = Math.max(0, parseFloat(document.getElementById('calcGoods').value) || 0);
+        const logistics = Math.max(0, parseFloat(document.getElementById('calcLogistics').value) || 0);
+        const bankGuaranty = Math.max(0, parseFloat(document.getElementById('calcBankGuaranty').value) || 0);
+        const collateral = Math.max(0, parseFloat(document.getElementById('calcCollateral').value) || 0);
+        
+        const financeRate = Math.max(0, parseFloat(document.getElementById('calcFinanceRate').value) || 0);
+        const paymentDelay = Math.max(0, parseFloat(document.getElementById('calcPaymentDelay').value) || 0);
+        
+        const taxMode = document.getElementById('calcTaxMode').value;
+        const directCosts = goods + logistics + bankGuaranty;
+        
+        // Стоимость финансирования по простым процентам за дни отсрочки
+        const financeCost = directCosts * (financeRate / 100) * (paymentDelay / 365);
+        
+        let taxAmount = 0;
+        if (taxMode === 'snr_simp') {
+            // СНР по упрощенной декларации (ст. 726 НК РК, базовая ставка 4% или по решению маслихата от 2% до 6%)
+            const maslikhatRate = parseFloat(document.getElementById('calcMaslikhatRate').value) || 0.04;
+            taxAmount = contract * maslikhatRate;
+        } else if (taxMode === 'our_no_vat') {
+            // ОУР без НДС: ИПН с налогооблагаемого дохода (доход минус вычеты и затраты)
+            const taxableIncome = Math.max(0, contract - directCosts - financeCost);
+            taxAmount = taxableIncome * 0.10;
+        } else if (taxMode === 'our_vat') {
+            // ОУР с НДС по ст. 503 НК РК на 2026 год (стандартная ставка 16%)
+            const outputVat = contract - (contract / 1.16);
+            const inputVat = directCosts - (directCosts / 1.16);
+            taxAmount = Math.max(0, outputVat - inputVat);
+        }
+
+        const netProfit = contract - directCosts - financeCost - taxAmount;
+        const margin = contract > 0 ? (netProfit / contract) * 100 : 0;
+
+        // Вывод результатов P&L
+        document.getElementById('resDirectCosts').innerText = Math.round(directCosts).toLocaleString() + ' ₸';
+        document.getElementById('resFinanceCost').innerText = Math.round(financeCost).toLocaleString() + ' ₸';
+        document.getElementById('resTax').innerText = Math.round(taxAmount).toLocaleString() + ' ₸';
+        document.getElementById('resNetProfit').innerText = Math.round(netProfit).toLocaleString() + ' ₸';
+        document.getElementById('resMargin').innerText = margin.toFixed(1) + '%';
+
+        // Вывод результатов Cash Flow
+        document.getElementById('cfDirect').innerText = Math.round(directCosts).toLocaleString() + ' ₸';
+        document.getElementById('cfCollateral').innerText = Math.round(collateral).toLocaleString() + ' ₸';
+        document.getElementById('cfCapitalNeed').innerText = Math.round(directCosts + collateral).toLocaleString() + ' ₸';
+
+        updateTelegramLink(contract, netProfit);
+    }
+
+    function updateTelegramLink(contract, netProfit) {
+        const tgBtn = document.getElementById('btnSendToTg');
+        if (tgBtn) {
+            tgBtn.href = `https://t.me/Kzzakupbot?start=calc_${Math.round(contract)}_${Math.round(netProfit)}`;
+        }
+    }
+
+    // --- Строгая проверка домена официального портала госзакупок РК ---
+    function getSafeZakupUrl(rawUrl) {
+        try {
+            const parsed = new URL(rawUrl);
+            if (parsed.protocol === 'https:' && (parsed.hostname === 'zakup.gov.kz' || parsed.hostname.endsWith('.zakup.gov.kz'))) {
+                return parsed.href;
+            }
+        } catch (e) {
+            // Некорректный формат URL
+        }
+        return 'https://zakup.gov.kz';
+    }
+
+    // --- Поиск с безопасным рендерингом DOM и обработкой сетевых ошибок ---
+    async function searchTenders() {
+        const query = document.getElementById('searchInput').value.trim();
+        const resultsContainer = document.getElementById('searchResults');
+        
+        if (!query) {
+            alert('Введите ключевое слово для поиска');
+            return;
+        }
+
+        resultsContainer.innerHTML = '';
+        const loadingP = document.createElement('p');
+        loadingP.className = "text-slate-500 text-sm text-center py-6";
+        loadingP.textContent = "Поиск актуальных данных на портале госзакупок...";
+        resultsContainer.appendChild(loadingP);
+
+        try {
+            const response = await fetch(`https://Sinbad7777.pythonanywhere.com/api/search?q=${encodeURIComponent(query)}`);
+            
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`);
+            }
+
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Получен некорректный формат данных от сервера');
+            }
+
+            const result = await response.json();
+            resultsContainer.innerHTML = '';
+
+            if (result.success && result.data && result.data.length > 0) {
+                result.data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm space-y-2";
+
+                    const metaDiv = document.createElement('div');
+                    metaDiv.className = "text-xs text-slate-500";
+                    metaDiv.textContent = `Лот №: ${item.number || 'б/н'} | Заказчик: ${item.organizer || 'Госучреждение'}`;
+                    card.appendChild(metaDiv);
+
+                    const titleH4 = document.createElement('h4');
+                    titleH4.className = "font-bold text-base";
+                    const aTag = document.createElement('a');
+                    
+                    aTag.href = getSafeZakupUrl(item.url);
+                    aTag.target = "_blank";
+                    aTag.rel = "noopener noreferrer";
+                    aTag.className = "text-blue-600 hover:underline";
+                    aTag.textContent = item.name || 'Наименование лота';
+                    titleH4.appendChild(aTag);
+                    card.appendChild(titleH4);
+
+                    const bottomRow = document.createElement('div');
+                    bottomRow.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 border-t border-slate-200";
+
+                    const budgetDiv = document.createElement('div');
+                    const spanLabel = document.createElement('span');
+                    spanLabel.className = "text-xs text-slate-600 uppercase font-semibold";
+                    spanLabel.textContent = "Бюджет: ";
+                    budgetDiv.appendChild(spanLabel);
+
+                    const spanAmount = document.createElement('span');
+                    spanAmount.className = "text-emerald-600 font-bold text-lg";
+                    const numericAmount = parseFloat(item.amount) || 0;
+                    spanAmount.textContent = numericAmount.toLocaleString() + ' ₸';
+                    budgetDiv.appendChild(spanAmount);
+                    bottomRow.appendChild(budgetDiv);
+
+                    const calcBtn = document.createElement('button');
+                    calcBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm";
+                    calcBtn.textContent = "📈 Рассчитать в калькуляторе";
+                    calcBtn.onclick = () => sendToCalculator(numericAmount);
+                    bottomRow.appendChild(calcBtn);
+
+                    card.appendChild(bottomRow);
+                    resultsContainer.appendChild(card);
+                });
+            } else {
+                const emptyP = document.createElement('p');
+                emptyP.className = "text-slate-500 text-sm text-center py-6";
+                emptyP.textContent = "По вашему запросу ничего не найдено или внешний сервис временно недоступен.";
+                resultsContainer.appendChild(emptyP);
+            }
+        } catch (error) {
+            resultsContainer.innerHTML = '';
+            const errP = document.createElement('p');
+            errP.className = "text-red-600 text-sm text-center py-6";
+            errP.textContent = `Не удалось загрузить данные: ${error.message}`;
+            resultsContainer.appendChild(errP);
+            console.error('Ошибка поиска:', error);
+        }
+    }
+
+    function sendToCalculator(amount) {
+        const calcInput = document.getElementById('calcContract');
+        if (calcInput) {
+            calcInput.value = amount;
+            calculateMargin();
+            document.getElementById('calculator').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // Инициализация расчетов при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        calculateMargin();
+    });
+    </script>
+
+</body>
+</html>
