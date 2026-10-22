@@ -51,7 +51,7 @@
                 <span class="text-slate-100">Формулы калькулятора: <strong class="text-emerald-400 font-bold">Нормы НК РК 2026</strong></span>
             </div>
             <div class="flex items-center space-x-6 text-slate-300">
-                <span>🏛 СНР: <strong class="text-white">4% (ст. 723 НК РК)</strong></span>
+                <span>🏛 СНР: базовая ставка <strong class="text-white">4% (ст. 726 НК РК)</strong></span>
                 <span>🎓 Бесплатная Академия</span>
             </div>
         </div>
@@ -131,7 +131,7 @@
                                 <input type="number" id="calcPaymentDelay" value="30" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 bg-white focus:ring-2 focus:ring-blue-500">
                             </div>
                         </div>
-                        <p class="text-[11px] text-slate-600 font-medium">Проценты рассчитываются от объема привлекаемого капитала (затраты + залог) за указанное количество дней отсрочки.</p>
+                        <p class="text-[11px] text-slate-600 font-medium">⚠️ Введённая ставка (например, 20%) является <strong>пользовательским допущением</strong> для оценки, а не гарантийным тарифом банка.</p>
                     </div>
 
                     <div>
@@ -146,12 +146,13 @@
                     <div id="maslikhatRateContainer" class="space-y-2">
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Ставка маслихата СНР (%)</label>
                         <select id="calcMaslikhatRate" onchange="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500">
-                            <option value="0.04" selected>4% (Базовая ставка)</option>
+                            <option value="0.04" selected>4% (Базовая ставка по ст. 726 НК РК)</option>
                             <option value="0.02">2% (Пониженная)</option>
                             <option value="0.03">3% (Пониженная)</option>
                             <option value="0.05">5% (Повышенная)</option>
                             <option value="0.06">6% (Максимальная)</option>
                         </select>
+                        <p class="text-[11px] text-slate-500">Базовая ставка 4% может изменяться местным маслихатом от 2% до 6% (ст. 726 НК РК). Условия применения СНР регулируются ст. 723 НК РК.</p>
                     </div>
                 </div>
 
@@ -197,7 +198,7 @@
                             <span id="cfDirect" class="font-bold text-white">3 675 000 ₸</span>
                         </div>
                         <div class="flex justify-between items-center text-sm font-medium">
-                            <span class="text-slate-300">Заморозка залога (3%):</span>
+                            <span class="text-slate-300">Заморозка залога исполнения:</span>
                             <span id="cfCollateral" class="font-bold text-amber-300">250 000 ₸</span>
                         </div>
                         <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 space-y-1">
@@ -205,7 +206,7 @@
                                 <span class="text-slate-200 font-semibold">Потребность в оборотных средствах:</span>
                                 <span id="cfCapitalNeed" class="font-extrabold text-sky-400 text-base">3 925 000 ₸</span>
                             </div>
-                            <p class="text-xs text-slate-400 font-medium">Минимальный капитал до момента получения оплаты от заказчика.</p>
+                            <p class="text-xs text-slate-400 font-medium">Залог не является прямым расходом, но временно замораживает ликвидность до приемки.</p>
                         </div>
                     </div>
 
@@ -309,12 +310,12 @@
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
                                 <span class="text-[11px] font-bold text-slate-500 uppercase">Урок 2.2 • Справочник</span>
-                                <span class="text-[10px] bg-slate-200 text-slate-700 font-bold px-2 py-0.5 rounded">В разработке</span>
+                                <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">В разработке</span>
                             </div>
-                            <h4 class="font-bold text-slate-950 text-sm">Залоговое обеспечение и исполнение без РУУ</h4>
-                            <p class="text-xs text-slate-600 leading-relaxed">Правила внесения 3% залога, оформление электронных актов и защита интересов поставщика.</p>
+                            <h4 class="font-bold text-slate-950 text-sm">Обеспечение заявки и исполнения договора: виды, размеры и сроки</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">Разбор видов обеспечения, нормативных сроков возврата залога и правил работы без попадания в РУУ.</p>
                         </div>
-                        <span class="text-xs font-medium text-slate-600 pt-2 border-t border-slate-100 block">Материал готовятся к публикации</span>
+                        <span class="text-xs font-medium text-slate-500 pt-2 border-t border-slate-100 block">Материал готовится к публикации</span>
                     </div>
                 </div>
             </div>
@@ -336,7 +337,7 @@
             </button>
             <div id="searchResultCard" class="hidden bg-slate-100 p-4 rounded-xl border border-slate-200 space-y-1">
                 <p class="text-xs font-bold text-slate-800">Образец: Лот #5892401 — Поставка канцелярских товаров (5 000 000 ₸)</p>
-                <p class="text-xs text-slate-600">ГУ «Управление образования г. Шымкент» • Залог исполнения: 150 000 ₸ (3%)</p>
+                <p class="text-xs text-slate-600">ГУ «Управление образования г. Шымкент» • Залог исполнения: 250 000 ₸</p>
             </div>
         </section>
 
@@ -371,7 +372,7 @@
                             <td class="p-3 font-bold text-slate-950">Банк ЦентрКредит (BCC)</td>
                             <td class="p-3">Экспресс БГ / Тендерная</td>
                             <td class="p-3">По тарифам БГ (зависит от выбранного пакета услуг)</td>
-                            <td class="p-3">Онлайн за 15 минут</td>
+                            <td class="p-3">Онлайн по заявке</td>
                             <td class="p-3"><a href="https://www.bcc.kz/business/loans/tender-guarantees/" target="_blank" class="text-blue-700 hover:underline font-bold">Страница BCC &rarr;</a></td>
                         </tr>
                         <tr>
@@ -392,7 +393,7 @@
                 </table>
             </div>
 
-            <p class="text-[11px] text-slate-500 font-medium">⚠️ <strong>Правовое уведомление:</strong> Информация собрана из открытых источников банков РК (Проверено: Октябрь 2026). Услуги банков являются платными. Банки самостоятельно принимают решения о выдаче БГ и кредитов.</p>
+            <p class="text-[11px] text-slate-500 font-medium">⚠️ <strong>Правовое уведомление:</strong> Указанные диапазоны тарифов и условия носят ознакомительный характер (Справка: Октябрь 2026). Услуги банков платны. Банки самостоятельно принимают решения по заявкам.</p>
         </section>
 
         <!-- Official Sources Directory -->
