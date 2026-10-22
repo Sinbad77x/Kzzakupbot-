@@ -26,7 +26,7 @@
                 <a href="#how-it-works" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Как это работает</a>
                 <a href="#calculator" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">Калькулятор 2.0</a>
                 <a href="#faq" class="hidden sm:inline-block text-sm font-medium text-slate-600 hover:text-blue-600 transition">FAQ</a>
-                <a href="https://t.me/Kzzakupbot?start=website" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5">
+                <a id="navTgBtn" href="https://t.me/Kzzakupbot?start=website" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5">
                     <span>💬 Открыть в Telegram</span>
                 </a>
             </div>
@@ -56,10 +56,10 @@
             <div class="space-y-2 max-w-2xl">
                 <span class="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-400/30">100% Бесплатный инструмент</span>
                 <h2 class="text-xl sm:text-2xl font-bold">Находите тендеры и считайте экономику сделки</h2>
-                <p class="text-sm text-slate-300">Получайте свежие подходящие лоты Госзакупок и Самрук-Қазына прямо в Telegram с детальным финансовым анализом.</p>
+                <p class="text-sm text-slate-300">Получайте свежие подходящие лоты Госзакупок (zakup.gov.kz) и Самрук-Қазына прямо в Telegram с детальным финансовым анализом.</p>
             </div>
             <div class="shrink-0">
-                <a href="https://t.me/Kzzakupbot?start=website_hero" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition text-sm inline-block shadow-lg">
+                <a id="heroTgBtn" href="https://t.me/Kzzakupbot?start=website_hero" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition text-sm inline-block shadow-lg">
                     Запустить Telegram-бота &rarr;
                 </a>
             </div>
@@ -131,7 +131,7 @@
                 <button onclick="showSearchResult()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer">
                     Найти подходящие лоты
                 </button>
-                <a href="https://t.me/Kzzakupbot?start=region_all_bud_all" target="_blank" class="text-sm text-blue-600 hover:underline font-medium">
+                <a id="subTgBtn" href="https://t.me/Kzzakupbot?start=region_all_bud_all" target="_blank" class="text-sm text-blue-600 hover:underline font-medium">
                     🔔 Подписаться на авто-уведомления по этим фильтрам в Telegram &rarr;
                 </a>
             </div>
@@ -140,7 +140,7 @@
             <div id="searchResultCard" class="hidden mt-6 bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded">Найдено 3 подходящих лота</span>
-                    <span class="text-xs text-slate-500">Источник: Единая платформа закупок</span>
+                    <span class="text-xs text-slate-500">Источник: zakup.gov.kz</span>
                 </div>
                 <div class="bg-white p-4 rounded-lg border border-slate-200 space-y-2">
                     <div class="flex justify-between items-start">
@@ -203,7 +203,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Возвратное обеспечение договора, ₸</label>
-                            <input type="number" id="calcCollateral" value="250000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" title="Возвратный залог: замораживает оборотку, но не является прямым расходом">
+                            <input type="number" id="calcCollateral" value="250000" oninput="calculateMargin()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
@@ -237,7 +237,6 @@
                 <!-- Dynamic Results Panel -->
                 <div class="lg:col-span-6 bg-slate-900 text-white rounded-xl p-6 flex flex-col justify-between shadow-inner space-y-6">
                     
-                    <!-- View Mode 1: Profit Analysis -->
                     <div id="viewProfit" class="space-y-4">
                         <h3 class="text-lg font-semibold text-slate-200 border-b border-slate-800 pb-3 flex items-center justify-between">
                             <span>📈 Расчёт прибыли сделки</span>
@@ -266,7 +265,6 @@
                         </div>
                     </div>
 
-                    <!-- View Mode 2: Cash Flow Analysis -->
                     <div id="viewCashFlow" class="hidden space-y-4">
                         <h3 class="text-lg font-semibold text-slate-200 border-b border-slate-800 pb-3 flex items-center justify-between">
                             <span>💧 Денежный поток (Cash Flow)</span>
@@ -297,7 +295,6 @@
                         </div>
                     </div>
 
-                    <!-- Send Calculation Button -->
                     <div class="pt-2">
                         <a id="btnSendToTg" href="https://t.me/Kzzakupbot" target="_blank" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl transition text-center block text-sm shadow-md">
                             📲 Отправить расчёт в Telegram &rarr;
@@ -311,7 +308,6 @@
                 </div>
             </div>
 
-            <!-- Legal Disclaimers -->
             <div class="mt-8 pt-6 border-t border-slate-100 text-xs text-slate-500 space-y-2">
                 <p><strong>Правовые условия (НК РК 2026):</strong></p>
                 <p>1. СНР на основе упрощенной декларации регулируется <strong>статьей 723 НК РК</strong>.</p>
@@ -330,7 +326,7 @@
                 </div>
                 <div class="space-y-1">
                     <h4 class="font-bold text-slate-900">Откуда берутся данные о тендерах?</h4>
-                    <p class="text-xs text-slate-600">Мы используем открытые реестры государственных закупок (goszakup.gov.kz), квазигосударственного сектора (Самрук-Қазына) и коммерческих площадок.</p>
+                    <p class="text-xs text-slate-600">Мы используем Единую платформу государственных закупок (zakup.gov.kz), квазигосударственный сектор (Самрук-Қазына) и открытые реестры.</p>
                 </div>
                 <div class="space-y-1">
                     <h4 class="font-bold text-slate-900">Учитывает ли калькулятор изменения НК РК 2026?</h4>
@@ -343,21 +339,21 @@
             </div>
         </section>
 
-        <!-- Procurement Platforms Grid -->
+        <!-- Procurement Platforms Grid (Updated with zakup.gov.kz) -->
         <section class="space-y-4">
             <h3 class="text-lg font-bold text-slate-900">Официальные источники и площадки Казахстана</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <a href="https://goszakup.gov.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
-                    <h4 class="font-semibold text-slate-900 text-sm">Государственные закупки РК</h4>
-                    <p class="text-xs text-slate-500 mt-1">goszakup.gov.kz — Единая платформа</p>
+                <a href="https://zakup.gov.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
+                    <h4 class="font-semibold text-slate-900 text-sm">Единая платформа закупок РК</h4>
+                    <p class="text-xs text-slate-500 mt-1">zakup.gov.kz — Основной актуальный портал</p>
                 </a>
                 <a href="https://zakup.sk.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
                     <h4 class="font-semibold text-slate-900 text-sm">Самрук-Қазына</h4>
                     <p class="text-xs text-slate-500 mt-1">zakup.sk.kz — Холдинговые закупки</p>
                 </a>
-                <a href="https://mitwork.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
-                    <h4 class="font-semibold text-slate-900 text-sm">Реестр товаропроизводителей</h4>
-                    <p class="text-xs text-slate-500 mt-1">mitwork.kz — Казахстанское содержание</p>
+                <a href="https://old.goszakup.gov.kz" target="_blank" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 transition shadow-sm block">
+                    <h4 class="font-semibold text-slate-900 text-sm">Старый интерфейс (Архив)</h4>
+                    <p class="text-xs text-slate-500 mt-1">old.goszakup.gov.kz — Переходный период</p>
                 </a>
             </div>
         </section>
@@ -376,9 +372,22 @@
         </div>
     </footer>
 
-    <!-- Calculator & UI Logic Script -->
+    <!-- Calculator & Source Tracker Script -->
     <script>
         let currentMode = 'profit';
+        let userSource = 'direct';
+
+        function getUTMSource() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const source = urlParams.get('utm_source');
+            if (source) {
+                userSource = source;
+                sessionStorage.setItem('user_source', source);
+            } else if (sessionStorage.getItem('user_source')) {
+                userSource = sessionStorage.getItem('user_source');
+            }
+            return userSource;
+        }
 
         function setCalcMode(mode) {
             currentMode = mode;
@@ -460,7 +469,6 @@
                 bep = directCosts;
             }
 
-            // Рендер результатов в режиме "Прибыль"
             document.getElementById('resDirectCosts').innerText = directCosts.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('resTax').innerText = taxAmount.toLocaleString('ru-RU') + ' ₸';
             
@@ -471,18 +479,22 @@
             document.getElementById('resMargin').innerText = margin.toFixed(1) + '%';
             document.getElementById('resBEP').innerText = bep > 0 ? Math.round(bep).toLocaleString('ru-RU') + ' ₸' : '0 ₸';
 
-            // Рендер результатов в режиме "Cash Flow"
             document.getElementById('cfDirect').innerText = directCosts.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('cfCollateral').innerText = collateral.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('cfCapitalNeed').innerText = capitalNeed.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('cfDelayDays').innerText = paymentDelay + ' дней';
 
-            // Динамический Deep Link для передачи в Telegram
-            let tgLink = `https://t.me/Kzzakupbot?start=calc_c${Math.round(contract)}_p${Math.round(netProfit)}_cap${Math.round(capitalNeed)}`;
+            let source = getUTMSource();
+            let tgLink = `https://t.me/Kzzakupbot?start=calc_src_${source}_c${Math.round(contract)}_p${Math.round(netProfit)}`;
             document.getElementById('btnSendToTg').href = tgLink;
         }
 
         window.onload = function() {
+            let src = getUTMSource();
+            document.getElementById('navTgBtn').href = `https://t.me/Kzzakupbot?start=src_${src}_nav`;
+            document.getElementById('heroTgBtn').href = `https://t.me/Kzzakupbot?start=src_${src}_hero`;
+            document.getElementById('subTgBtn').href = `https://t.me/Kzzakupbot?start=src_${src}_search`;
+            
             calculateMargin();
         };
     </script>
