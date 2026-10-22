@@ -49,24 +49,24 @@
 
         header h1 {
             font-size: 24px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         header p {
             font-size: 14px;
             opacity: 0.9;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .btn-tg {
             display: inline-block;
             background-color: #229ED9;
             color: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 30px;
             text-decoration: none;
             font-weight: bold;
-            font-size: 15px;
+            font-size: 14px;
             box-shadow: 0 4px 10px rgba(34, 158, 217, 0.3);
             transition: background 0.2s;
         }
@@ -185,7 +185,7 @@
             margin-bottom: 5px;
         }
 
-        .input-group input, .input-group select {
+        .input-group input {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border);
@@ -216,6 +216,25 @@
             margin-top: 8px;
         }
 
+        .academy-item {
+            padding: 12px 15px;
+            background: #F8FAFC;
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .academy-item h4 {
+            font-size: 15px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .academy-item p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
         .msg-error {
             color: #EF4444;
             font-size: 14px;
@@ -235,28 +254,37 @@
         <a href="https://t.me/kzzakupbot" class="btn-tg" target="_blank">💬 Запустить в Telegram</a>
     </header>
 
+    <!-- Справочные нормы -->
+    <div class="card" style="background: #EFF6FF; border-color: #BFDBFE;">
+        <h2 style="font-size: 15px; margin-bottom: 8px;">Формулы калькулятора: Нормы НК РК 2026</h2>
+        <p style="font-size: 13px; color: var(--text-muted);">🏛 СНР: базовая ставка 4% (ст. 726 НК РК) | ⚖️ НДС: ст. 503 (16%)</p>
+    </div>
+
     <!-- Поиск лотов -->
     <div class="card" id="search-section">
         <h2>🔍 Поиск актуальных закупок РК</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Мгновенный поиск по актуальным лотам через защищенный бэкенд-сервис портала госзакупок.</p>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Введите ключевое слово (например: Бумага, IT)..." value="Бумага">
-            <button onclick="performSearch()">Найти</button>
+            <input type="text" id="searchInput" placeholder="Введите ключевое слово (например: Бумага)..." value="Бумага">
+            <button onclick="performSearch()">Найти лоты</button>
         </div>
         <div id="searchResults" class="results-container">
-            <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 10px;">Нажмите «Найти» для загрузки лотов</div>
+            <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 10px;">Нажмите «Найти лоты» для загрузки</div>
         </div>
     </div>
 
-    <!-- Калькулятор -->
+    <!-- Калькулятор сделки -->
     <div class="card" id="calculator">
-        <h2>🧮 Калькулятор сделки (НК РК 2026)</h2>
+        <h2>🧮 1. Калькулятор сделки и финансирования</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Оценка расчётной прибыли по ставкам НК РК 2026 и временной стоимости капитала.</p>
+        
         <div class="calc-grid">
             <div class="input-group">
                 <label>Сумма контракта (Выручка), ₸</label>
                 <input type="number" id="revenue" value="5000000" oninput="calculateProfit()">
             </div>
             <div class="input-group">
-                <label>Себестоимость товара, ₸</label>
+                <label>Закупка товара / себестоимость, ₸</label>
                 <input type="number" id="cost" value="3500000" oninput="calculateProfit()">
             </div>
             <div class="input-group">
@@ -270,10 +298,25 @@
         </div>
         
         <div class="calc-results">
-            <p>Прямые затраты: <span id="res-costs">3 675 000 ₸</span></p>
-            <p>Налог СНР (4%): <span id="res-tax">200 000 ₸</span></p>
-            <p class="total">Расчётная прибыль: <span id="res-profit">1 125 000 ₸</span></p>
-            <p>Маржинальность: <span id="res-margin" style="font-weight: bold; color: var(--success);">22.5%</span></p>
+            <p>Прямые затраты (товар + логистика + БГ): <span id="res-costs">3 675 000 ₸</span></p>
+            <p>Расчётный налог СНР (4%): <span id="res-tax">200 000 ₸</span></p>
+            <p class="total">Расчётная прибыль сделки: <span id="res-profit">1 125 000 ₸</span></p>
+            <p>Операционная маржинальность: <span id="res-margin" style="font-weight: bold; color: var(--success);">22.5%</span></p>
+        </div>
+    </div>
+
+    <!-- Академия поставщика -->
+    <div class="card">
+        <h2>📚 2. Бесплатная академия поставщика Казахстана</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Практическая база знаний, видеоуроки и чек-листы по нормам законодательства РК.</p>
+        
+        <div class="academy-item">
+            <h4>Урок 1.1 • Расчёт маржи и финансовая модель лота</h4>
+            <p>Методика учёта себестоимости, налогов СНР (4%), отсрочки платежа и комиссии БГ до подачи заявки.</p>
+        </div>
+        <div class="academy-item">
+            <h4>Урок 1.2 • Регистрация и работа с ЭЦП на портале</h4>
+            <p>Пошаговое руководство по первичной настройке рабочего места и прохождению аккредитации на zakup.gov.kz.</p>
         </div>
     </div>
 </div>
@@ -348,7 +391,6 @@ function escapeHtml(text) {
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-// Автоматический поиск при загрузке
 window.onload = function() {
     performSearch();
 };
