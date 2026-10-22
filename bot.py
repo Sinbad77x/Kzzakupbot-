@@ -15,7 +15,7 @@ def serve_index():
     return send_from_directory('.', 'index.html')
 
 # Вставьте ваш новый токен от @BotFather прямо в кавычки ниже:
-BOT_TOKEN = os.getenv("BOT_TOKEN", "2844582:AAF5_pkY3oz9QG1mHBhus52CBAZfS3k4eB4").strip()
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8262844582:AAFhlpT5c-wqbt_E5KKLX5XtZNBizZzzoqU").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
     logging.warning("⚠️ BOT_TOKEN не задан!")
