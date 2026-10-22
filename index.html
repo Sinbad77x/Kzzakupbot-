@@ -39,21 +39,21 @@
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 30px 20px;
+            padding: 25px 20px;
             border-radius: var(--radius);
             box-shadow: 0 4px 15px rgba(0, 71, 171, 0.15);
         }
 
         header h1 {
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 5px;
         }
 
         header p {
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0.9;
             margin-bottom: 15px;
         }
@@ -78,94 +78,75 @@
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 24px;
+            padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border);
         }
 
         h2 {
-            font-size: 18px;
+            font-size: 17px;
             color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .search-box {
             display: flex;
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .search-box input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 12px 14px;
             border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .search-box input:focus {
-            border-color: var(--primary);
         }
 
         .search-box button {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 0 20px;
+            padding: 0 18px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .search-box button:hover {
-            background-color: var(--primary-dark);
         }
 
         .results-container {
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .lot-item {
-            padding: 15px;
+            padding: 12px;
             border: 1px solid var(--border);
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             background: #FAFAFA;
         }
 
         .lot-title {
             font-weight: 600;
-            color: var(--text);
-            margin-bottom: 5px;
+            font-size: 14px;
+            margin-bottom: 4px;
         }
 
         .lot-info {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 8px;
-        }
-
-        .lot-price {
-            font-weight: bold;
-            color: var(--success);
+            gap: 8px;
         }
 
         .calc-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
         @media (max-width: 600px) {
@@ -175,19 +156,19 @@
         }
 
         .input-group {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .input-group label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 9px 12px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
@@ -203,41 +184,40 @@
         .calc-results p {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 6px;
+            font-size: 13px;
         }
 
         .calc-results .total {
             font-weight: bold;
             color: var(--primary);
-            font-size: 16px;
+            font-size: 15px;
             border-top: 1px solid var(--border);
             padding-top: 8px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .academy-item {
-            padding: 12px 15px;
+            padding: 10px 12px;
             background: #F8FAFC;
             border-left: 4px solid var(--primary);
             border-radius: 4px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .academy-item h4 {
-            font-size: 15px;
-            color: var(--text);
-            margin-bottom: 4px;
+            font-size: 14px;
+            margin-bottom: 2px;
         }
 
         .academy-item p {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
         }
 
         .msg-error {
             color: #EF4444;
-            font-size: 14px;
+            font-size: 13px;
             padding: 10px;
             background: #FEF2F2;
             border-radius: 8px;
@@ -256,27 +236,27 @@
 
     <!-- Справочные нормы -->
     <div class="card" style="background: #EFF6FF; border-color: #BFDBFE;">
-        <h2 style="font-size: 15px; margin-bottom: 8px;">Формулы калькулятора: Нормы НК РК 2026</h2>
-        <p style="font-size: 13px; color: var(--text-muted);">🏛 СНР: базовая ставка 4% (ст. 726 НК РК) | ⚖️ НДС: ст. 503 (16%)</p>
+        <h2 style="font-size: 14px; margin-bottom: 6px;">Формулы калькулятора: Нормы НК РК 2026</h2>
+        <p style="font-size: 12px; color: var(--text-muted);">🏛 СНР: базовая ставка 4% (ст. 726 НК РК) | ⚖️ НДС: ст. 503 (16%)</p>
     </div>
 
     <!-- Поиск лотов -->
     <div class="card" id="search-section">
         <h2>🔍 Поиск актуальных закупок РК</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Мгновенный поиск по актуальным лотам через защищенный бэкенд-сервис портала госзакупок.</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Мгновенный поиск по актуальным лотам через защищенный бэкенд-сервис.</p>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Введите ключевое слово (например: Бумага)..." value="Бумага">
+            <input type="text" id="searchInput" placeholder="Введите ключевое слово..." value="Бумага">
             <button onclick="performSearch()">Найти лоты</button>
         </div>
         <div id="searchResults" class="results-container">
-            <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 10px;">Нажмите «Найти лоты» для загрузки</div>
+            <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 8px;">Нажмите «Найти лоты»</div>
         </div>
     </div>
 
-    <!-- Калькулятор сделки -->
+    <!-- Калькулятор сделки и финансирования -->
     <div class="card" id="calculator">
         <h2>🧮 1. Калькулятор сделки и финансирования</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Оценка расчётной прибыли по ставкам НК РК 2026 и временной стоимости капитала.</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Оценка расчётной прибыли по ставкам НК РК 2026 и временной стоимости капитала.</p>
         
         <div class="calc-grid">
             <div class="input-group">
@@ -295,20 +275,46 @@
                 <label>Комиссия за БГ (Банковская гарантия), ₸</label>
                 <input type="number" id="bg_fee" value="25000" oninput="calculateProfit()">
             </div>
+            <div class="input-group">
+                <label>Обеспечение исполнения договора (залог), ₸</label>
+                <input type="number" id="deposit" value="250000" oninput="calculateProfit()">
+            </div>
+        </div>
+
+        <h3 style="font-size: 14px; color: var(--primary); margin: 15px 0 8px 0;">Параметры финансирования и отсрочки</h3>
+        <div class="calc-grid">
+            <div class="input-group">
+                <label>Годовая ставка займа / факторинга (% годовых)</label>
+                <input type="number" id="loan_rate" value="20" oninput="calculateProfit()">
+            </div>
+            <div class="input-group">
+                <label>Срок отсрочки / займа (дней)</label>
+                <input type="number" id="loan_days" value="30" oninput="calculateProfit()">
+            </div>
+        </div>
+
+        <div class="input-group" style="margin-top: 10px;">
+            <label>Налоговый режим</label>
+            <select id="tax_mode" onchange="calculateProfit()">
+                <option value="0.04">ИП на СНР (Упрощенная декларация) - 4%</option>
+                <option value="0.03">ИП на СНР (льготная ставка) - 3%</option>
+                <option value="0.16">Общеустановленный режим (ОУР / ИП)</option>
+            </select>
         </div>
         
         <div class="calc-results">
             <p>Прямые затраты (товар + логистика + БГ): <span id="res-costs">3 675 000 ₸</span></p>
-            <p>Расчётный налог СНР (4%): <span id="res-tax">200 000 ₸</span></p>
-            <p class="total">Расчётная прибыль сделки: <span id="res-profit">1 125 000 ₸</span></p>
-            <p>Операционная маржинальность: <span id="res-margin" style="font-weight: bold; color: var(--success);">22.5%</span></p>
+            <p>Плата за финансирование капитала: <span id="res-financing">60 411 ₸</span></p>
+            <p>Расчётный налог: <span id="res-tax">200 000 ₸</span></p>
+            <p class="total">Расчётная прибыль сделки: <span id="res-profit">1 064 589 ₸</span></p>
+            <p>Операционная маржинальность: <span id="res-margin" style="font-weight: bold; color: var(--success);">21.3%</span></p>
         </div>
     </div>
 
     <!-- Академия поставщика -->
     <div class="card">
         <h2>📚 2. Бесплатная академия поставщика Казахстана</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Практическая база знаний, видеоуроки и чек-листы по нормам законодательства РК.</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Практическая база знаний, видеоуроки и чек-листы по нормам законодательства РК.</p>
         
         <div class="academy-item">
             <h4>Урок 1.1 • Расчёт маржи и финансовая модель лота</h4>
@@ -331,7 +337,7 @@ async function performSearch() {
         return;
     }
 
-    resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 15px;">Загрузка данных с портала госзакупок...</div>';
+    resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 12px;">Загрузка данных с портала госзакупок...</div>';
 
     try {
         const response = await fetch('/api/search?q=' + encodeURIComponent(query));
@@ -343,7 +349,7 @@ async function performSearch() {
         }
 
         if (!data.data || data.data.length === 0) {
-            resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 15px;">По вашему запросу ничего не найдено.</div>';
+            resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 12px;">По вашему запросу ничего не найдено.</div>';
             return;
         }
 
@@ -354,10 +360,10 @@ async function performSearch() {
                     <div class="lot-title">${index + 1}. ${escapeHtml(lot.name)}</div>
                     <div class="lot-info">
                         <span>🏛 Заказчик: ${escapeHtml(lot.organizer)}</span>
-                        <span class="lot-price">${Number(lot.amount).toLocaleString('ru-RU')} ₸</span>
+                        <span style="font-weight: bold; color: var(--success);">${Number(lot.amount).toLocaleString('ru-RU')} ₸</span>
                     </div>
-                    <div style="margin-top: 8px;">
-                        <a href="${lot.url}" target="_blank" style="font-size: 13px; color: var(--primary); text-decoration: none;">Открыть лот на портале →</a>
+                    <div style="margin-top: 6px;">
+                        <a href="${lot.url}" target="_blank" style="font-size: 12px; color: var(--primary); text-decoration: none;">Открыть лот на портале →</a>
                     </div>
                 </div>
             `;
@@ -365,7 +371,7 @@ async function performSearch() {
         resultsContainer.innerHTML = html;
 
     } catch (error) {
-        resultsContainer.innerHTML = '<div class="msg-error">Не удалось связаться с сервером. Убедитесь, что бэкенд запущен.</div>';
+        resultsContainer.innerHTML = '<div class="msg-error">Не удалось связаться с сервером.</div>';
     }
 }
 
@@ -374,15 +380,26 @@ function calculateProfit() {
     const cost = parseFloat(document.getElementById('cost').value) || 0;
     const logistics = parseFloat(document.getElementById('logistics').value) || 0;
     const bgFee = parseFloat(document.getElementById('bg_fee').value) || 0;
+    const deposit = parseFloat(document.getElementById('deposit').value) || 0;
+    
+    const loanRate = parseFloat(document.getElementById('loan_rate').value) || 0;
+    const loanDays = parseFloat(document.getElementById('loan_days').value) || 0;
+    const taxRate = parseFloat(document.getElementById('tax_mode').value) || 0.04;
 
     const directCosts = cost + logistics + bgFee;
-    const tax = revenue * 0.04;
-    const profit = revenue - directCosts - tax;
+    
+    // Расчет стоимости финансирования (на основе суммы закупки и депозита)
+    const capitalNeeded = cost + deposit;
+    const financingCost = capitalNeeded * (loanRate / 100) * (loanDays / 365);
+    
+    const tax = revenue * taxRate;
+    const profit = revenue - directCosts - financingCost - tax;
     const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
     document.getElementById('res-costs').innerText = directCosts.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-tax').innerText = tax.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-profit').innerText = profit.toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-financing').innerText = Math.round(financingCost).toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-tax').innerText = Math.round(tax).toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-profit').innerText = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
     document.getElementById('res-margin').innerText = margin.toFixed(1) + '%';
 }
 
@@ -393,6 +410,7 @@ function escapeHtml(text) {
 
 window.onload = function() {
     performSearch();
+    calculateProfit();
 };
 </script>
 
