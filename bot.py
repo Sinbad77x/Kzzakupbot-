@@ -1,8 +1,6 @@
 import os
-import time
 import logging
-from threading import Thread
-from flask import Flask, send_from_directory
+from flask import Flask, request, send_from_directory
 from telebot import TeleBot, types
 import database
 
@@ -10,11 +8,8 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-@app.route('/')
-def serve_index():
-    return send_from_directory('.', 'index.html')
-
 BOT_TOKEN = os.getenv("BOT_TOKEN", "2844582:AAF5_pkY3oz9QG1mHBhus52CBAZfS3k4eB4").strip()
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
     logging.warning("⚠️ BOT_TOKEN не задан!")
@@ -26,6 +21,14 @@ else:
     except Exception as e:
         logging.error(f"Ошибка БД: {e}")
 
+    # Установка Webhook при запуске
+    try:
+        bot.remove_webhook()
+        bot.set_webhook(url=WEBHOOK_URL)
+        logging.info(f"Webhook успешно установлен: {WEBHOOK_URL}")
+    except Exception as e:
+        logging.error(f"Ошибка установки Webhook: {e}")
+
     def get_main_keyboard():
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         markup.add("🌐 Перейти на веб-портал", "🔥 Все новые лоты")
@@ -35,13 +38,11 @@ else:
         markup.add("📊 ETS-Тендер", "⚙️ Мой фильтр и подписка")
         return markup
 
-    # База готовых образцов лотов для демонстрации поиска в Telegram
     MOCK_LOTS = [
         {
             "id": "5892401",
             "title": "Поставка канцелярских товаров и офисной бумаги",
             "price": "5 000 000 ₸",
-            "amount": 5000000,
             "customer": "ГУ «Управление образования г. Шымкент»",
             "region": "г. Шымкент",
             "platform": "Госзакупки",
@@ -52,7 +53,6 @@ else:
             "id": "7821049",
             "title": "Закупка оргтехники и компьютеров для школ",
             "price": "12 500 000 ₸",
-            "amount": 12500000,
             "customer": "ГУ «Управление цифровизации г. Астана»",
             "region": "г. Астана",
             "platform": "Госзакупки",
@@ -63,7 +63,6 @@ else:
             "id": "9930122",
             "title": "Услуги по техническому обслуживанию систем кондиционирования",
             "price": "3 800 000 ₸",
-            "amount": 3800000,
             "customer": "АО «Самрук-Энерго»",
             "region": "г. Алматы",
             "platform": "Самрук-Қазына",
@@ -74,22 +73,13 @@ else:
 
     @bot.message_handler(commands=['start'])
     def handle_start(message):
-        user_id = message.from_user.id
-        username = message.from_user.username or ""
         first_name = message.from_user.first_name or "Пользователь"
-
-        try:
-            database.add_or_update_user(user_id, username, first_name)
-        except Exception as e:
-            logging.error(f"Ошибка сохранения юзера: {e}")
-
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
             f"🔍 **Поиск тендеров прямо в Telegram:**\n"
             f"Просто напишите ключевое слово (например: *Бумага*, *IT*, *Услуги*) или выберите площадку ниже.\n\n"
             f"📊 Для детального расчёта маржи и налогов (НК РК 2026) используйте веб-калькулятор."
         )
-
         inline_markup = types.InlineKeyboardMarkup()
         inline_markup.add(types.InlineKeyboardButton("🧮 Открыть веб-калькулятор маржи", url="https://kzzakupbot.onrender.com#calculator"))
         
@@ -98,35 +88,29 @@ else:
 
     @bot.message_handler(func=lambda message: True)
     def handle_all_messages(message):
-        text = message.text.strip()
-        text_lower = text.lower()
+        text = message.text.strip().lower()
 
-        # Если набрана кнопка "🔥 Все новые лоты" или категория
-        if "все новые лоты" in text_lower:
+        if "все новые лоты" in text:
             send_lots_list(message.chat.id, MOCK_LOTS, "🔥 **Все свежие лоты за сегодня:**")
-        elif "самрук" in text_lower:
+        elif "самрук" in text:
             filtered = [l for l in MOCK_LOTS if l['platform'] == "Самрук-Қазына"]
             send_lots_list(message.chat.id, filtered or MOCK_LOTS, "🏢 **Лоты площадки Самрук-Қазына:**")
-        elif "госзакупки" in text_lower:
+        elif "госзакупки" in text:
             filtered = [l for l in MOCK_LOTS if l['platform'] == "Госзакупки"]
             send_lots_list(message.chat.id, filtered or MOCK_LOTS, "🏛 **Лоты Единой платформы Госзакупок:**")
-        elif "мой фильтр" in text_lower:
+        elif "мой фильтр" in text:
             bot.send_message(
                 message.chat.id,
                 "⚙️ **Ваш фильтр подписки:**\n\n📍 Регионы: Все\n💰 Бюджет: Любой\n\nАвто-уведомления включены.",
                 parse_mode="Markdown"
             )
-        elif "перейти на веб-портал" in text_lower:
+        elif "перейти на веб-портал" in text:
             inline = types.InlineKeyboardMarkup()
             inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
             bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
         else:
-            # Текстовый поиск по ключевому слову
-            found = [l for l in MOCK_LOTS if any(kw in text_lower for kw in l['keywords']) or text_lower in l['title'].lower()]
-            if found:
-                send_lots_list(message.chat.id, found, f"🔍 **Результаты поиска по запросу «{text}»:**")
-            else:
-                send_lots_list(message.chat.id, MOCK_LOTS, f"🔍 **Найдено 3 подходящих лота по запросу «{text}»:**")
+            found = [l for l in MOCK_LOTS if any(kw in text for kw in l['keywords']) or text in l['title'].lower()]
+            send_lots_list(message.chat.id, found or MOCK_LOTS, f"🔍 **Результаты поиска по запросу «{message.text}»:**")
 
     def send_lots_list(chat_id, lots, header_text):
         bot.send_message(chat_id, header_text, parse_mode="Markdown")
@@ -144,21 +128,19 @@ else:
             inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу на сайте", url=calc_url))
             bot.send_message(chat_id, msg, parse_mode="Markdown", reply_markup=inline)
 
-def run_bot():
-    if bot:
-        print("Запуск Telegram-бота с выдачей лотов...")
-        while True:
-            try:
-                bot.infinity_polling(timeout=10, long_polling_timeout=5)
-            except Exception as e:
-                logging.error(f"Ошибка polling: {e}")
-                time.sleep(5)
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    if bot and request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    return 'Bad Request', 400
 
 if __name__ == "__main__":
-    if bot:
-        bot_thread = Thread(target=run_bot)
-        bot_thread.daemon = True
-        bot_thread.start()
-
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
