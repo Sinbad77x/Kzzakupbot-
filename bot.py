@@ -67,11 +67,10 @@ def escape_markdown(text):
     return text
 
 def get_active_lots_by_query(query=""):
-    """Мгновенная экспресс-выдача актуальных тендеров РК для Telegram без задержек и Cloudflare"""
+    """Мгновенная экспресс-выдача актуальных тендеров РК для Telegram без задержек"""
     q_lower = query.lower().strip()
     fetched_at = time.strftime("%Y-%m-%d %H:%M:%S")
     
-    # База реальных тендерных направлений РК
     if "медицин" in q_lower or "фсмс" in q_lower or "лекарств" in q_lower:
         title = "💊 Медицина, фармацевтика и ФСМС"
         items = [
@@ -169,11 +168,15 @@ if bot:
 
         if "самрук" in text_lower:
             inline = types.InlineKeyboardMarkup()
-            inline.add(types.InlineKeyboardButton("🔗 Открыть zakup.sk.kz", url="https://zakup.sk.kz/#/ext/search"))
-            bot.send_message(message.chat.id, "🏢 *Самрук-Қазына*\n\nПерейдите к официальному поиску площадки:", parse_mode="Markdown", reply_markup=inline)
+            inline.add(types.InlineKeyboardButton("🔗 Открыть поиск Самрук-Қазына", url="https://zakup.sk.kz/#/ext/search"))
+            bot.send_message(
+                message.chat.id, 
+                "🏢 *Самрук-Қазына*\n\nНажмите кнопку ниже для перехода к официальному поиску закупок холдинга:", 
+                parse_mode="Markdown", 
+                reply_markup=inline
+            )
             return
 
-        # Получаем живые лоты по категории или тексту
         result = get_active_lots_by_query(text)
         lots = result.get("data", [])
         fetched_time = result.get("fetched_at", "")
