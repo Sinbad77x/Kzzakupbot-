@@ -68,26 +68,21 @@ def setup_webhook(bot_instance, webhook_url):
         return False
 
 # ==============================================================================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ОЧИСТКИ И ФОРМИРОВАНИЯ ССЫЛОК
+# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ОЧИСТКИ И ПОИСКА
 # ==============================================================================
 def clean_search_query(text):
     """Удаляет эмодзи, служебный текст кнопок и оставляет чистую поисковую фразу"""
     if not text:
         return ""
-    # Удаляем эмодзи и спецсимволы
     cleaned = re.sub(r'[\U00010000-\U0010ffff\u2600-\u26FF\u2700-\u27BF]', '', text)
-    
-    # Список служебных слов и названий площадок на кнопках
     service_phrases = [
         "все новые лоты", "госзакупки", "самрук-қазына", "самрук-казына",
         "ск-фармация", "фсмс", "mitwork", "caspy tender", "ets-тендер",
         "перейти на веб-портал", "мой фильтр и подписка"
     ]
-    
     temp_lower = cleaned.strip().lower()
     for phrase in service_phrases:
         if temp_lower == phrase:
-            # Если передано чистое название кнопки без ключевого слова
             if "фсмс" in phrase:
                 return "ФСМС"
             elif "ск-фармация" in phrase:
@@ -99,9 +94,6 @@ def clean_search_query(text):
     cleaned = cleaned.strip(" :-_•")
     return cleaned if len(cleaned) >= 2 else "Закупка"
 
-# ==============================================================================
-# ЕДИНАЯ ФУНКЦИЯ ПОИСКА ZAKUP (OWS API И ФАЛЛБЭК БЕЗ ТОКЕНА)
-# ==============================================================================
 def fetch_goszakup_lots(query, page=1, limit=5):
     """Выполняет реальный запрос к OWS API или генерирует ссылки для прямого перехода"""
     query_str = clean_search_query(query)
@@ -121,14 +113,13 @@ def fetch_goszakup_lots(query, page=1, limit=5):
 
     api_token = os.getenv("GOSZAKUP_TOKEN")
     if not api_token:
-        encoded_q = requests.utils.quote(query_str)
-        redirect_url = f"https://zakup.gov.kz/ru/search/announce?search={encoded_q}"
+        portal_search_url = "https://zakup.gov.kz/ru/search/announce"
         return {
             "success": False, 
             "no_token": True, 
             "query": query_str,
-            "redirect_url": redirect_url,
-            "message": "Автоматический поиск по API отключен (требуется токен OWS)."
+            "redirect_url": portal_search_url,
+            "message": "Автоматический поиск по API временно отключен (требуется токен OWS). Используйте официальный портал."
         }
 
     params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
@@ -261,7 +252,6 @@ if bot:
             bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
             return
 
-        # Обработка выбора альтернативных площадок
         if "самрук" in text_lower:
             clean_q = clean_search_query(text)
             encoded_q = requests.utils.quote(clean_q)
@@ -270,7 +260,7 @@ if bot:
             inline.add(types.InlineKeyboardButton("🔍 Поиск на Самрук-Қазына", url=sk_url))
             bot.send_message(
                 message.chat.id, 
-                f"🏢 **Переход на портал «Самрук-Қазына»**\n\nНажмите кнопку ниже для поиска по запросу «*{clean_q}*»:",
+                f"🏢 **Переход на портал «Самрук-Қазына»**\n\nНажмите кнопку ниже для перехода к поиску:",
                 parse_mode="Markdown",
                 reply_markup=inline
             )
@@ -281,13 +271,12 @@ if bot:
             inline.add(types.InlineKeyboardButton("🌐 Перейти на ETS-Тендер", url="https://ets-tender.kz/"))
             bot.send_message(
                 message.chat.id, 
-                "📊 **Площадка ETS-Тендер**\n\nДля данной площадки прямой автоматический поиск недоступен. Нажмите кнопку ниже, чтобы перейти на сайт и ввести ключевое слово вручную.",
+                "📊 **Площадка ETS-Тендер**\n\nАвтоматический поиск недоступен. Нажмите кнопку ниже для перехода на сайт.",
                 parse_mode="Markdown",
                 reply_markup=inline
             )
             return
 
-        # Запрос по Госзакупкам РК
         clean_q = clean_search_query(text)
         result = fetch_goszakup_lots(clean_q, page=1, limit=5)
 
@@ -295,11 +284,11 @@ if bot:
             if result.get("no_token"):
                 redirect_url = result.get("redirect_url")
                 inline = types.InlineKeyboardMarkup()
-                inline.add(types.InlineKeyboardButton("🔍 Искать на zakup.gov.kz", url=redirect_url))
+                inline.add(types.InlineKeyboardButton("🔍 Открыть zakup.gov.kz", url=redirect_url))
                 bot.send_message(
                     message.chat.id, 
                     f"ℹ️ Автоматический поиск через OWS API отключен (не задан токен).\n\n"
-                    f"Вы можете выполнить поиск по запросу «*{clean_q}*» напрямую на официальном портале госзакупок:", 
+                    f"Вы можете выполнить поиск по запросу «*{clean_q}*» на официальном портале:", 
                     parse_mode="Markdown", 
                     reply_markup=inline
                 )
@@ -342,8 +331,6 @@ def search_tenders():
         return jsonify({'status': 'ok'}), 200
 
     raw_query = request.args.get('q', '').strip()
-    clean_q = clean_search_query(raw_query)
-
     try:
         page = int(request.args.get('page', 1))
         if page < 1:
@@ -351,7 +338,7 @@ def search_tenders():
     except ValueError:
         page = 1
 
-    result = fetch_goszakup_lots(clean_q, page=page, limit=10)
+    result = fetch_goszakup_lots(raw_query, page=page, limit=10)
     
     if result.get("success"):
         return jsonify({
@@ -365,7 +352,7 @@ def search_tenders():
             return jsonify({
                 "success": False,
                 "no_token": True,
-                "message": result.get("message"),
+                "message": "Автоматический поиск по API отключен (требуется токен OWS). Используйте официальный портал.",
                 "redirect_url": result.get("redirect_url")
             }), 200
             
@@ -385,10 +372,8 @@ def webhook_handler():
         return '', 200
     return jsonify({'status': 'bad request'}), 400
 
-# Автоматическая инициализация
 init_database()
 setup_webhook(bot, WEBHOOK_URL)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 10000)))
-        
