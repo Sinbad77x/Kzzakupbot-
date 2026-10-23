@@ -28,7 +28,7 @@ GOSZAKUP_API_URL = "https://ows.goszakup.gov.kz/v2/trd-buy"
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
-# Список ID администраторов Telegram для доступа к /stats (через запятую в env или списком в коде)
+# Список ID администраторов Telegram для доступа к /stats
 RAW_ADMIN_IDS = os.getenv("ADMIN_USER_IDS", "").strip()
 ADMIN_USER_IDS = [
     int(x.strip()) for x in RAW_ADMIN_IDS.split(",") if x.strip().isdigit()
@@ -67,10 +67,10 @@ def setup_webhook(bot_instance, webhook_url):
         return False
 
 # ==============================================================================
-# ЕДИНАЯ ФУНКЦИЯ ПОИСКА ZAKUP (OWS API)
+# ЕДИНАЯ ФУНКЦИЯ ПОИСКА ZAKUP (OWS API И ФАЛЛБЭК БЕЗ ТОКЕНА)
 # ==============================================================================
 def fetch_goszakup_lots(query, page=1, limit=5):
-    """Выполняет реальный запрос к OWS API Госзакупок с кешированием"""
+    """Выполняет реальный запрос к OWS API или генерирует данные для прямого перехода"""
     query_str = query.strip()
     if not query_str:
         return {"success": False, "message": "Введите ключевое слово для поиска"}
@@ -89,7 +89,15 @@ def fetch_goszakup_lots(query, page=1, limit=5):
 
     api_token = os.getenv("GOSZAKUP_TOKEN")
     if not api_token:
-        return {"success": False, "message": "Токен доступа GOSZAKUP_TOKEN не задан на сервере."}
+        # Временный режим: безопасное перенаправление на официальный поиск при отсутствии токена
+        encoded_q = requests.utils.quote(query_str)
+        redirect_url = f"https://zakup.gov.kz/ru/search/announce?search={encoded_q}"
+        return {
+            "success": False, 
+            "no_token": True, 
+            "redirect_url": redirect_url,
+            "message": "Автоматический поиск по API отключен (требуется токен OWS). Выполните поиск на официальном портале."
+        }
 
     params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
     headers = {
@@ -195,7 +203,6 @@ if bot:
 
     @bot.message_handler(commands=['stats'])
     def handle_stats(message):
-        # Защита команды: проверка списка ADMIN_USER_IDS
         if not ADMIN_USER_IDS or message.from_user.id not in ADMIN_USER_IDS:
             bot.send_message(message.chat.id, "⛔ У вас нет прав для просмотра административной статистики.")
             return
@@ -235,13 +242,23 @@ if bot:
         if "все новые лоты" in text_lower or "госзакупки" in text_lower:
             search_query = "Закупка"
 
-        bot.send_message(message.chat.id, f"🔍 Ищу закупки по запросу: *{search_query}*...", parse_mode="Markdown")
-
-        # Вызов единой функции поиска
         result = fetch_goszakup_lots(search_query, page=1, limit=5)
 
+        # Если токен не задан на сервере, формируем ссылку на официальный поиск
         if not result.get("success"):
-            bot.send_message(message.chat.id, f"⚠️ {result.get('message', 'Не удалось получить данные.')}")
+            if result.get("no_token"):
+                redirect_url = result.get("redirect_url")
+                inline = types.InlineKeyboardMarkup()
+                inline.add(types.InlineKeyboardButton("🔍 Искать на zakup.gov.kz", url=redirect_url))
+                bot.send_message(
+                    message.chat.id, 
+                    f"ℹ️ Автоматический поиск через OWS API отключен (не задан токен).\n\n"
+                    f"Вы можете выполнить поиск по запросу «*{search_query}*» напрямую на официальном портале госзакупок:", 
+                    parse_mode="Markdown", 
+                    reply_markup=inline
+                )
+            else:
+                bot.send_message(message.chat.id, f"⚠️ {result.get('message', 'Не удалось получить данные.')}")
             return
 
         lots = result.get("data", [])
@@ -296,6 +313,14 @@ def search_tenders():
             "data": result.get("data", [])
         }), 200
     else:
+        if result.get("no_token"):
+            return jsonify({
+                "success": False,
+                "no_token": True,
+                "message": result.get("message"),
+                "redirect_url": result.get("redirect_url")
+            }), 200
+            
         status_code = 400 if "короткий" in result.get("message", "") or "Введите" in result.get("message", "") else 502
         return jsonify({"success": False, "message": result.get("message")}), status_code
 
@@ -312,10 +337,9 @@ def webhook_handler():
         return '', 200
     return jsonify({'status': 'bad request'}), 400
 
-# Автоматическая инициализация при запуске
+# Автоматическая инициализация
 init_database()
 setup_webhook(bot, WEBHOOK_URL)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 10000)))
-                     
