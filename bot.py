@@ -109,12 +109,11 @@ def fetch_public_goszakup_lots(query="", page=1):
         resp = requests.get(search_url, headers=headers, timeout=10)
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, 'html.parser')
-            # Поиск элементов карточек/строк таблиц на портале
             rows = soup.find_all('tr') or soup.find_all('div', class_=re.compile('card|item|row', re.I))
             
             for row in rows[:8]:
                 text_content = row.get_text(separator=" ", strip=True)
-                if len(text_content) > 30: # Фильтрация пустых строк
+                if len(text_content) > 30:
                     lots.append({
                         "id": "б/н",
                         "name": text_content[:120] + "...",
@@ -126,7 +125,6 @@ def fetch_public_goszakup_lots(query="", page=1):
     except Exception as e:
         logger.error(f"Ошибка публичного парсинга: {type(e).__name__}")
 
-    # Если парсер заблокирован или не нашел элементы, возвращаем прямой поисковый линк на портал
     if not lots:
         encoded_q = requests.utils.quote(query) if query else ""
         portal_url = f"https://zakup.gov.kz/ru/search/announce?search={encoded_q}" if query else "https://zakup.gov.kz/ru/search/announce"
@@ -226,7 +224,7 @@ if bot:
         
         for idx, lot in enumerate(lots, 1):
             msg = (
-                f"*{idx}. {escape_markdown(lot['name']}*\n"
+                f"*{idx}. {escape_markdown(lot['name'])}*\n"
                 f"🏛 *Источник:* {escape_markdown(lot['organizer'])}\n"
                 f"📊 *Статус:* {escape_markdown(lot['status'])}"
             )
