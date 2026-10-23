@@ -15,6 +15,10 @@
             --text-muted: #64748B;
             --border: #E2E8F0;
             --success: #10B981;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --warning-bg: #FFFBEB;
+            --warning-text: #B45309;
             --radius: 12px;
         }
 
@@ -105,6 +109,10 @@
             outline: none;
         }
 
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
         .search-box button {
             background-color: var(--primary);
             color: white;
@@ -113,6 +121,16 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-box button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .search-box button:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
         }
 
         .results-container {
@@ -131,6 +149,7 @@
             font-weight: 600;
             font-size: 14px;
             margin-bottom: 4px;
+            color: var(--text);
         }
 
         .lot-info {
@@ -195,6 +214,11 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
+            outline: none;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
         }
 
         .calc-results {
@@ -220,31 +244,34 @@
             margin-top: 6px;
         }
 
-        .academy-item {
-            padding: 10px 12px;
-            background: #F8FAFC;
-            border-left: 4px solid var(--primary);
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        .academy-item h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .academy-item p {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
         .msg-error {
-            color: #EF4444;
+            color: var(--error);
             font-size: 13px;
-            padding: 10px;
-            background: #FEF2F2;
+            padding: 12px;
+            background: var(--error-bg);
             border-radius: 8px;
             border: 1px solid #FCA5A5;
+            text-align: center;
+        }
+
+        .msg-warning {
+            color: var(--warning-text);
+            font-size: 12px;
+            padding: 10px;
+            background: var(--warning-bg);
+            border-radius: 8px;
+            border: 1px solid #FDE68A;
+            margin-top: 10px;
+        }
+
+        .disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -252,88 +279,93 @@
 
 <div class="container">
     <header>
-        <h1>🇰🇿 Kzzakupbot Hub</h1>
+        <h1>🇰🇿 KZ Kzzakupbot Hub</h1>
         <p>Рабочее пространство поставщика Казахстана</p>
-        <a href="https://t.me/kzzakupbot" class="btn-tg" target="_blank">💬 Запустить в Telegram</a>
+        <a href="https://t.me/kzzakupbot" class="btn-tg" target="_blank" rel="noopener noreferrer">💬 Запустить в Telegram</a>
     </header>
 
-    <!-- Справочные нормы -->
+    <!-- Налоговые нормы справочно -->
     <div class="card" style="background: #EFF6FF; border-color: #BFDBFE;">
-        <h2 style="font-size: 14px; margin-bottom: 6px;">Формулы калькулятора: Нормы НК РК 2026</h2>
-        <p style="font-size: 12px; color: var(--text-muted);">🏛 СНР: базовая ставка 4% (ст. 726 НК РК) | ⚖️ НДС: ст. 503 (16%)</p>
+        <h2 style="font-size: 14px; margin-bottom: 6px;">Экономика и налоговые допущения</h2>
+        <p style="font-size: 12px; color: var(--text-muted);">🏛 СНР (упрощенная декларация): базовая ставка 4% (ст. 726 НК РК на 2026 год). Значение является допущением пользователя.</p>
     </div>
 
-    <!-- Поиск лотов -->
+    <!-- Поиск закупок -->
     <div class="card" id="search-section">
         <h2>🔍 Поиск актуальных закупок РК</h2>
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Мгновенный поиск по актуальным лотам через защищенный бэкенд-сервис.</p>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Введите ключевое слово..." value="Бумага">
-            <button onclick="performSearch()">Найти лоты</button>
-        </div>
+        <form id="searchForm" class="search-box">
+            <input type="text" id="searchInput" placeholder="Введите ключевое слово (например: Бумага, IT)..." value="Бумага" maxlength="100" required>
+            <button type="submit" id="searchButton">Найти лоты</button>
+        </form>
         <div id="searchResults" class="results-container">
-            <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 8px;">Нажмите «Найти лоты»</div>
+            <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 12px;">Введите запрос и нажмите «Найти лоты»</div>
         </div>
     </div>
 
     <!-- Калькулятор сделки и финансирования -->
     <div class="card" id="calculator">
-        <h2>🧮 1. Калькулятор сделки и финансирования</h2>
+        <h2>🧮 Калькулятор сделки и финансирования</h2>
         <div class="calc-tabs">
-            <div class="calc-tab active" id="tab-pl" onclick="switchTab('pl')">📈 Прибыль (P&L)</div>
-            <div class="calc-tab" id="tab-cf" onclick="switchTab('cf')">💧 Денежный поток (Cash Flow)</div>
+            <div class="calc-tab active" id="tab-pl" data-tab="pl">📈 Прибыль (P&L)</div>
+            <div class="calc-tab" id="tab-cf" data-tab="cf">💧 Денежный поток (Cash Flow)</div>
         </div>
         
         <div class="calc-grid">
             <div class="input-group">
-                <label>Сумма контракта (Выручка), ₸</label>
-                <input type="number" id="revenue" value="5000000" oninput="calculateProfit()">
+                <label for="revenue">Сумма контракта (Выручка), ₸</label>
+                <input type="number" id="revenue" value="5000000" min="0" step="any">
             </div>
             <div class="input-group">
-                <label>Закупка товара / себестоимость, ₸</label>
-                <input type="number" id="cost" value="3500000" oninput="calculateProfit()">
+                <label for="cost">Закупка товара / себестоимость, ₸</label>
+                <input type="number" id="cost" value="3500000" min="0" step="any">
             </div>
             <div class="input-group">
-                <label>Логистика и доставка, ₸</label>
-                <input type="number" id="logistics" value="150000" oninput="calculateProfit()">
+                <label for="logistics">Логистика и доставка, ₸</label>
+                <input type="number" id="logistics" value="150000" min="0" step="any">
             </div>
             <div class="input-group">
-                <label>Комиссия за БГ (Банковская гарантия), ₸</label>
-                <input type="number" id="bg_fee" value="25000" oninput="calculateProfit()">
+                <label for="bg_fee">Комиссия за БГ (Банковская гарантия), ₸</label>
+                <input type="number" id="bg_fee" value="25000" min="0" step="any">
             </div>
             <div class="input-group">
-                <label>Обеспечение исполнения договора (залог), ₸</label>
-                <input type="number" id="deposit" value="250000" oninput="calculateProfit()">
+                <label for="deposit">Обеспечение исполнения договора (залог), ₸</label>
+                <input type="number" id="deposit" value="250000" min="0" step="any">
             </div>
         </div>
 
         <h3 style="font-size: 14px; color: var(--primary); margin: 15px 0 8px 0;">Параметры финансирования и отсрочки</h3>
         <div class="calc-grid">
             <div class="input-group">
-                <label>Годовая ставка займа / факторинга (% годовых)</label>
-                <input type="number" id="loan_rate" value="20" oninput="calculateProfit()">
+                <label for="loan_rate">Годовая ставка займа / факторинга (% годовых)</label>
+                <input type="number" id="loan_rate" value="20" min="0" step="any">
             </div>
             <div class="input-group">
-                <label>Срок отсрочки / займа (дней)</label>
-                <input type="number" id="loan_days" value="30" oninput="calculateProfit()">
+                <label for="loan_days">Срок отсрочки / займа (дней)</label>
+                <input type="number" id="loan_days" value="30" min="0" step="any">
             </div>
         </div>
 
         <div class="input-group" style="margin-top: 10px;">
-            <label>Налоговый режим</label>
-            <select id="tax_mode" onchange="calculateProfit()">
-                <option value="0.04">ИП на СНР (Упрощенная декларация) - 4% (ст. 726 НК РК)</option>
-                <option value="0.03">ИП на СНР (льготная ставка) - 3%</option>
-                <option value="0.16">Общеустановленный режим (ОУР / ИП)</option>
+            <label for="tax_rate_mode">Налоговая ставка (допущение пользователя)</label>
+            <select id="tax_rate_mode">
+                <option value="0.04">СНР на основе упрощенной декларации — 4% (ст. 726 НК РК)</option>
+                <option value="0.03">СНР (льготная ставка) — 3%</option>
+                <option value="0.16">Общеустановленный режим (ОУР) — 16% (справочно)</option>
+                <option value="0.00">Без налога (0%)</option>
             </select>
+        </div>
+
+        <div class="msg-warning">
+            ⚠️ <strong>Внимание:</strong> Расчёт носит исключительно предварительный аналитический характер. Пользователь должен самостоятельно подтвердить применимость налогового режима и учесть прочие обязательные платежи (ОПВ, СО, ВОСМС).
         </div>
         
         <div class="calc-results" id="results-pl">
             <p>Прямые затраты (товар + логистика + БГ): <span id="res-costs">3 675 000 ₸</span></p>
             <p>Плата за финансирование капитала: <span id="res-financing">60 411 ₸</span></p>
-            <p>Расчётный налог: <span id="res-tax">200 000 ₸</span></p>
-            <p class="total">Расчётная прибыль сделки: <span id="res-profit">1 064 589 ₸</span></p>
-            <p>Операционная маржинальность: <span id="res-margin" style="font-weight: bold; color: var(--success);">21.3%</span></p>
+            <p>Предварительный налог (от выручки): <span id="res-tax">200 000 ₸</span></p>
+            <p class="total">Расчётная чистая прибыль: <span id="res-profit">1 064 589 ₸</span></p>
+            <p>Маржинальность сделки: <span id="res-margin" style="font-weight: bold; color: var(--success);">21.3%</span></p>
         </div>
 
         <div class="calc-results" id="results-cf" style="display: none;">
@@ -343,46 +375,158 @@
         </div>
     </div>
 
-    <!-- Академия поставщика -->
-    <div class="card">
-        <h2>📚 2. Бесплатная академия поставщика Казахстана</h2>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Практическая база знаний, видеоуроки и чек-листы по нормам законодательства РК.</p>
-        
-        <div class="academy-item">
-            <h4>Урок 1.1 • Расчёт маржи и финансовая модель лота</h4>
-            <p>Методика учёта себестоимости, налогов СНР (4%), отсрочки платежа и комиссии БГ до подачи заявки.</p>
-        </div>
-        <div class="academy-item">
-            <h4>Урок 1.2 • Регистрация и работа с ЭЦП на портале</h4>
-            <p>Пошаговое руководство по первичной настройке рабочего места и прохождению аккредитации на zakup.gov.kz.</p>
-        </div>
+    <!-- Блок Telegram -->
+    <div class="card" style="text-align: center; background: #F0F9FF; border-color: #BAE6FD;">
+        <h2>💬 Интеграция с Telegram</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Используйте Telegram-бот для быстрого доступа к поиску и управлению подписками.</p>
+        <a href="https://t.me/kzzakupbot" class="btn-tg" target="_blank" rel="noopener noreferrer">Открыть @kzzakupbot</a>
+    </div>
+
+    <!-- Источник данных и ограничения -->
+    <div class="disclaimer">
+        Поиск зависит от доступности сервера и официального источника (ows.goszakup.gov.kz). Результат поиска может быть неполным или временно недоступным. Калькулятор выполняет предварительные расчёты. Пользователь самостоятельно проверяет условия закупки, достоверность данных и налоговые обязательства. Финансовые значения в калькуляторе не сохраняются на внешних серверах.
     </div>
 </div>
 
 <script>
 let currentMode = 'pl';
 
-function switchTab(mode) {
-    currentMode = mode;
-    document.getElementById('tab-pl').classList.toggle('active', mode === 'pl');
-    document.getElementById('tab-cf').classList.toggle('active', mode === 'cf');
-    document.getElementById('results-pl').style.display = mode === 'pl' ? 'block' : 'none';
-    document.getElementById('results-cf').style.display = mode === 'cf' ? 'block' : 'none';
+// Строгая функция безопасности URL (соответствует требованиям white-list)
+function safeUrl(url) {
+    if (!url || typeof url !== 'string') return '#';
+    try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'https:') return '#';
+        if (parsed.username || parsed.password) return '#';
+        
+        const allowedDomains = ['goszakup.gov.kz', 'zakup.gov.kz'];
+        const hostname = parsed.hostname.toLowerCase();
+        
+        const isAllowed = allowedDomains.some(domain => 
+            hostname === domain || hostname.endsWith('.' + domain)
+        );
+        
+        if (!isAllowed) return '#';
+        if (parsed.port && parsed.port !== '443') return '#';
+        
+        return parsed.href;
+    } catch (e) {}
+    return '#';
 }
 
-async function performSearch() {
-    const query = document.getElementById('searchInput').value.trim();
+function switchTab(mode) {
+    currentMode = mode;
+    const tabPl = document.getElementById('tab-pl');
+    const tabCf = document.getElementById('tab-cf');
+    const resPl = document.getElementById('results-pl');
+    const resCf = document.getElementById('results-cf');
+
+    if (mode === 'pl') {
+        tabPl.classList.add('active');
+        tabCf.classList.remove('active');
+        resPl.style.display = 'block';
+        resCf.style.display = 'none';
+    } else {
+        tabCf.classList.add('active');
+        tabPl.classList.remove('active');
+        resPl.style.display = 'none';
+        resCf.style.display = 'block';
+    }
+}
+
+// Безопасный рендеринг результатов поиска через createElement (защита от XSS)
+function renderResults(data) {
     const resultsContainer = document.getElementById('searchResults');
+    resultsContainer.innerHTML = '';
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'color: var(--text-muted); font-size: 13px; text-align: center; padding: 12px;';
+        emptyMsg.textContent = 'По вашему запросу ничего не найдено.';
+        resultsContainer.appendChild(emptyMsg);
+        return;
+    }
+
+    data.forEach((lot, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'lot-item';
+
+        // Заголовок
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'lot-title';
+        const lotNum = lot.number ? `[${lot.number}] ` : '';
+        titleDiv.textContent = `${index + 1}. ${lotNum}${lot.name || 'Без наименования'}`;
+        itemDiv.appendChild(titleDiv);
+
+        // Инфо-блок (заказчик и сумма)
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'lot-info';
+
+        if (lot.organizer) {
+            const orgSpan = document.createElement('span');
+            orgSpan.textContent = `🏛 Заказчик: ${lot.organizer}`;
+            infoDiv.appendChild(orgSpan);
+        }
+
+        if (lot.amount !== undefined && lot.amount !== null) {
+            const amtSpan = document.createElement('span');
+            amtSpan.style.cssText = 'font-weight: bold; color: var(--success);';
+            const numAmount = Number(lot.amount) || 0;
+            amtSpan.textContent = `${numAmount.toLocaleString('ru-RU')} ₸`;
+            infoDiv.appendChild(amtSpan);
+        }
+
+        itemDiv.appendChild(infoDiv);
+
+        // Ссылка на портал
+        if (lot.url) {
+            const linkWrap = document.createElement('div');
+            linkWrap.style.marginTop = '6px';
+
+            const a = document.createElement('a');
+            a.href = safeUrl(lot.url);
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.style.cssText = 'font-size: 12px; color: var(--primary); text-decoration: none;';
+            a.textContent = 'Открыть лот на портале →';
+
+            linkWrap.appendChild(a);
+            itemDiv.appendChild(linkWrap);
+        }
+
+        resultsContainer.appendChild(itemDiv);
+    });
+}
+
+async function performSearch(event) {
+    if (event) event.preventDefault();
+    
+    const queryInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const resultsContainer = document.getElementById('searchResults');
+    
+    const query = queryInput.value.trim();
     
     if (!query) {
         resultsContainer.innerHTML = '<div class="msg-error">Введите ключевое слово для поиска.</div>';
         return;
     }
 
+    if (query.length > 100) {
+        resultsContainer.innerHTML = '<div class="msg-error">Слишком длинный поисковый запрос (максимум 100 символов).</div>';
+        return;
+    }
+
+    searchButton.disabled = true;
     resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 12px;">Загрузка данных с портала госзакупок...</div>';
 
     try {
         const response = await fetch('/api/search?q=' + encodeURIComponent(query));
+        
+        if (!response.ok) {
+            throw new Error(`Ошибка сервера: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
@@ -390,30 +534,12 @@ async function performSearch() {
             return;
         }
 
-        if (!data.data || data.data.length === 0) {
-            resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 12px;">По вашему запросу ничего не найдено.</div>';
-            return;
-        }
-
-        let html = '';
-        data.data.forEach((lot, index) => {
-            html += `
-                <div class="lot-item">
-                    <div class="lot-title">${index + 1}. ${escapeHtml(lot.name)}</div>
-                    <div class="lot-info">
-                        <span>🏛 Заказчик: ${escapeHtml(lot.organizer)}</span>
-                        <span style="font-weight: bold; color: var(--success);">${Number(lot.amount).toLocaleString('ru-RU')} ₸</span>
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <a href="${lot.url}" target="_blank" style="font-size: 12px; color: var(--primary); text-decoration: none;">Открыть лот на портале →</a>
-                    </div>
-                </div>
-            `;
-        });
-        resultsContainer.innerHTML = html;
+        renderResults(data.data);
 
     } catch (error) {
-        resultsContainer.innerHTML = '<div class="msg-error">Не удалось связаться с сервером.</div>';
+        resultsContainer.innerHTML = '<div class="msg-error">Не удалось связаться с сервером или превышено время ожидания. Повторите попытку позже.</div>';
+    } finally {
+        searchButton.disabled = false;
     }
 }
 
@@ -426,7 +552,7 @@ function calculateProfit() {
     
     const loanRate = parseFloat(document.getElementById('loan_rate').value) || 0;
     const loanDays = parseFloat(document.getElementById('loan_days').value) || 0;
-    const taxRate = parseFloat(document.getElementById('tax_mode').value) || 0.04;
+    const taxRate = parseFloat(document.getElementById('tax_rate_mode').value) || 0.04;
 
     const directCosts = cost + logistics + bgFee;
     const capitalNeeded = cost + deposit;
@@ -436,26 +562,37 @@ function calculateProfit() {
     const profit = revenue - directCosts - financingCost - tax;
     const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
-    document.getElementById('res-costs').innerText = directCosts.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-financing').innerText = Math.round(financingCost).toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-tax').innerText = Math.round(tax).toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-profit').innerText = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-margin').innerText = margin.toFixed(1) + '%';
+    document.getElementById('res-costs').textContent = directCosts.toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-financing').textContent = Math.round(financingCost).toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-tax').textContent = Math.round(tax).toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-profit').textContent = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-margin').textContent = margin.toFixed(1) + '%';
 
-    document.getElementById('res-capital').innerText = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-cashgap').innerText = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-net-cf').innerText = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-capital').textContent = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-cashgap').textContent = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
+    document.getElementById('res-net-cf').textContent = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
+// Инициализация слушателей событий без использования inline onclick
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('searchForm').addEventListener('submit', performSearch);
 
-window.onload = function() {
-    performSearch();
+    document.getElementById('tab-pl').addEventListener('click', () => switchTab('pl'));
+    document.getElementById('tab-cf').addEventListener('click', () => switchTab('cf'));
+
+    const calcInputs = ['revenue', 'cost', 'logistics', 'bg_fee', 'deposit', 'loan_rate', 'loan_days', 'tax_rate_mode'];
+    calcInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', calculateProfit);
+            el.addEventListener('change', calculateProfit);
+        }
+    });
+
+    // Первичный расчёт и автоматический поиск при загрузке
     calculateProfit();
-};
+    performSearch();
+});
 </script>
 
 </body>
