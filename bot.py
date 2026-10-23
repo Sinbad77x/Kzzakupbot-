@@ -9,7 +9,7 @@ import database
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Безопасная инициализация Flask без публичной статики корня
+# Flask-приложение
 app = Flask(__name__, static_folder=None)
 
 @app.after_request
@@ -19,7 +19,7 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     return response
 
-# Кэш для результатов поиска
+# Кеш для результатов поиска (15 минут)
 CACHE = {}
 CACHE_TTL = 900
 GOSZAKUP_API_URL = "https://ows.goszakup.gov.kz/v2/trd-buy"
@@ -27,6 +27,11 @@ GOSZAKUP_API_URL = "https://ows.goszakup.gov.kz/v2/trd-buy"
 # Загрузка конфигурации из переменных окружения
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
+
+# Укажите ваш Telegram User ID для доступа к административной статистике
+ADMIN_USER_IDS = [
+    # Вставьте ваш Telegram ID (число), например: 123456789
+]
 
 # Инициализация объекта бота
 bot = None
@@ -49,7 +54,7 @@ def setup_webhook(bot_instance, webhook_url):
     try:
         webhook_info = bot_instance.get_webhook_info()
         if webhook_info.url != webhook_url:
-            time.sleep(1)  # Пауза для предотвращения лимита запросов
+            time.sleep(1)
             bot_instance.set_webhook(url=webhook_url)
             logger.info(f"✅ Webhook успешно установлен: {webhook_url}")
             return True
@@ -61,37 +66,102 @@ def setup_webhook(bot_instance, webhook_url):
         return False
 
 # ==============================================================================
-# РЕГИСТРАЦИЯ ОБРАБОТЧИКОВ TELEGRAM
+# ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ПОИСКА ZAKUP (OWS API)
+# ==============================================================================
+def fetch_goszakup_lots(query, page=1, limit=5):
+    """Выполняет реальный запрос к OWS API Госзакупок с кешированием"""
+    if not query or len(query) > 100:
+        return {"success": False, "message": "Некорректный поисковый запрос"}
+
+    cache_key = f"{query.lower().strip()}_{page}_{limit}"
+    now = time.time()
+    
+    if cache_key in CACHE:
+        cached_data, timestamp = CACHE[cache_key]
+        if now - timestamp < CACHE_TTL:
+            return {"success": True, "source": "cache", "data": cached_data}
+
+    api_token = os.getenv("GOSZAKUP_TOKEN")
+    if not api_token:
+        return {"success": False, "message": "Токен доступа GOSZAKUP_TOKEN не задан на сервере."}
+
+    params = {"filter[name_ru]": query, "page": page, "limit": limit}
+    headers = {
+        "User-Agent": "KzzakupbotHub/1.0",
+        "Authorization": f"Bearer {api_token}"
+    }
+
+    try:
+        response = requests.get(GOSZAKUP_API_URL, params=params, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            try:
+                raw_data = response.json()
+            except ValueError:
+                return {"success": False, "message": "Внешний API вернул некорректный формат данных"}
+
+            normalized_results = []
+            items = raw_data.get('items', []) if isinstance(raw_data, dict) else []
+            
+            for item in items:
+                if not isinstance(item, dict):
+                    continue
+                lot_id = item.get('id')
+                number = item.get('number_anno') or item.get('number') or 'б/н'
+                name = item.get('name_ru') or 'Без наименования'
+                organizer = item.get('organizer_name_ru') or item.get('organizer_name') or 'Государственное учреждение'
+                try:
+                    amount = float(item.get('total_sum', 0))
+                except (ValueError, TypeError):
+                    amount = 0.0
+                status = item.get('status_name_ru') or item.get('status') or 'Приём заявок'
+                url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
+
+                normalized_results.append({
+                    "id": lot_id,
+                    "number": number,
+                    "name": name,
+                    "organizer": organizer,
+                    "amount": amount,
+                    "status": status,
+                    "url": url
+                })
+
+            CACHE[cache_key] = (normalized_results, now)
+            return {"success": True, "source": "api", "data": normalized_results}
+
+        elif response.status_code in [401, 403]:
+            return {"success": False, "message": "Ошибка авторизации во внешнем API (проверьте GOSZAKUP_TOKEN)"}
+        elif response.status_code == 429:
+            return {"success": False, "message": "Превышен лимит запросов к порталу госзакупок"}
+        else:
+            return {"success": False, "message": f"Внешний сервис недоступен (код {response.status_code})"}
+
+    except requests.exceptions.Timeout:
+        return {"success": False, "message": "Превышено время ожидания ответа от сервера госзакупок"}
+    except Exception as e:
+        logger.error(f"[OWS Exception] {type(e).__name__}")
+        return {"success": False, "message": "Внутренняя ошибка сервера"}
+
+# ==============================================================================
+# ОБРАБОТЧИКИ TELEGRAM
 # ==============================================================================
 if bot:
     def get_main_keyboard():
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        markup.add("🌐 Перейти на веб-портал", "🔥 Все новые лоты")
+        markup.add("🌐 Перейти на веб-портал", "🔍 Все новые лоты")
         markup.add("🏛 Госзакупки", "🏢 Самрук-Қазына")
         markup.add("💊 СК-Фармация", "🏥 ФСМС")
-        markup.add("🌐 Mitwork", "🛒 Caspy Tender")
+        markup.add("💻 Mitwork", "📦 Caspy Tender")
         markup.add("📊 ETS-Тендер", "⚙️ Мой фильтр и подписка")
         return markup
-
-    MOCK_LOTS = [
-        {
-            "id": "5892401",
-            "title": "Поставка канцелярских товаров и офисной бумаги",
-            "price": "5 000 000 ₸",
-            "customer": "ГУ «Управление образования г. Шымкент»",
-            "region": "г. Шымкент",
-            "platform": "Госзакупки",
-            "deadline": "28.10.2026",
-            "keywords": ["бумага", "канцтовары", "поставка"]
-        }
-    ]
 
     @bot.message_handler(commands=['start'])
     def handle_start(message):
         first_name = message.from_user.first_name or "Пользователь"
         username = message.from_user.username or ""
         user_id = message.from_user.id
-
+        
         args = message.text.split()
         source = "direct"
         if len(args) > 1:
@@ -106,18 +176,24 @@ if bot:
 
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
-            f"🔍 **Kzzakupbot Hub** — ваш бесплатный рабочий кабинет поставщика РК.\n"
-            f"Просто напишите ключевое слово (например: *Бумага*, *IT*) или выберите площадку ниже.\n\n"
-            f"📊 Для детального расчёта маржи и кассового разрыва используйте калькулятор."
+            f"🇰🇿 **Kzzakupbot Hub** — ваш рабочий кабинет поставщика РК.\n"
+            f"Просто напишите ключевое слово (например: *Бумага*, *IT*, *ФСМС*) для поиска актуальных лотов.\n\n"
+            f"🧮 Для детального расчёта маржи и денежного потока используйте калькулятор."
         )
+        
         inline_markup = types.InlineKeyboardMarkup()
-        inline_markup.add(types.InlineKeyboardButton("🧮 Открыть веб-калькулятор маржи", url="https://kzzakupbot.onrender.com#calculator"))
+        inline_markup.add(types.InlineKeyboardButton("🌐 Открыть веб-калькулятор маржи", url="https://kzzakupbot.onrender.com#calculator"))
         
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=inline_markup)
-        bot.send_message(message.chat.id, "Выберите площадку или введите запрос:", reply_markup=get_main_keyboard())
+        bot.send_message(message.chat.id, "Выберите площадку или введите поисковый запрос:", reply_markup=get_main_keyboard())
 
     @bot.message_handler(commands=['stats'])
     def handle_stats(message):
+        # Ограничение доступа: проверка ID администратора
+        if ADMIN_USER_IDS and message.from_user.id not in ADMIN_USER_IDS:
+            bot.send_message(message.chat.id, "⛔ У вас нет прав для выполнения этой команды.")
+            return
+
         try:
             stats = database.get_traffic_stats()
             total = sum(stats.values())
@@ -126,34 +202,63 @@ if bot:
                 msg += f"• **{src.upper()}**: {count} чел.\n"
         except Exception as e:
             msg = f"Ошибка получения статистики из БД: {type(e).__name__}"
+            
         bot.send_message(message.chat.id, msg, parse_mode="Markdown")
 
     @bot.message_handler(func=lambda message: True)
     def handle_all_messages(message):
-        text = message.text.strip().lower()
+        text = message.text.strip()
+        text_lower = text.lower()
 
-        if "все новые лоты" in text or "госзакупки" in text:
-            send_lots_list(message.chat.id, MOCK_LOTS, "🔥 **Свежие лоты:**")
-        elif "перейти на веб-портал" in text:
+        if "перейти на веб-портал" in text_lower:
             inline = types.InlineKeyboardMarkup()
             inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
             bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
-        else:
-            bot.send_message(message.chat.id, f"🔍 Запрос «{message.text}» принят. Воспользуйтесь поиском на веб-портале.")
+            return
 
-    def send_lots_list(chat_id, lots, header_text):
-        bot.send_message(chat_id, header_text, parse_mode="Markdown")
+        if "самрук-қазына" in text_lower or "ск-фармация" in text_lower or "mitwork" in text_lower or "caspy tender" in text_lower or "ets-тендер" in text_lower:
+            bot.send_message(
+                message.chat.id, 
+                f"ℹ️ Площадка **{text}** доступна для мониторинга в веб-версии. Прямой поиск лотов запущен для портала Госзакупки РК.", 
+                parse_mode="Markdown"
+            )
+            return
+
+        # Определение поискового запроса
+        search_query = text
+        if "все новые лоты" in text_lower or "госзакупки" in text_lower or "фсмс" in text_lower:
+            search_query = "Закупка" if "фсмс" not in text_lower else "ФСМС"
+
+        bot.send_message(message.chat.id, f"🔍 Ищу закупки по запросу: *{search_query}*...", parse_mode="Markdown")
+
+        # Вызов реальной функции поиска
+        result = fetch_goszakup_lots(search_query, page=1, limit=5)
+
+        if not result.get("success"):
+            bot.send_message(message.chat.id, f"⚠️ {result.get('message', 'Не удалось получить данные.')}")
+            return
+
+        lots = result.get("data", [])
+        if not lots:
+            bot.send_message(message.chat.id, f"📭 По запросу «{search_query}» актуальных лотов не найдено.")
+            return
+
+        bot.send_message(message.chat.id, f"📋 **Найдено лотов (показаны первые {len(lots)}):**", parse_mode="Markdown")
+        
         for idx, lot in enumerate(lots, 1):
             msg = (
                 f"**{idx}. Лот #{lot['id']}**\n"
-                f"📌 **{lot['title']}**\n"
-                f"💰 **Сумма:** {lot['price']}\n"
-                f"🏢 **Заказчик:** {lot['customer']}\n"
-                f"📍 **Регион:** {lot['region']}"
+                f"📌 **{lot['name']}**\n"
+                f"💰 **Сумма:** {lot['amount']:,.2f} ₸\n"
+                f"🏛 **Заказчик:** {lot['organizer']}\n"
+                f"📊 **Статус:** {lot['status']}"
             )
             inline = types.InlineKeyboardMarkup()
+            if lot.get('url'):
+                inline.add(types.InlineKeyboardButton("🔗 Открыть первоисточник", url=lot['url']))
             inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
-            bot.send_message(chat_id, msg, parse_mode="Markdown", reply_markup=inline)
+            
+            bot.send_message(message.chat.id, msg, parse_mode="Markdown", reply_markup=inline)
 
 # ==============================================================================
 # FLASK МАРШРУТЫ И ВЕБ-ИНТЕРФЕЙС
@@ -171,9 +276,6 @@ def search_tenders():
     if not query:
         return jsonify({"success": False, "message": "Введите ключевое слово для поиска"}), 400
 
-    if len(query) > 100:
-        return jsonify({"success": False, "message": "Слишком длинный поисковый запрос"}), 400
-
     try:
         page = int(request.args.get('page', 1))
         if page < 1:
@@ -181,83 +283,17 @@ def search_tenders():
     except ValueError:
         page = 1
 
-    cache_key = f"{query}_{page}"
-    now = time.time()
-
-    if cache_key in CACHE:
-        cached_data, timestamp = CACHE[cache_key]
-        if now - timestamp < CACHE_TTL:
-            return jsonify({"success": True, "source": "cache", "data": cached_data})
-
-    api_token = os.getenv("GOSZAKUP_TOKEN")
-    if not api_token:
-        return jsonify({"success": False, "message": "Токен доступа GOSZAKUP_TOKEN не задан на сервере."}), 502
-
-    params = {"filter[name_ru]": query, "page": page, "limit": 10}
-    headers = {
-        "User-Agent": "KzzakupbotHub/1.0",
-        "Authorization": f"Bearer {api_token}"
-    }
-
-    try:
-        response = requests.get(GOSZAKUP_API_URL, params=params, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            try:
-                raw_data = response.json()
-            except ValueError:
-                logger.error("[OWS API Error] Некорректный JSON от внешнего сервиса")
-                return jsonify({"success": False, "message": "Внешний API вернул некорректный формат данных"}), 502
-
-            normalized_results = []
-            items = raw_data.get('items', []) if isinstance(raw_data, dict) else []
-            
-            for item in items:
-                if not isinstance(item, dict):
-                    continue
-                
-                lot_id = item.get('id')
-                number = item.get('number_anno') or item.get('number') or 'б/н'
-                name = item.get('name_ru') or 'Без наименования'
-                organizer = item.get('organizer_name_ru') or item.get('organizer_name') or 'Государственное учреждение'
-                
-                try:
-                    amount = float(item.get('total_sum', 0))
-                except (ValueError, TypeError):
-                    amount = 0.0
-                
-                status = item.get('status_name_ru') or item.get('status') or 'Приём заявок'
-                url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
-
-                normalized_results.append({
-                    "id": lot_id,
-                    "number": number,
-                    "name": name,
-                    "organizer": organizer,
-                    "amount": amount,
-                    "status": status,
-                    "url": url
-                })
-                
-            CACHE[cache_key] = (normalized_results, now)
-            return jsonify({"success": True, "source": "api", "total": len(normalized_results), "data": normalized_results})
-        
-        elif response.status_code in [401, 403]:
-            logger.error(f"[OWS API Auth Error] Status: {response.status_code}")
-            return jsonify({"success": False, "message": "Ошибка авторизации во внешнем API (проверьте GOSZAKUP_TOKEN)"}), 502
-        elif response.status_code == 429:
-            logger.warning("[OWS API Rate Limit] 429 Too Many Requests")
-            return jsonify({"success": False, "message": "Превышен лимит запросов к порталу госзакупок"}), 429
-        else:
-            logger.error(f"[OWS API Error] Status: {response.status_code}")
-            return jsonify({"success": False, "message": f"Внешний сервис недоступен (код {response.status_code})"}), 502
-            
-    except requests.exceptions.Timeout:
-        logger.error("[OWS API Timeout] Превышено время ожидания ответа")
-        return jsonify({"success": False, "message": "Превышено время ожидания ответа от сервера госзакупок"}), 504
-    except Exception as e:
-        logger.error(f"[OWS Exception] {type(e).__name__}")
-        return jsonify({"success": False, "message": "Внутренняя ошибка сервера"}), 503
+    result = fetch_goszakup_lots(query, page=page, limit=10)
+    
+    if result.get("success"):
+        return jsonify({
+            "success": True, 
+            "source": result.get("source"), 
+            "total": len(result.get("data", [])), 
+            "data": result.get("data", [])
+        }), 200
+    else:
+        return jsonify({"success": False, "message": result.get("message")}), 502
 
 @app.route('/webhook', methods=['POST'])
 def webhook_handler():
@@ -272,7 +308,7 @@ def webhook_handler():
         return '', 200
     return jsonify({'status': 'bad request'}), 400
 
-# Автоматическая инициализация при загрузке приложения
+# Автоматическая инициализация
 init_database()
 setup_webhook(bot, WEBHOOK_URL)
 
