@@ -3,592 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot Hub — Рабочее пространство поставщика Казахстана</title>
+    <title>KZ Kzzakupbot Hub — Рабочее пространство поставщика Казахстана</title>
     <style>
-        :root {
-            --primary: #0047AB;
-            --primary-dark: #003380;
-            --accent: #00BFFF;
-            --bg: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --text: #1E293B;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
-            --success: #10B981;
-            --error: #EF4444;
-            --error-bg: #FEF2F2;
-            --warning-bg: #FFFBEB;
-            --warning-text: #B45309;
-            --radius: 12px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 25px 20px;
-            border-radius: var(--radius);
-            box-shadow: 0 4px 15px rgba(0, 71, 171, 0.15);
-        }
-
-        header h1 {
-            font-size: 22px;
-            margin-bottom: 5px;
-        }
-
-        header p {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-
-        .btn-tg {
-            display: inline-block;
-            background-color: #229ED9;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(34, 158, 217, 0.3);
-            transition: background 0.2s;
-        }
-
-        .btn-tg:hover {
-            background-color: #1d88bc;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border);
-        }
-
-        h2 {
-            font-size: 17px;
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .search-box input {
-            flex: 1;
-            padding: 12px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .search-box input:focus {
-            border-color: var(--primary);
-        }
-
-        .search-box button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .search-box button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .search-box button:disabled {
-            background-color: var(--text-muted);
-            cursor: not-allowed;
-        }
-
-        .results-container {
-            margin-top: 10px;
-        }
-
-        .lot-item {
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 8px;
-            background: #FAFAFA;
-        }
-
-        .lot-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-            color: var(--text);
-        }
-
-        .lot-info {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .calc-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .calc-tab {
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            background: #F1F5F9;
-            color: var(--text-muted);
-        }
-
-        .calc-tab.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .calc-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        @media (max-width: 600px) {
-            .calc-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .input-group {
-            margin-bottom: 10px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 9px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-            border-color: var(--primary);
-        }
-
-        .calc-results {
-            background: #F1F5F9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .calc-results p {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 13px;
-        }
-
-        .calc-results .total {
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 15px;
-            border-top: 1px solid var(--border);
-            padding-top: 8px;
-            margin-top: 6px;
-        }
-
-        .msg-error {
-            color: var(--error);
-            font-size: 13px;
-            padding: 12px;
-            background: var(--error-bg);
-            border-radius: 8px;
-            border: 1px solid #FCA5A5;
-            text-align: center;
-        }
-
-        .msg-warning {
-            color: var(--warning-text);
-            font-size: 12px;
-            padding: 10px;
-            background: var(--warning-bg);
-            border-radius: 8px;
-            border: 1px solid #FDE68A;
-            margin-top: 10px;
-        }
-
-        .disclaimer {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border);
-            line-height: 1.5;
-        }
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background: #f4f7f6; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        header { text-align: center; border-bottom: 2px solid #eaeaea; padding-bottom: 20px; margin-bottom: 20px; }
+        header h1 { margin: 0 0 10px 0; color: #0056b3; }
+        .btn { display: inline-block; background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px; }
+        .btn-tg { background: #0088cc; }
+        .section { margin-bottom: 30px; padding: 20px; background: #fafafa; border: 1px solid #e1e4e8; border-radius: 6px; }
+        .section h2 { margin-top: 0; color: #333; font-size: 20px; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button.action-btn { background: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button.action-btn:hover { background: #004085; }
+        .notice { font-size: 13px; color: #666; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px; margin-top: 10px; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>🇰🇿 KZ Kzzakupbot Hub</h1>
+            <p>Рабочее пространство поставщика Казахстана</p>
+            <a href="https://t.me/kzzakupbot" class="btn btn-tg" target="_blank" rel="noopener noreferrer">💬 Запустить в Telegram</a>
+        </header>
 
-<div class="container">
-    <header>
-        <h1>🇰🇿 KZ Kzzakupbot Hub</h1>
-        <p>Рабочее пространство поставщика Казахстана</p>
-        <a href="https://t.me/kzzakupbot" class="btn-tg" target="_blank" rel="noopener noreferrer">💬 Запустить в Telegram</a>
-    </header>
+        <div class="section">
+            <h2>Экономика и налоговые допущения</h2>
+            <p>🏛 СНР (упрощенная декларация): базовая ставка 4% (ст. 726 НК РК на 2026 год). Значение является допущением пользователя[span_2](start_span)[span_2](end_span).</p>
+        </div>
 
-    <!-- Налоговые нормы справочно -->
-    <div class="card" style="background: #EFF6FF; border-color: #BFDBFE;">
-        <h2 style="font-size: 14px; margin-bottom: 6px;">Экономика и налоговые допущения</h2>
-        <p style="font-size: 12px; color: var(--text-muted);">🏛 СНР (упрощенная декларация): базовая ставка 4% (ст. 726 НК РК на 2026 год). Значение является допущением пользователя.</p>
+        <div class="section">
+            <h2>🔍 Поиск актуальных закупок РК</h2>
+            <p>Перенаправление к официальному реестру закупок РК (Автоматический поиск по API временно переведен в режим прямого перехода).</p>
+            <div>
+                <label for="queryInput">Введите ключевое слово:</label>
+                <input type="text" id="queryInput" placeholder="Например: Бумага, ФСМС...">
+                <button id="searchTriggerBtn" class="action-btn">Найти лоты</button>
+            </div>
+            <div id="searchOutputContainer" style="margin-top: 15px;"></div>
+        </div>
+
+        <div class="section">
+            <h2>🧮 Калькулятор сделки и финансирования</h2>
+            <p>Предварительная оценка рентабельности и денежного потока (Cash Flow) по нормам НК РК 2026[span_3](start_span)[span_3](end_span).</p>
+            
+            <label for="contractSum">Сумма контракта (Выручка), ₸</label>
+            <input type="number" id="contractSum" value="5000000">
+
+            <label for="costGoods">Закупка товара / себестоимость, ₸</label>
+            <input type="number" id="costGoods" value="3500000">
+
+            <label for="costLogistics">Логистика и доставка, ₸</label>
+            <input type="number" id="costLogistics" value="150000">
+
+            <label for="costBG">Комиссия за банковскую гарантию (БГ), ₸</label>
+            <input type="number" id="costBG" value="25000">
+
+            <label for="depositSum">Обеспечение исполнения договора (залог), ₸</label>
+            <input type="number" id="depositSum" value="250000">
+
+            <button class="action-btn" onclick="calculateDeal()">Рассчитать показатели</button>
+
+            <div id="calcResults" style="margin-top: 20px; background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 4px;">
+                <p><strong>Расчётная прибыль:</strong> <span id="resProfit">0</span> ₸</p>
+                <p><strong>Маржинальность:</strong> <span id="resMargin">0</span>%</p>
+                <p><strong>Пиковая потребность в капитале:</strong> <span id="resCapital">0</span> ₸</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💬 Интеграция с Telegram</h2>
+            <p>Используйте Telegram-бот для быстрого доступа к поиску и управления подписками[span_4](start_span)[span_4](end_span).</p>
+            <a href="https://t.me/kzzakupbot" class="btn btn-tg" target="_blank" rel="noopener noreferrer">Открыть @kzzakupbot</a>
+        </div>
+
+        <footer>
+            <p class="notice">⚠️ Калькулятор выполняет предварительные расчеты. Пользователь самостоятельно проверяет условия закупки и налоговые обязательства[span_5](start_span)[span_5](end_span). Финансовые значения не сохраняются на внешних серверах[span_6](start_span)[span_6](end_span).</p>
+        </footer>
     </div>
 
-    <!-- Поиск закупок -->
-    <div class="card" id="search-section">
-        <h2>🔍 Поиск актуальных закупок РК</h2>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Мгновенный поиск по актуальным лотам через защищенный бэкенд-сервис.</p>
-        <form id="searchForm" class="search-box">
-            <input type="text" id="searchInput" placeholder="Введите ключевое слово (например: Бумага, IT)..." value="Бумага" maxlength="100" required>
-            <button type="submit" id="searchButton">Найти лоты</button>
-        </form>
-        <div id="searchResults" class="results-container">
-            <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 12px;">Введите запрос и нажмите «Найти лоты»</div>
-        </div>
-    </div>
+    <script>
+        document.getElementById('searchTriggerBtn').addEventListener('click', async () => {
+            const queryVal = document.getElementById('queryInput').value.trim();
+            const container = document.getElementById('searchOutputContainer');
+            
+            if (!queryVal) {
+                container.innerHTML = '<span style="color: red;">Пожалуйста, введите поисковый запрос.</span>';
+                return;
+            }
+            
+            container.innerHTML = 'Формирование ссылки на официальный ресурс...';
+            
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(queryVal)}`);
+                const json = await res.json();
+                
+                if (json.no_token) {
+                    container.innerHTML = `
+                        <div style="padding: 15px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 6px;">
+                            <p style="margin-bottom: 8px; color: #2e7d32;">${json.message}</p>
+                            <p style="margin-bottom: 12px; font-size: 14px; color: #555;">Искомый запрос: <strong>${queryVal}</strong></p>
+                            <a href="${json.redirect_url}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 18px; background: #2e7d32; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                                Открыть официальный поиск zakup.gov.kz ↗
+                            </a>
+                        </div>
+                    `;
+                } else if (json.success) {
+                    container.innerHTML = `<p style="color: green;">Найдено лотов: ${json.total}</p>`;
+                } else {
+                    container.innerHTML = `<span style="color: red;">${json.message}</span>`;
+                }
+            } catch (e) {
+                container.innerHTML = '<span style="color: red;">Ошибка связи с сервером.</span>';
+            }
+        });
 
-    <!-- Калькулятор сделки и финансирования -->
-    <div class="card" id="calculator">
-        <h2>🧮 Калькулятор сделки и финансирования</h2>
-        <div class="calc-tabs">
-            <div class="calc-tab active" id="tab-pl" data-tab="pl">📈 Прибыль (P&L)</div>
-            <div class="calc-tab" id="tab-cf" data-tab="cf">💧 Денежный поток (Cash Flow)</div>
-        </div>
-        
-        <div class="calc-grid">
-            <div class="input-group">
-                <label for="revenue">Сумма контракта (Выручка), ₸</label>
-                <input type="number" id="revenue" value="5000000" min="0" step="any">
-            </div>
-            <div class="input-group">
-                <label for="cost">Закупка товара / себестоимость, ₸</label>
-                <input type="number" id="cost" value="3500000" min="0" step="any">
-            </div>
-            <div class="input-group">
-                <label for="logistics">Логистика и доставка, ₸</label>
-                <input type="number" id="logistics" value="150000" min="0" step="any">
-            </div>
-            <div class="input-group">
-                <label for="bg_fee">Комиссия за БГ (Банковская гарантия), ₸</label>
-                <input type="number" id="bg_fee" value="25000" min="0" step="any">
-            </div>
-            <div class="input-group">
-                <label for="deposit">Обеспечение исполнения договора (залог), ₸</label>
-                <input type="number" id="deposit" value="250000" min="0" step="any">
-            </div>
-        </div>
+        function calculateDeal() {
+            const revenue = parseFloat(document.getElementById('contractSum').value) || 0;
+            const goods = parseFloat(document.getElementById('costGoods').value) || 0;
+            const logistics = parseFloat(document.getElementById('costLogistics').value) || 0;
+            const bg = parseFloat(document.getElementById('costBG').value) || 0;
+            const deposit = parseFloat(document.getElementById('depositSum').value) || 0;
 
-        <h3 style="font-size: 14px; color: var(--primary); margin: 15px 0 8px 0;">Параметры финансирования и отсрочки</h3>
-        <div class="calc-grid">
-            <div class="input-group">
-                <label for="loan_rate">Годовая ставка займа / факторинга (% годовых)</label>
-                <input type="number" id="loan_rate" value="20" min="0" step="any">
-            </div>
-            <div class="input-group">
-                <label for="loan_days">Срок отсрочки / займа (дней)</label>
-                <input type="number" id="loan_days" value="30" min="0" step="any">
-            </div>
-        </div>
+            const directCosts = goods + logistics + bg;
+            const tax = revenue * 0.04; // СНР 4% на 2026 год
+            const profit = revenue - directCosts - tax;
+            const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+            const peakCapital = goods + deposit;
 
-        <div class="input-group" style="margin-top: 10px;">
-            <label for="tax_rate_mode">Налоговая ставка (допущение пользователя)</label>
-            <select id="tax_rate_mode">
-                <option value="0.04">СНР на основе упрощенной декларации — 4% (ст. 726 НК РК)</option>
-                <option value="0.03">СНР (льготная ставка) — 3%</option>
-                <option value="0.16">Общеустановленный режим (ОУР) — 16% (справочно)</option>
-                <option value="0.00">Без налога (0%)</option>
-            </select>
-        </div>
-
-        <div class="msg-warning">
-            ⚠️ <strong>Внимание:</strong> Расчёт носит исключительно предварительный аналитический характер. Пользователь должен самостоятельно подтвердить применимость налогового режима и учесть прочие обязательные платежи (ОПВ, СО, ВОСМС).
-        </div>
-        
-        <div class="calc-results" id="results-pl">
-            <p>Прямые затраты (товар + логистика + БГ): <span id="res-costs">3 675 000 ₸</span></p>
-            <p>Плата за финансирование капитала: <span id="res-financing">60 411 ₸</span></p>
-            <p>Предварительный налог (от выручки): <span id="res-tax">200 000 ₸</span></p>
-            <p class="total">Расчётная чистая прибыль: <span id="res-profit">1 064 589 ₸</span></p>
-            <p>Маржинальность сделки: <span id="res-margin" style="font-weight: bold; color: var(--success);">21.3%</span></p>
-        </div>
-
-        <div class="calc-results" id="results-cf" style="display: none;">
-            <p>Требуемый начальный капитал (закупка + залог): <span id="res-capital">3 750 000 ₸</span></p>
-            <p>Максимальная кассовая заморозка: <span id="res-cashgap">3 750 000 ₸</span></p>
-            <p class="total">Чистый денежный поток по сделке: <span id="res-net-cf">1 064 589 ₸</span></p>
-        </div>
-    </div>
-
-    <!-- Блок Telegram -->
-    <div class="card" style="text-align: center; background: #F0F9FF; border-color: #BAE6FD;">
-        <h2>💬 Интеграция с Telegram</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Используйте Telegram-бот для быстрого доступа к поиску и управлению подписками.</p>
-        <a href="https://t.me/kzzakupbot" class="btn-tg" target="_blank" rel="noopener noreferrer">Открыть @kzzakupbot</a>
-    </div>
-
-    <!-- Источник данных и ограничения -->
-    <div class="disclaimer">
-        Поиск зависит от доступности сервера и официального источника (ows.goszakup.gov.kz). Результат поиска может быть неполным или временно недоступным. Калькулятор выполняет предварительные расчёты. Пользователь самостоятельно проверяет условия закупки, достоверность данных и налоговые обязательства. Финансовые значения в калькуляторе не сохраняются на внешних серверах.
-    </div>
-</div>
-
-<script>
-let currentMode = 'pl';
-
-// Строгая функция безопасности URL (white-list проверка)
-function safeUrl(url) {
-    if (!url || typeof url !== 'string') return '#';
-    try {
-        const parsed = new URL(url);
-        if (parsed.protocol !== 'https:') return '#';
-        if (parsed.username || parsed.password) return '#';
-        
-        const allowedDomains = ['goszakup.gov.kz', 'zakup.gov.kz'];
-        const hostname = parsed.hostname.toLowerCase();
-        
-        const isAllowed = allowedDomains.some(domain => 
-            hostname === domain || hostname.endsWith('.' + domain)
-        );
-        
-        if (!isAllowed) return '#';
-        if (parsed.port && parsed.port !== '443') return '#';
-        
-        return parsed.href;
-    } catch (e) {}
-    return '#';
-}
-
-function switchTab(mode) {
-    currentMode = mode;
-    const tabPl = document.getElementById('tab-pl');
-    const tabCf = document.getElementById('tab-cf');
-    const resPl = document.getElementById('results-pl');
-    const resCf = document.getElementById('results-cf');
-
-    if (mode === 'pl') {
-        tabPl.classList.add('active');
-        tabCf.classList.remove('active');
-        resPl.style.display = 'block';
-        resCf.style.display = 'none';
-    } else {
-        tabCf.classList.add('active');
-        tabPl.classList.remove('active');
-        resPl.style.display = 'none';
-        resCf.style.display = 'block';
-    }
-}
-
-// Безопасный рендеринг результатов поиска через createElement (защита от XSS)
-function renderResults(data) {
-    const resultsContainer = document.getElementById('searchResults');
-    resultsContainer.innerHTML = '';
-
-    if (!data || !Array.isArray(data) || data.length === 0) {
-        const emptyMsg = document.createElement('div');
-        emptyMsg.style.cssText = 'color: var(--text-muted); font-size: 13px; text-align: center; padding: 12px;';
-        emptyMsg.textContent = 'По вашему запросу ничего не найдено.';
-        resultsContainer.appendChild(emptyMsg);
-        return;
-    }
-
-    data.forEach((lot, index) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'lot-item';
-
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'lot-title';
-        const lotNum = lot.number ? `[${lot.number}] ` : '';
-        titleDiv.textContent = `${index + 1}. ${lotNum}${lot.name || 'Без наименования'}`;
-        itemDiv.appendChild(titleDiv);
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'lot-info';
-
-        if (lot.organizer) {
-            const orgSpan = document.createElement('span');
-            orgSpan.textContent = `🏛 Заказчик: ${lot.organizer}`;
-            infoDiv.appendChild(orgSpan);
+            document.getElementById('resProfit').innerText = profit.toLocaleString('ru-RU');
+            document.getElementById('resMargin').innerText = margin.toFixed(1);
+            document.getElementById('resCapital').innerText = peakCapital.toLocaleString('ru-RU');
         }
-
-        if (lot.amount !== undefined && lot.amount !== null) {
-            const amtSpan = document.createElement('span');
-            amtSpan.style.cssText = 'font-weight: bold; color: var(--success);';
-            const numAmount = Number(lot.amount) || 0;
-            amtSpan.textContent = `${numAmount.toLocaleString('ru-RU')} ₸`;
-            infoDiv.appendChild(amtSpan);
-        }
-
-        itemDiv.appendChild(infoDiv);
-
-        if (lot.url) {
-            const linkWrap = document.createElement('div');
-            linkWrap.style.marginTop = '6px';
-
-            const a = document.createElement('a');
-            a.href = safeUrl(lot.url);
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            a.style.cssText = 'font-size: 12px; color: var(--primary); text-decoration: none;';
-            a.textContent = 'Открыть лот на портале →';
-
-            linkWrap.appendChild(a);
-            itemDiv.appendChild(linkWrap);
-        }
-
-        resultsContainer.appendChild(itemDiv);
-    });
-}
-
-async function performSearch(event) {
-    if (event) event.preventDefault();
-    
-    const queryInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    const resultsContainer = document.getElementById('searchResults');
-    
-    const query = queryInput.value.trim();
-    
-    if (!query) {
-        resultsContainer.innerHTML = '<div class="msg-error">Введите ключевое слово для поиска.</div>';
-        return;
-    }
-
-    if (query.length > 100) {
-        resultsContainer.innerHTML = '<div class="msg-error">Слишком длинный поисковый запрос (максимум 100 символов).</div>';
-        return;
-    }
-
-    searchButton.disabled = true;
-    resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 12px;">Загрузка данных с портала госзакупок...</div>';
-
-    try {
-        const response = await fetch('/api/search?q=' + encodeURIComponent(query));
-        
-        if (!response.ok) {
-            throw new Error(`Ошибка сервера: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!data.success) {
-            resultsContainer.innerHTML = `<div class="msg-error">${data.message || 'Ошибка загрузки данных'}</div>`;
-            return;
-        }
-
-        renderResults(data.data);
-
-    } catch (error) {
-        resultsContainer.innerHTML = '<div class="msg-error">Не удалось связаться с сервером или превышено время ожидания. Повторите попытку позже.</div>';
-    } finally {
-        searchButton.disabled = false;
-    }
-}
-
-function calculateProfit() {
-    const revenue = parseFloat(document.getElementById('revenue').value) || 0;
-    const cost = parseFloat(document.getElementById('cost').value) || 0;
-    const logistics = parseFloat(document.getElementById('logistics').value) || 0;
-    const bgFee = parseFloat(document.getElementById('bg_fee').value) || 0;
-    const deposit = parseFloat(document.getElementById('deposit').value) || 0;
-    
-    const loanRate = parseFloat(document.getElementById('loan_rate').value) || 0;
-    const loanDays = parseFloat(document.getElementById('loan_days').value) || 0;
-    const taxRate = parseFloat(document.getElementById('tax_rate_mode').value) || 0.04;
-
-    const directCosts = cost + logistics + bgFee;
-    const capitalNeeded = cost + deposit;
-    const financingCost = capitalNeeded * (loanRate / 100) * (loanDays / 365);
-    
-    const tax = revenue * taxRate;
-    const profit = revenue - directCosts - financingCost - tax;
-    const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-
-    document.getElementById('res-costs').textContent = directCosts.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-financing').textContent = Math.round(financingCost).toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-tax').textContent = Math.round(tax).toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-profit').textContent = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-margin').textContent = margin.toFixed(1) + '%';
-
-    document.getElementById('res-capital').textContent = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-cashgap').textContent = capitalNeeded.toLocaleString('ru-RU') + ' ₸';
-    document.getElementById('res-net-cf').textContent = Math.round(profit).toLocaleString('ru-RU') + ' ₸';
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('searchForm').addEventListener('submit', performSearch);
-
-    document.getElementById('tab-pl').addEventListener('click', () => switchTab('pl'));
-    document.getElementById('tab-cf').addEventListener('click', () => switchTab('cf'));
-
-    const calcInputs = ['revenue', 'cost', 'logistics', 'bg_fee', 'deposit', 'loan_rate', 'loan_days', 'tax_rate_mode'];
-    calcInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', calculateProfit);
-            el.addEventListener('change', calculateProfit);
-        }
-    });
-
-    calculateProfit();
-    performSearch();
-});
-</script>
-
+    </script>
 </body>
 </html>
