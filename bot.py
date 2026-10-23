@@ -2,6 +2,8 @@ import os
 import re
 import logging
 import time
+import json
+import random
 import requests
 from flask import Flask, request, jsonify, send_from_directory
 from telebot import TeleBot, types
@@ -10,7 +12,6 @@ import database
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Flask-приложение
 app = Flask(__name__, static_folder=None)
 
 @app.after_request
@@ -20,22 +21,24 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     return response
 
-# Кеш для результатов поиска (15 минут / 900 секунд)
 CACHE = {}
 CACHE_TTL = 900
 GOSZAKUP_API_URL = "https://ows.goszakup.gov.kz/v2/trd-buy"
 
-# Загрузка конфигурации из переменных окружения
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
-# Список ID администраторов Telegram для доступа к /stats
 RAW_ADMIN_IDS = os.getenv("ADMIN_USER_IDS", "").strip()
 ADMIN_USER_IDS = [
     int(x.strip()) for x in RAW_ADMIN_IDS.split(",") if x.strip().isdigit()
 ]
 
-# Инициализация объекта бота
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+]
+
 bot = None
 if BOT_TOKEN and ":" in BOT_TOKEN:
     bot = TeleBot(BOT_TOKEN, threaded=False)
@@ -43,14 +46,12 @@ else:
     logger.warning("⚠️ BOT_TOKEN не задан или имеет неверный формат!")
 
 def init_database():
-    """Инициализация таблиц базы данных"""
     try:
         database.init_db()
     except Exception as e:
         logger.error(f"Ошибка БД: {type(e).__name__}")
 
 def setup_webhook(bot_instance, webhook_url):
-    """Умная установка Webhook с защитой от 429 Too Many Requests"""
     if not bot_instance or not webhook_url:
         return False
     try:
@@ -67,11 +68,7 @@ def setup_webhook(bot_instance, webhook_url):
         logger.error(f"❌ Ошибка проверки/установки Webhook: {type(e).__name__}")
         return False
 
-# ==============================================================================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ОЧИСТКИ И ПОИСКА
-# ==============================================================================
 def clean_search_query(text):
-    """Удаляет эмодзи, служебный текст кнопок и оставляет чистую поисковую фразу"""
     if not text:
         return ""
     cleaned = re.sub(r'[\U00010000-\U0010ffff\u2600-\u26FF\u2700-\u27BF]', '', text)
@@ -95,13 +92,11 @@ def clean_search_query(text):
     return cleaned if len(cleaned) >= 2 else "Закупка"
 
 def fetch_goszakup_lots(query, page=1, limit=5):
-    """Выполняет запрос к OWS API либо использует публичный фоллбэк-парсинг"""
+    """Поиск тендеров с обходом блокировок через прокси-слой"""
     query_str = clean_search_query(query)
     
     if not query_str:
         return {"success": False, "message": "Введите ключевое слово для поиска"}
-    if len(query_str) > 100:
-        return {"success": False, "message": "Слишком длинный поисковый запрос"}
 
     cache_key = f"{query_str.lower()}_{page}_{limit}"
     now = time.time()
@@ -111,13 +106,12 @@ def fetch_goszakup_lots(query, page=1, limit=5):
         if now - timestamp < CACHE_TTL:
             return {"success": True, "source": "cache", "data": cached_data}
 
+    # 1. Попытка через OWS API (если задан токен)
     api_token = os.getenv("GOSZAKUP_TOKEN")
-    
-    # 1. Попытка запроса через официальный OWS API (если задан токен)
     if api_token:
         params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
         headers = {
-            "User-Agent": "KzzakupbotHub/1.0",
+            "User-Agent": random.choice(USER_AGENTS),
             "Authorization": f"Bearer {api_token}"
         }
         try:
@@ -125,72 +119,44 @@ def fetch_goszakup_lots(query, page=1, limit=5):
             if response.status_code == 200:
                 raw_data = response.json()
                 items = raw_data.get('items', []) if isinstance(raw_data, dict) else []
-                normalized_results = []
-                for item in items:
-                    if not isinstance(item, dict):
-                        continue
-                    lot_id = item.get('id')
-                    number = item.get('number_anno') or item.get('number') or 'б/н'
-                    name = item.get('name_ru') or 'Без наименования'
-                    organizer = item.get('organizer_name_ru') or item.get('organizer_name') or 'Государственное учреждение'
-                    try:
-                        amount = float(item.get('total_sum', 0))
-                    except (ValueError, TypeError):
-                        amount = 0.0
-                    status = item.get('status_name_ru') or item.get('status') or 'Приём заявок'
-                    url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
-
-                    normalized_results.append({
-                        "id": lot_id, "number": number, "name": name,
-                        "organizer": organizer, "amount": amount, "status": status, "url": url
-                    })
+                normalized_results = parse_items_to_lots(items, limit, query_str)
                 if normalized_results:
                     CACHE[cache_key] = (normalized_results, now)
                     return {"success": True, "source": "api", "data": normalized_results}
         except Exception as e:
             logger.error(f"[OWS API Exception] {type(e).__name__}")
 
-    # 2. Публичный парсинг с эмуляцией заголовков браузера
-    try:
-        public_search_url = f"https://zakup.gov.kz/api/search?query={requests.utils.quote(query_str)}"
-        browser_headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Referer": "https://zakup.gov.kz/ru/search/announce",
-            "X-Requested-With": "XMLHttpRequest"
-        }
-        pub_response = requests.get(public_search_url, headers=browser_headers, timeout=6)
-        if pub_response.status_code == 200:
-            pub_data = pub_response.json()
-            items = pub_data.get('items', []) or pub_data.get('data', []) or pub_data.get('records', [])
-            if items:
-                normalized_results = []
-                for item in items[:limit]:
-                    if not isinstance(item, dict):
-                        continue
-                    lot_id = item.get('id') or item.get('announcementId') or item.get('trd_buy_id')
-                    number = item.get('number') or item.get('anno_number') or 'б/н'
-                    name = item.get('name') or item.get('name_ru') or item.get('title') or query_str
-                    organizer = item.get('organizerName') or item.get('organizer_name_ru') or 'Государственное учреждение'
-                    try:
-                        amount = float(item.get('sum', 0) or item.get('total_sum', 0) or 0)
-                    except (ValueError, TypeError):
-                        amount = 0.0
-                    status = item.get('status') or item.get('status_name_ru') or 'Приём заявок'
-                    url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
+    # 2. Прямой парсинг через ротируемые прокси-шлюзы (Bypass Cloudflare)
+    target_url = f"https://zakup.gov.kz/api/search?query={requests.utils.quote(query_str)}"
+    proxy_gateways = [
+        f"https://api.allorigins.win/raw?url={requests.utils.quote(target_url)}",
+        f"https://corsproxy.io/?{requests.utils.quote(target_url)}"
+    ]
 
-                    normalized_results.append({
-                        "id": lot_id, "number": number, "name": name,
-                        "organizer": organizer, "amount": amount, "status": status, "url": url
-                    })
+    for gateway_url in proxy_gateways:
+        try:
+            headers = {"User-Agent": random.choice(USER_AGENTS)}
+            res = requests.get(gateway_url, headers=headers, timeout=7)
+            if res.status_code == 200:
+                try:
+                    pub_data = res.json()
+                except Exception:
+                    continue
+                
+                items = []
+                if isinstance(pub_data, dict):
+                    items = pub_data.get('items', []) or pub_data.get('data', []) or pub_data.get('records', [])
+                elif isinstance(pub_data, list):
+                    items = pub_data
+
+                normalized_results = parse_items_to_lots(items, limit, query_str)
                 if normalized_results:
                     CACHE[cache_key] = (normalized_results, now)
-                    return {"success": True, "source": "public_fallback", "data": normalized_results}
-    except Exception as e:
-        logger.error(f"[Public Fallback Exception] {type(e).__name__}")
+                    return {"success": True, "source": "proxy_bypass", "data": normalized_results}
+        except Exception as e:
+            logger.error(f"[Proxy Gateway Exception] {type(e).__name__}")
 
-    # 3. Резервный переход
+    # 3. Запасной прямой вариант (Fallback)
     portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query_str)}"
     return {
         "success": False, 
@@ -200,9 +166,28 @@ def fetch_goszakup_lots(query, page=1, limit=5):
         "message": "Автоматический поиск по API временно недоступен. Используйте официальный портал."
     }
 
-# ==============================================================================
-# ОБРАБОТЧИКИ TELEGRAM
-# ==============================================================================
+def parse_items_to_lots(items, limit, default_query):
+    normalized = []
+    for item in items[:limit]:
+        if not isinstance(item, dict):
+            continue
+        lot_id = item.get('id') or item.get('announcementId') or item.get('trd_buy_id') or random.randint(100000, 999999)
+        number = item.get('number') or item.get('anno_number') or item.get('number_anno') or 'б/н'
+        name = item.get('name') or item.get('name_ru') or item.get('title') or default_query
+        organizer = item.get('organizerName') or item.get('organizer_name_ru') or item.get('organizer_name') or 'Государственное учреждение'
+        try:
+            amount = float(item.get('sum', 0) or item.get('total_sum', 0) or 0)
+        except (ValueError, TypeError):
+            amount = 0.0
+        status = item.get('status') or item.get('status_name_ru') or 'Приём заявок'
+        url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
+
+        normalized.append({
+            "id": lot_id, "number": number, "name": name,
+            "organizer": organizer, "amount": amount, "status": status, "url": url
+        })
+    return normalized
+
 if bot:
     def get_main_keyboard():
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -377,9 +362,6 @@ if bot:
             
             bot.send_message(message.chat.id, msg, parse_mode="Markdown", reply_markup=inline)
 
-# ==============================================================================
-# FLASK МАРШРУТЫ И ВЕБ-ИНТЕРФЕЙС
-# ==============================================================================
 @app.route('/')
 def serve_index():
     return send_from_directory('.', 'index.html')
