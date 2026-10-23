@@ -19,7 +19,7 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     return response
 
-# Кеш для результатов поиска (15 минут)
+# Кеш для результатов поиска (15 минут / 900 секунд)
 CACHE = {}
 CACHE_TTL = 900
 GOSZAKUP_API_URL = "https://ows.goszakup.gov.kz/v2/trd-buy"
@@ -28,9 +28,10 @@ GOSZAKUP_API_URL = "https://ows.goszakup.gov.kz/v2/trd-buy"
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
-# Укажите ваш Telegram User ID для доступа к административной статистике
+# Список ID администраторов Telegram для доступа к /stats (через запятую в env или списком в коде)
+RAW_ADMIN_IDS = os.getenv("ADMIN_USER_IDS", "").strip()
 ADMIN_USER_IDS = [
-    # Вставьте ваш Telegram ID (число), например: 123456789
+    int(x.strip()) for x in RAW_ADMIN_IDS.split(",") if x.strip().isdigit()
 ]
 
 # Инициализация объекта бота
@@ -66,14 +67,19 @@ def setup_webhook(bot_instance, webhook_url):
         return False
 
 # ==============================================================================
-# ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ПОИСКА ZAKUP (OWS API)
+# ЕДИНАЯ ФУНКЦИЯ ПОИСКА ZAKUP (OWS API)
 # ==============================================================================
 def fetch_goszakup_lots(query, page=1, limit=5):
     """Выполняет реальный запрос к OWS API Госзакупок с кешированием"""
-    if not query or len(query) > 100:
-        return {"success": False, "message": "Некорректный поисковый запрос"}
+    query_str = query.strip()
+    if not query_str:
+        return {"success": False, "message": "Введите ключевое слово для поиска"}
+    if len(query_str) < 2:
+        return {"success": False, "message": "Поисковый запрос слишком короткий (минимум 2 символа)"}
+    if len(query_str) > 100:
+        return {"success": False, "message": "Слишком длинный поисковый запрос"}
 
-    cache_key = f"{query.lower().strip()}_{page}_{limit}"
+    cache_key = f"{query_str.lower()}_{page}_{limit}"
     now = time.time()
     
     if cache_key in CACHE:
@@ -85,7 +91,7 @@ def fetch_goszakup_lots(query, page=1, limit=5):
     if not api_token:
         return {"success": False, "message": "Токен доступа GOSZAKUP_TOKEN не задан на сервере."}
 
-    params = {"filter[name_ru]": query, "page": page, "limit": limit}
+    params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
     headers = {
         "User-Agent": "KzzakupbotHub/1.0",
         "Authorization": f"Bearer {api_token}"
@@ -189,9 +195,9 @@ if bot:
 
     @bot.message_handler(commands=['stats'])
     def handle_stats(message):
-        # Ограничение доступа: проверка ID администратора
-        if ADMIN_USER_IDS and message.from_user.id not in ADMIN_USER_IDS:
-            bot.send_message(message.chat.id, "⛔ У вас нет прав для выполнения этой команды.")
+        # Защита команды: проверка списка ADMIN_USER_IDS
+        if not ADMIN_USER_IDS or message.from_user.id not in ADMIN_USER_IDS:
+            bot.send_message(message.chat.id, "⛔ У вас нет прав для просмотра административной статистики.")
             return
 
         try:
@@ -216,7 +222,7 @@ if bot:
             bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
             return
 
-        if "самрук-қазына" in text_lower or "ск-фармация" in text_lower or "mitwork" in text_lower or "caspy tender" in text_lower or "ets-тендер" in text_lower:
+        if any(p in text_lower for p in ["самрук-қазына", "ск-фармация", "mitwork", "caspy tender", "ets-тендер"]):
             bot.send_message(
                 message.chat.id, 
                 f"ℹ️ Площадка **{text}** доступна для мониторинга в веб-версии. Прямой поиск лотов запущен для портала Госзакупки РК.", 
@@ -224,14 +230,14 @@ if bot:
             )
             return
 
-        # Определение поискового запроса
+        # Формирование запроса
         search_query = text
-        if "все новые лоты" in text_lower or "госзакупки" in text_lower or "фсмс" in text_lower:
-            search_query = "Закупка" if "фсмс" not in text_lower else "ФСМС"
+        if "все новые лоты" in text_lower or "госзакупки" in text_lower:
+            search_query = "Закупка"
 
         bot.send_message(message.chat.id, f"🔍 Ищу закупки по запросу: *{search_query}*...", parse_mode="Markdown")
 
-        # Вызов реальной функции поиска
+        # Вызов единой функции поиска
         result = fetch_goszakup_lots(search_query, page=1, limit=5)
 
         if not result.get("success"):
@@ -243,7 +249,7 @@ if bot:
             bot.send_message(message.chat.id, f"📭 По запросу «{search_query}» актуальных лотов не найдено.")
             return
 
-        bot.send_message(message.chat.id, f"📋 **Найдено лотов (показаны первые {len(lots)}):**", parse_mode="Markdown")
+        bot.send_message(message.chat.id, f"📋 **Найдено актуальных лотов ({len(lots)}):**", parse_mode="Markdown")
         
         for idx, lot in enumerate(lots, 1):
             msg = (
@@ -273,9 +279,6 @@ def search_tenders():
         return jsonify({'status': 'ok'}), 200
 
     query = request.args.get('q', '').strip()
-    if not query:
-        return jsonify({"success": False, "message": "Введите ключевое слово для поиска"}), 400
-
     try:
         page = int(request.args.get('page', 1))
         if page < 1:
@@ -293,7 +296,8 @@ def search_tenders():
             "data": result.get("data", [])
         }), 200
     else:
-        return jsonify({"success": False, "message": result.get("message")}), 502
+        status_code = 400 if "короткий" in result.get("message", "") or "Введите" in result.get("message", "") else 502
+        return jsonify({"success": False, "message": result.get("message")}), status_code
 
 @app.route('/webhook', methods=['POST'])
 def webhook_handler():
@@ -308,9 +312,10 @@ def webhook_handler():
         return '', 200
     return jsonify({'status': 'bad request'}), 400
 
-# Автоматическая инициализация
+# Автоматическая инициализация при запуске
 init_database()
 setup_webhook(bot, WEBHOOK_URL)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 10000)))
+                     
