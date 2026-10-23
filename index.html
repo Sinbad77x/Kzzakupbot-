@@ -3,188 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KZ Kzzakupbot Hub — Рабочее пространство поставщика Казахстана</title>
+    <title>Kzzakupbot Hub — Рабочее пространство поставщика РК</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background: #f4f7f6; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        header { text-align: center; border-bottom: 2px solid #eaeaea; padding-bottom: 20px; margin-bottom: 20px; }
-        header h1 { margin: 0 0 10px 0; color: #0056b3; }
-        .btn { display: inline-block; background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px; }
-        .btn-tg { background: #0088cc; }
-        .section { margin-bottom: 30px; padding: 20px; background: #fafafa; border: 1px solid #e1e4e8; border-radius: 6px; }
-        .section h2 { margin-top: 0; color: #333; font-size: 20px; }
-        input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button.action-btn { background: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
-        button.action-btn:hover { background: #004085; }
-        .notice { font-size: 13px; color: #666; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px; margin-top: 10px; }
-        .field-warning { font-size: 12px; color: #d9534f; margin-top: -10px; margin-bottom: 10px; display: none; }
+        body { background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .hero-section { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white; padding: 40px 0; border-radius: 0 0 1rem 1rem; margin-bottom: 30px; }
+        .card { border: none; border-radius: 0.75rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+        .calculator-card { background-color: #ffffff; border-top: 4px solid #198754; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🇰🇿 KZ Kzzakupbot Hub</h1>
-            <p>Рабочее пространство поставщика Казахстана</p>
-            <a href="https://t.me/kzzakupbot" class="btn btn-tg" target="_blank" rel="noopener noreferrer">💬 Запустить в Telegram</a>
-        </header>
 
-        <div class="section">
-            <h2>Экономика и налоговые допущения</h2>
-            <p>🏛 СНР на основе упрощенной декларации: базовая ставка 4% (ст. 726 НК РК на 2026 год). В г. Шымкент действует пониженная ставка 2% (Решение маслихата от 28.11.2025 № 30/271-VIII).</p>
+    <!-- Шапка -->
+    <div class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-5 fw-bold">🇰🇿 KZ Kzzakupbot Hub</h1>
+            <p class="lead mb-3">Рабочее пространство поставщика Казахстана</p>
+            <a href="https://t.me/Kzzakupbot" target="_blank" class="btn btn-light btn-lg fw-bold px-4">
+                💬 Запустить в Telegram
+            </a>
         </div>
-
-        <div class="section">
-            <h2>🔍 Поиск актуальных закупок РК</h2>
-            <p>Перенаправление к официальному реестру закупок РК (Автоматический поиск по API временно переведен в режим прямого перехода).</p>
-            <div>
-                <label for="queryInput">Введите ключевое слово:</label>
-                <input type="text" id="queryInput" placeholder="Например: Бумага, ФСМС...">
-                <button id="searchTriggerBtn" class="action-btn">Найти лоты</button>
-            </div>
-            <div id="searchOutputContainer" style="margin-top: 15px;"></div>
-        </div>
-
-        <div class="section">
-            <h2>🧮 Калькулятор сделки и финансирования</h2>
-            <p>Предварительная оценка рентабельности и денежного потока (Cash Flow) по нормам НК РК 2026.</p>
-            
-            <label for="taxRateSelect">Ставка налога СНР (% от выручки):</label>
-            <select id="taxRateSelect" onchange="toggleCustomTaxField(); calculateDeal();">
-                <option value="0.04" selected>4% — Базовая ставка НК РК (ст. 726)</option>
-                <option value="0.02">2% — Пониженная ставка (г. Шымкент, Решение № 30/271-VIII)</option>
-                <option value="custom">Указать свою ставку...</option>
-            </select>
-
-            <div id="customTaxContainer" style="display: none;">
-                <label for="customTaxRate">Ваша ставка налога, %:</label>
-                <input type="number" id="customTaxRate" value="3" step="0.1" min="0" max="100" oninput="calculateDeal()">
-                <div id="customTaxWarning" class="field-warning">Допустимая ставка налога: от 0% до 100%.</div>
-            </div>
-
-            <label for="contractSum">Сумма контракта (Выручка), ₸</label>
-            <input type="number" id="contractSum" value="5000000" oninput="calculateDeal()">
-
-            <label for="costGoods">Закупка товара / себестоимость, ₸</label>
-            <input type="number" id="costGoods" value="3500000" oninput="calculateDeal()">
-
-            <label for="costLogistics">Логистика и доставка, ₸</label>
-            <input type="number" id="costLogistics" value="150000" oninput="calculateDeal()">
-
-            <label for="costBG">Комиссия за банковскую гарантию (БГ), ₸</label>
-            <input type="number" id="costBG" value="25000" oninput="calculateDeal()">
-
-            <label for="depositSum">Обеспечение исполнения договора (залог), ₸</label>
-            <input type="number" id="depositSum" value="250000" oninput="calculateDeal()">
-
-            <button class="action-btn" onclick="calculateDeal()">Рассчитать показатели</button>
-
-            <div id="calcResults" style="margin-top: 20px; background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 4px;">
-                <p><strong>Исчисляемый налог СНР:</strong> <span id="resTax">0</span> ₸</p>
-                <p><strong>Расчётная прибыль:</strong> <span id="resProfit">0</span> ₸</p>
-                <p><strong>Маржинальность:</strong> <span id="resMargin">0</span>%</p>
-                <p><strong>Пиковая потребность в капитале:</strong> <span id="resCapital">0</span> ₸</p>
-            </div>
-            <p class="notice" style="margin-top: 15px;">ℹ️ <strong>Примечание:</strong> Предварительная прибыль рассчитана до вычета обязательных социальных платежей ИП за себя/работников (ОПВ, СО, ВОСМС, ОПВР) и прочих административных расходов.</p>
-        </div>
-
-        <div class="section">
-            <h2>💬 Интеграция с Telegram</h2>
-            <p>Используйте Telegram-бот для быстрого доступа к поиску и управления подписками.</p>
-            <a href="https://t.me/kzzakupbot" class="btn btn-tg" target="_blank" rel="noopener noreferrer">Открыть @kzzakupbot</a>
-        </div>
-
-        <footer>
-            <p class="notice">⚠️ Калькулятор выполняет предварительные расчеты. Пользователь самостоятельно проверяет условия закупки и налоговые обязательства. Финансовые значения не сохраняются на внешних серверах.</p>
-        </footer>
     </div>
 
-    <script>
-        document.getElementById('searchTriggerBtn').addEventListener('click', async () => {
-            const queryVal = document.getElementById('queryInput').value.trim();
-            const container = document.getElementById('searchOutputContainer');
-            
-            if (!queryVal) {
-                container.innerHTML = '<span style="color: red;">Пожалуйста, введите поисковый запрос.</span>';
-                return;
-            }
-            
-            container.innerHTML = 'Формирование ссылки на официальный ресурс...';
-            
-            try {
-                const res = await fetch(`/api/search?q=${encodeURIComponent(queryVal)}`);
-                const json = await res.json();
-                
-                if (json.no_token) {
-                    container.innerHTML = `
-                        <div style="padding: 15px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 6px;">
-                            <p style="margin-bottom: 8px; color: #2e7d32;">${json.message}</p>
-                            <p style="margin-bottom: 12px; font-size: 14px; color: #555;">Искомый запрос: <strong>${queryVal}</strong></p>
-                            <a href="${json.redirect_url}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 18px; background: #2e7d32; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                                Открыть официальный поиск zakup.gov.kz ↗
-                            </a>
+    <div class="container mb-5">
+        
+        <!-- Секция поиска лотов -->
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="card p-4 shadow-sm">
+                    <h3 class="mb-3 text-primary">🔍 Поиск актуальных закупок РК</h3>
+                    <p class="text-muted small">Введите ключевое слово (например: <em>медицина</em>, <em>IT</em>, <em>строительство</em>, <em>бумага</em>) для мгновенного получения лотов:</p>
+                    
+                    <div class="input-group mb-3">
+                        <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Введите запрос или категорию...">
+                        <button class="btn btn-primary px-4" type="button" onclick="performSearch()">Найти лоты</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span id="results-count" class="fw-bold text-secondary">Введите запрос для поиска лотов</span>
+                    </div>
+
+                    <div id="results-container">
+                        <!-- Сюда динамически подгружаются карточки лотов -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция калькулятора -->
+        <div class="row" id="calculator">
+            <div class="col-lg-8 mx-auto">
+                <div class="card calculator-card p-4 shadow-sm">
+                    <h3 class="mb-3 text-success">🧮 Калькулятор сделки и финансирования</h3>
+                    <p class="text-muted small">Предварительная оценка рентабельности и денежного потока (Cash Flow) по нормам НК РК 2026.</p>
+                    
+                    <form id="calc-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ставка налога СНР (% от выручки):</label>
+                            <select id="tax-rate" class="form-select">
+                                <option value="0.04" selected>4% — Базовая ставка НК РК (ст. 726)</option>
+                                <option value="0.02">2% — Пониженная ставка (г. Шымкент, Решение № 30/271-VIII)</option>
+                            </select>
                         </div>
-                    `;
-                } else if (json.success) {
-                    container.innerHTML = `<p style="color: green;">Найдено лотов: ${json.total}</p>`;
+
+                        <div class="mb-3">
+                            <label class="form-label">Сумма контракта (Выручка), ₸</label>
+                            <input type="number" id="contract-amount" class="form-control" value="5000000" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Закупка товара / себестоимость, ₸</label>
+                            <input type="number" id="goods-amount" class="form-control" value="3500000" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Логистика и доставка, ₸</label>
+                            <input type="number" id="logistics-amount" class="form-control" value="150000" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Комиссия за банковскую гарантию (БГ), ₸</label>
+                            <input type="number" id="guarantee-amount" class="form-control" value="25000" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Обеспечение исполнения договора (возвратный залог), ₸</label>
+                            <input type="number" id="deposit-amount" class="form-control" value="250000" required>
+                        </div>
+
+                        <button type="button" class="btn btn-success w-100 btn-lg fw-bold" onclick="calculateFinances()">Рассчитать показатели</button>
+                    </form>
+
+                    <!-- Результаты расчета -->
+                    <div id="calc-results" class="mt-4 p-3 bg-light rounded border">
+                        <h5 class="text-success mb-3">📊 Результаты расчета:</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">Исчисляемый налог СНР: <strong id="res-tax">200 000 ₸</strong></li>
+                            <li class="mb-2">Расчетная чистая прибыль: <strong id="res-profit" class="text-primary">1 125 000 ₸</strong></li>
+                            <li class="mb-2">Маржинальность: <strong id="res-margin" class="text-success">22.5%</strong></li>
+                            <li class="mb-2">Пиковая потребность в капитале: <strong id="res-capital">3 925 000 ₸</strong></li>
+                        </ul>
+                    </div>
+
+                    <p class="text-muted small mt-3 mb-0">
+                        ℹ️ <strong>Примечание:</strong> Предварительная прибыль рассчитана до вычета обязательных социальных платежей ИП за себя/работников (ОПВ, СО, ВОСМС, ОПВР) и прочих административных расходов.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Налоговая справка -->
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="card p-4 bg-white shadow-sm">
+                    <h5 class="text-secondary mb-3">🏛 Экономика и налоговые допущения</h5>
+                    <p class="small text-muted mb-0">
+                        СНР на основе упрощенной декларации: базовая ставка 4% (ст. 726 НК РК на 2026 год). В г. Шымкент действует пониженная ставка 2% (Решение маслихата от 28.11.2025 № 30/271-VIII).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Функция поиска лотов через API бэкенда
+        async function performSearch() {
+            const queryInput = document.getElementById('search-input');
+            const query = queryInput ? queryInput.value.trim() : '';
+            const resultsContainer = document.getElementById('results-container');
+            const resultsCount = document.getElementById('results-count');
+
+            if (resultsCount) resultsCount.innerText = "⏳ Загрузка актуальных лотов...";
+            if (resultsContainer) resultsContainer.innerHTML = '<div class="text-center py-3 text-muted">Поиск актуальных тендеров...</div>';
+
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const result = await response.json();
+
+                if (result.success && Array.isArray(result.data)) {
+                    const lots = result.data;
+                    const total = result.total !== undefined ? result.total : lots.length;
+                    
+                    if (resultsCount) {
+                        resultsCount.innerText = `Найдено лотов: ${total} (Обновлено: ${result.fetched_at || 'только что'})`;
+                    }
+
+                    if (lots.length === 0) {
+                        resultsContainer.innerHTML = '<div class="alert alert-warning">Активных лотов по вашему запросу не найдено.</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    lots.forEach((lot, idx) => {
+                        html += `
+                            <div class="card mb-3 shadow-sm border-start border-primary border-4">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">#${idx + 1}. Лот #${lot.id}</h5>
+                                    <p class="card-text fw-bold mb-1">${lot.name}</p>
+                                    <p class="mb-1 text-muted small">🏛 Заказчик: ${lot.organizer}</p>
+                                    <p class="mb-1">💰 Сумма: <strong>${lot.amount ? lot.amount.toLocaleString('ru-RU') + ' ₸' : 'Договорная'}</strong></p>
+                                    <p class="mb-2"><span class="badge bg-success">${lot.status}</span></p>
+                                    <a href="${lot.url}" target="_blank" class="btn btn-outline-primary btn-sm">🔗 Открыть лот на портале</a>
+                                    <a href="#calculator" onclick="fillCalculatorFromLot(${lot.amount || 0})" class="btn btn-outline-success btn-sm ms-2">🧮 Посчитать в калькуляторе</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    resultsContainer.innerHTML = html;
                 } else {
-                    container.innerHTML = `<span style="color: red;">${json.message}</span>`;
+                    if (resultsCount) resultsCount.innerText = "Поиск временно недоступен";
+                    if (resultsContainer) resultsContainer.innerHTML = `<div class="alert alert-danger">${result.message || 'Ошибка загрузки данных'}</div>`;
                 }
             } catch (e) {
-                container.innerHTML = '<span style="color: red;">Ошибка связи с сервером.</span>';
-            }
-        });
-
-        function toggleCustomTaxField() {
-            const select = document.getElementById('taxRateSelect');
-            const container = document.getElementById('customTaxContainer');
-            if (select.value === 'custom') {
-                container.style.display = 'block';
-            } else {
-                container.style.display = 'none';
+                if (resultsCount) resultsCount.innerText = "Ошибка соединения";
+                if (resultsContainer) resultsContainer.innerHTML = '<div class="alert alert-danger">Не удалось подключиться к серверу.</div>';
             }
         }
 
-        function getEffectiveTaxRate() {
-            const select = document.getElementById('taxRateSelect');
-            const warningEl = document.getElementById('customTaxWarning');
-            if (warningEl) warningEl.style.display = 'none';
-
-            if (select.value === 'custom') {
-                const inputVal = document.getElementById('customTaxRate').value;
-                let parsedVal = parseFloat(inputVal);
-                if (isNaN(parsedVal) || parsedVal < 0 || parsedVal > 100) {
-                    if (warningEl) warningEl.style.display = 'block';
-                    parsedVal = Math.max(0, Math.min(100, isNaN(parsedVal) ? 0 : parsedVal));
-                }
-                return parsedVal / 100;
+        // Автозаполнение калькулятора суммой выбранного тендера
+        function fillCalculatorFromLot(amount) {
+            const contractInput = document.getElementById('contract-amount');
+            if (contractInput && amount > 0) {
+                contractInput.value = amount;
+                const goodsInput = document.getElementById('goods-amount');
+                if (goodsInput) goodsInput.value = Math.round(amount * 0.7); // 70% себестоимость по умолчанию
+                calculateFinances();
             }
-            return parseFloat(select.value) || 0.04;
         }
 
-        function calculateDeal() {
-            const revenue = Math.max(0, parseFloat(document.getElementById('contractSum').value) || 0);
-            const goods = Math.max(0, parseFloat(document.getElementById('costGoods').value) || 0);
-            const logistics = Math.max(0, parseFloat(document.getElementById('costLogistics').value) || 0);
-            const bg = Math.max(0, parseFloat(document.getElementById('costBG').value) || 0);
-            const deposit = Math.max(0, parseFloat(document.getElementById('depositSum').value) || 0);
+        // Логика калькулятора маржи и пикового капитала
+        function calculateFinances() {
+            const contract = parseFloat(document.getElementById('contract-amount').value) || 0;
+            const goods = parseFloat(document.getElementById('goods-amount').value) || 0;
+            const logistics = parseFloat(document.getElementById('logistics-amount').value) || 0;
+            const guarantee = parseFloat(document.getElementById('guarantee-amount').value) || 0;
+            const deposit = parseFloat(document.getElementById('deposit-amount').value) || 0;
+            const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0.04;
 
-            const taxRate = getEffectiveTaxRate();
-            const directCosts = goods + logistics + bg;
-            const tax = revenue * taxRate;
-            const profit = revenue - directCosts - tax;
-            const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-            const peakCapital = goods + deposit;
+            const tax = contract * taxRate;
+            const totalExpenses = goods + logistics + guarantee + tax;
+            const profit = contract - totalExpenses;
+            const margin = contract > 0 ? (profit / contract) * 100 : 0;
+            // Пиковый капитал учитывает замороженный залог, но залог возвращается и не уменьшает чистую прибыль
+            const peakCapital = goods + logistics + guarantee + deposit;
 
-            document.getElementById('resTax').innerText = tax.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
-            document.getElementById('resProfit').innerText = profit.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
-            document.getElementById('resMargin').innerText = isFinite(margin) ? margin.toFixed(1) : "0.0";
-            document.getElementById('resCapital').innerText = peakCapital.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+            document.getElementById('res-tax').innerText = tax.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('res-profit').innerText = profit.toLocaleString('ru-RU') + ' ₸';
+            document.getElementById('res-margin').innerText = margin.toFixed(1) + '%';
+            document.getElementById('res-capital').innerText = peakCapital.toLocaleString('ru-RU') + ' ₸';
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            toggleCustomTaxField();
-            calculateDeal();
-        });
+        // Автоматически выполняем первичный поиск при загрузке страницы
+        window.onload = function() {
+            performSearch();
+        };
     </script>
 </body>
 </html>
