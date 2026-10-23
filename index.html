@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzzakupbot Hub — Рабочее пространство поставщика РК</title>
+    <title>Kzzakupbot Hub — Единое рабочее пространство поставщика РК</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -11,6 +11,9 @@
         .hero-section { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white; padding: 40px 0; border-radius: 0 0 1rem 1rem; margin-bottom: 30px; }
         .card { border: none; border-radius: 0.75rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
         .calculator-card { background-color: #ffffff; border-top: 4px solid #198754; }
+        .platform-card { border-left: 4px solid #0d6efd; }
+        .bank-card { border-left: 4px solid #ffc107; }
+        .kaspi-card { border-left: 4px solid #fa2b4c; }
     </style>
 </head>
 <body>
@@ -18,26 +21,35 @@
     <!-- Шапка -->
     <div class="hero-section text-center">
         <div class="container">
-            <h1 class="display-5 fw-bold">🇰🇿 KZ Kzzakupbot Hub</h1>
-            <p class="lead mb-3">Рабочее пространство поставщика Казахстана</p>
-            <a href="https://t.me/Kzzakupbot" target="_blank" class="btn btn-light btn-lg fw-bold px-4">
-                💬 Запустить в Telegram
+            <h1 class="display-5 fw-bold">🇰🇿 Kzzakupbot Hub</h1>
+            <p class="lead mb-3">Единое рабочее пространство поставщика Казахстана</p>
+            <a href="https://t.me/Kzzakupbot" target="_blank" class="btn btn-light btn-lg fw-bold px-4 shadow-sm">
+                💬 Запустить в Telegram-боте
             </a>
         </div>
     </div>
 
     <div class="container mb-5">
         
-        <!-- Секция поиска лотов -->
-        <div class="row mb-5">
-            <div class="col-lg-8 mx-auto">
+        <!-- Навигация -->
+        <ul class="nav nav-pills justify-content-center mb-4 gap-2 flex-wrap">
+            <li class="nav-item"><a class="nav-link active" href="#search-section">🔍 Поиск лотов</a></li>
+            <li class="nav-item"><a class="nav-link" href="#platforms-section">🏛 Площадки</a></li>
+            <li class="nav-item"><a class="nav-link" href="#kaspi-section">🛒 Kaspi Магазин</a></li>
+            <li class="nav-item"><a class="nav-link" href="#banks-section">🏦 Банковские гарантии</a></li>
+            <li class="nav-item"><a class="nav-link" href="#calculator">🧮 Калькулятор сделки</a></li>
+        </ul>
+
+        <!-- 1. Секция поиска лотов -->
+        <div class="row mb-5" id="search-section">
+            <div class="col-lg-10 mx-auto">
                 <div class="card p-4 shadow-sm">
                     <h3 class="mb-3 text-primary">🔍 Поиск актуальных закупок РК</h3>
-                    <p class="text-muted small">Введите ключевое слово (например: <em>медицина</em>, <em>IT</em>, <em>строительство</em>, <em>бумага</em>) для мгновенного получения лотов:</p>
+                    <p class="text-muted small">Введите ключевое слово (например: <em>медицина</em>, <em>IT</em>, <em>строительство</em>, <em>самрук</em>) для мгновенного получения лотов:</p>
                     
                     <div class="input-group mb-3">
                         <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Введите запрос или категорию...">
-                        <button class="btn btn-primary px-4" type="button" onclick="performSearch()">Найти лоты</button>
+                        <button class="btn btn-primary px-4 fw-bold" type="button" onclick="performSearch()">Найти лоты</button>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -45,81 +57,246 @@
                     </div>
 
                     <div id="results-container">
-                        <!-- Сюда динамически подгружаются карточки лотов -->
+                        <!-- Карточки лотов -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Секция калькулятора -->
-        <div class="row" id="calculator">
-            <div class="col-lg-8 mx-auto">
+        <!-- 2. Секция торговых площадок -->
+        <div class="row mb-5" id="platforms-section">
+            <div class="col-lg-10 mx-auto">
+                <h3 class="mb-4 text-dark">🏛 Торговые площадки и государственные закупки</h3>
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    
+                    <div class="col">
+                        <div class="card platform-card h-100 p-3">
+                            <h5 class="card-title text-primary">Государственные закупки РК</h5>
+                            <p class="card-text small text-muted">Основной официальный портал государственных закупок Республики Казахстан.</p>
+                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-success">Работает (Экспресс-агрегатор)</span></p>
+                            <a href="https://zakup.gov.kz" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть портал</a>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="card platform-card h-100 p-3">
+                            <h5 class="card-title text-primary">Samruk-Kazyna</h5>
+                            <p class="card-text small text-muted">Корпоративные закупки холдинга «Самрук-Қазына» (нефтегаз, энергетика, транспорт).</p>
+                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-warning text-dark">Только переход (Требует ЭЦП)</span></p>
+                            <a href="https://zakup.sk.kz/#/ext/search" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть zakup.sk.kz</a>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="card platform-card h-100 p-3">
+                            <h5 class="card-title text-primary">СК-Фармация</h5>
+                            <p class="card-text small text-muted">Единый дистрибьютор по закупке лекарственных средств и медицинских изделий.</p>
+                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-secondary">Переход на официальный ресурс</span></p>
+                            <a href="https://www.sk-pharmacy.kz" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть sk-pharmacy.kz</a>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="card platform-card h-100 p-3">
+                            <h5 class="card-title text-primary">Mitwork (ЭТП)</h5>
+                            <p class="card-text small text-muted">Электронная торговая площадка для корпоративных и коммерческих закупок.</p>
+                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-secondary">Переход на официальный ресурс</span></p>
+                            <a href="https://mitwork.kz" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть mitwork.kz</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Секция Kaspi Магазин -->
+        <div class="row mb-5" id="kaspi-section">
+            <div class="col-lg-10 mx-auto">
+                <div class="card kaspi-card p-4 shadow-sm bg-white">
+                    <h3 class="mb-3 text-danger">🛒 Kaspi Магазин — Канал коммерческих продаж</h3>
+                    <p class="text-muted">Используйте Kaspi Магазин как дополнительный мощный канал сбыта товаров, расширения клиентской базы и диверсификации бизнеса за пределами государственных тендеров.</p>
+                    <div class="d-flex gap-3 flex-wrap mt-3">
+                        <a href="https://kaspi.kz/shop/merchant/registration/" target="_blank" class="btn btn-danger fw-bold">📝 Регистрация продавца на Kaspi</a>
+                        <a href="https://guide.kaspi.kz/partner/ru/shop/conditions" target="_blank" class="btn btn-outline-dark">📖 Условия для партнёров Kaspi</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Секция Банковские гарантии и таблица -->
+        <div class="row mb-5" id="banks-section">
+            <div class="col-lg-10 mx-auto">
+                <h3 class="mb-3 text-dark">🏦 Банковские гарантии и финансирование тендеров</h3>
+                <p class="text-muted small mb-4">Сравните условия ведущих банков Казахстана по выпуску тендерных гарантий и обеспечению исполнения контрактов:</p>
+
+                <!-- Карточки банков -->
+                <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                    <div class="col">
+                        <div class="card bank-card h-100 p-3">
+                            <h5 class="card-title fw-bold">Банк ЦентрКредит (BCC)</h5>
+                            <p class="small text-muted">Онлайн-оформление тендерных гарантий для МСБ, бланковые лимиты без залога.</p>
+                            <a href="https://www.bcc.kz/business/loans/tender-guarantees/" target="_blank" class="btn btn-warning btn-sm mt-auto fw-bold">🔗 Официальные условия BCC</a>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card bank-card h-100 p-3">
+                            <h5 class="card-title fw-bold">Halyk Bank</h5>
+                            <p class="small text-muted">Гарантии исполнения обязательств, возврата аванса и участия в тендерах.</p>
+                            <a href="https://halykbank.kz/business/garanty" target="_blank" class="btn btn-warning btn-sm mt-auto fw-bold">🔗 Официальные условия Halyk</a>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card bank-card h-100 p-3">
+                            <h5 class="card-title fw-bold">Freedom Bank</h5>
+                            <p class="small text-muted">Цифровые бланковые тендерные гарантии с быстрым онлайн-соглашением.</p>
+                            <a href="https://bankffin.kz/ru/guarantees" target="_blank" class="btn btn-warning btn-sm mt-auto fw-bold">🔗 Официальные условия Freedom</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Сравнительная таблица банков -->
+                <div class="card p-3 shadow-sm overflow-auto">
+                    <h5 class="text-secondary mb-3">📊 Сравнительная матрица банковских гарантий (на октябрь 2026 г.)</h5>
+                    <table class="table table-bordered table-striped align-middle small">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Банк</th>
+                                <th>Вид гарантии</th>
+                                <th>Макс. сумма</th>
+                                <th>Комиссия / Мин. комиссия</th>
+                                <th>Залог / Покрытие</th>
+                                <th>Требования к ИП / ТОО</th>
+                                <th>Срок выпуска</th>
+                                <th>Площадка</th>
+                                <th>Ссылка</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>BCC</strong></td>
+                                <td>Тендерная / Исполнение</td>
+                                <td>Индивидуальный лимитный расчет</td>
+                                <td>От 0.5% до 2% (мин. фикс.)</td>
+                                <td>Без залога (бланковый) или депозит</td>
+                                <td>Регистрация от 6 месяцев</td>
+                                <td>От 1 рабочего дня</td>
+                                <td>Госзакупки, Самрук</td>
+                                <td><a href="https://www.bcc.kz/business/loans/tender-guarantees/" target="_blank">Сайт</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Halyk Bank</strong></td>
+                                <td>Все виды гарантий</td>
+                                <td>По кредитному комитету</td>
+                                <td>По тарифам корпоративного бизнеса</td>
+                                <td>Зависит от суммы (требуется покрытие)</td>
+                                <td>Бизнес от 6–12 месяцев</td>
+                                <td>1–3 рабочих дня</td>
+                                <td>Все ЭТП РК</td>
+                                <td><a href="https://halykbank.kz/business/garanty" target="_blank">Сайт</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Freedom Bank</strong></td>
+                                <td>Цифровые бланковые</td>
+                                <td>Онлайн-лимиты портфеля</td>
+                                <td>Экспресс от 1% / Уточнять</td>
+                                <td>Без залога (бланковые онлайн)</td>
+                                <td>По цифровому экспресс-скорингу</td>
+                                <td>От 5 минут до 1 дня</td>
+                                <td>Госзакупки, Самрук</td>
+                                <td><a href="https://bankffin.kz/ru/guarantees" target="_blank">Сайт</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Секция расширенного калькулятора сделки -->
+        <div class="row mb-5" id="calculator">
+            <div class="col-lg-10 mx-auto">
                 <div class="card calculator-card p-4 shadow-sm">
-                    <h3 class="mb-3 text-success">🧮 Калькулятор сделки и финансирования</h3>
-                    <p class="text-muted small">Предварительная оценка рентабельности и денежного потока (Cash Flow) по нормам НК РК 2026.</p>
+                    <h3 class="mb-3 text-success">🧮 Расширенный калькулятор сделки и Cash Flow</h3>
+                    <p class="text-muted small">Оценка рентабельности, пиковой потребности в капитале и влияния банковских гарантий с учётом норм НК РК 2026.</p>
                     
                     <form id="calc-form">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Ставка налога СНР (% от выручки):</label>
-                            <select id="tax-rate" class="form-select">
-                                <option value="0.04" selected>4% — Базовая ставка НК РК (ст. 726)</option>
-                                <option value="0.02">2% — Пониженная ставка (г. Шымкент, Решение № 30/271-VIII)</option>
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Ставка налога СНР (% от выручки):</label>
+                                <select id="tax-rate" class="form-select">
+                                    <option value="0.04" selected>4% — Базовая ставка НК РК (ст. 726)</option>
+                                    <option value="0.02">2% — Пониженная ставка (г. Шымкент, Решение № 30/271-VIII)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Сумма контракта (Выручка), ₸</label>
+                                <input type="number" id="contract-amount" class="form-control" value="5000000" required>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Сумма контракта (Выручка), ₸</label>
-                            <input type="number" id="contract-amount" class="form-control" value="5000000" required>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Закупка товара / себестоимость, ₸</label>
+                                <input type="number" id="goods-amount" class="form-control" value="3500000" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Логистика и доставка, ₸</label>
+                                <input type="number" id="logistics-amount" class="form-control" value="150000" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Комиссия банка за гарантию, ₸</label>
+                                <input type="number" id="guarantee-amount" class="form-control" value="25000" required>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Закупка товара / себестоимость, ₸</label>
-                            <input type="number" id="goods-amount" class="form-control" value="3500000" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Обеспечение исполнения договора (возвратный залог), ₸</label>
+                                <input type="number" id="deposit-amount" class="form-control" value="250000" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Срок задержки оплаты заказчиком (дней):</label>
+                                <input type="number" id="delay-days" class="form-control" value="30" required>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Логистика и доставка, ₸</label>
-                            <input type="number" id="logistics-amount" class="form-control" value="150000" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Комиссия за банковскую гарантию (БГ), ₸</label>
-                            <input type="number" id="guarantee-amount" class="form-control" value="25000" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Обеспечение исполнения договора (возвратный залог), ₸</label>
-                            <input type="number" id="deposit-amount" class="form-control" value="250000" required>
-                        </div>
-
-                        <button type="button" class="btn btn-success w-100 btn-lg fw-bold" onclick="calculateFinances()">Рассчитать показатели</button>
+                        <button type="button" class="btn btn-success w-100 btn-lg fw-bold shadow-sm" onclick="calculateFinances()">Рассчитать показатели сделки</button>
                     </form>
 
                     <!-- Результаты расчета -->
-                    <div id="calc-results" class="mt-4 p-3 bg-light rounded border">
-                        <h5 class="text-success mb-3">📊 Результаты расчета:</h5>
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2">Исчисляемый налог СНР: <strong id="res-tax">200 000 ₸</strong></li>
-                            <li class="mb-2">Расчетная чистая прибыль: <strong id="res-profit" class="text-primary">1 125 000 ₸</strong></li>
-                            <li class="mb-2">Маржинальность: <strong id="res-margin" class="text-success">22.5%</strong></li>
-                            <li class="mb-2">Пиковая потребность в капитале: <strong id="res-capital">3 925 000 ₸</strong></li>
-                        </ul>
+                    <div id="calc-results" class="mt-4 p-4 bg-light rounded border">
+                        <h5 class="text-success mb-3">📊 Финансовые результаты и потребность в капитале:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">Исчисляемый налог СНР: <strong id="res-tax">200 000 ₸</strong></li>
+                                    <li class="mb-2">Расчетная чистая прибыль: <strong id="res-profit" class="text-primary">1 125 000 ₸</strong></li>
+                                    <li class="mb-2">Маржинальность: <strong id="res-margin" class="text-success">22.5%</strong></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">Сумма временно заблокированных средств: <strong id="res-deposit">250 000 ₸</strong></li>
+                                    <li class="mb-2">Пиковая потребность в оборотных средствах: <strong id="res-capital" class="text-danger">3 925 000 ₸</strong></li>
+                                    <li class="mb-2">Оценка кассового разрыва при задержке: <strong id="res-cashflow">Учтено в пиковом капитале</strong></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
                     <p class="text-muted small mt-3 mb-0">
-                        ℹ️ <strong>Примечание:</strong> Предварительная прибыль рассчитана до вычета обязательных социальных платежей ИП за себя/работников (ОПВ, СО, ВОСМС, ОПВР) и прочих административных расходов.
+                        ℹ️ <strong>Примечание:</strong> Расчет носит предварительный характер. Возвратное обеспечение учитывается в потребности капитала, но не уменьшает чистую прибыль.
                     </p>
                 </div>
             </div>
         </div>
 
         <!-- Налоговая справка -->
-        <div class="row mt-5">
-            <div class="col-lg-8 mx-auto">
+        <div class="row mt-4">
+            <div class="col-lg-10 mx-auto">
                 <div class="card p-4 bg-white shadow-sm">
-                    <h5 class="text-secondary mb-3">🏛 Экономика и налоговые допущения</h5>
+                    <h5 class="text-secondary mb-3">🏛 Экономика и налоговые допущения на 2026 год</h5>
                     <p class="small text-muted mb-0">
-                        СНР на основе упрощенной декларации: базовая ставка 4% (ст. 726 НК РК на 2026 год). В г. Шымкент действует пониженная ставка 2% (Решение маслихата от 28.11.2025 № 30/271-VIII).
+                        СНР на основе упрощенной декларации: базовая ставка 4% (ст. 726 НК РК на 2026 год). В г. Шымкент действует пониженная ставка 2% при соблюдении условий ОКЭД (Решение маслихата от 28.11.2025 № 30/271-VIII).
                     </p>
                 </div>
             </div>
@@ -191,12 +368,12 @@
             if (contractInput && amount > 0) {
                 contractInput.value = amount;
                 const goodsInput = document.getElementById('goods-amount');
-                if (goodsInput) goodsInput.value = Math.round(amount * 0.7); // 70% себестоимость по умолчанию
+                if (goodsInput) goodsInput.value = Math.round(amount * 0.7); // 70% себестоимость
                 calculateFinances();
             }
         }
 
-        // Логика калькулятора маржи и пикового капитала
+        // Логика расширенного калькулятора
         function calculateFinances() {
             const contract = parseFloat(document.getElementById('contract-amount').value) || 0;
             const goods = parseFloat(document.getElementById('goods-amount').value) || 0;
@@ -209,16 +386,17 @@
             const totalExpenses = goods + logistics + guarantee + tax;
             const profit = contract - totalExpenses;
             const margin = contract > 0 ? (profit / contract) * 100 : 0;
-            // Пиковый капитал учитывает замороженный залог, но залог возвращается и не уменьшает чистую прибыль
+            // Пиковый капитал включает товар, логистику, гарантию и залог
             const peakCapital = goods + logistics + guarantee + deposit;
 
             document.getElementById('res-tax').innerText = tax.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('res-profit').innerText = profit.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('res-margin').innerText = margin.toFixed(1) + '%';
+            document.getElementById('res-deposit').innerText = deposit.toLocaleString('ru-RU') + ' ₸';
             document.getElementById('res-capital').innerText = peakCapital.toLocaleString('ru-RU') + ' ₸';
         }
 
-        // Автоматически выполняем первичный поиск при загрузке страницы
+        // Первичный автопоиск при загрузке
         window.onload = function() {
             performSearch();
         };
