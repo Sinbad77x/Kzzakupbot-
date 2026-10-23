@@ -2,8 +2,6 @@ import os
 import re
 import logging
 import time
-import json
-import random
 import requests
 from flask import Flask, request, jsonify, send_from_directory
 from telebot import TeleBot, types
@@ -21,23 +19,12 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     return response
 
-CACHE = {}
-CACHE_TTL = 900
-GOSZAKUP_API_URL = "https://ows.goszakup.gov.kz/v2/trd-buy"
-
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
 
 RAW_ADMIN_IDS = os.getenv("ADMIN_USER_IDS", "").strip()
 ADMIN_USER_IDS = [
     int(x.strip()) for x in RAW_ADMIN_IDS.split(",") if x.strip().isdigit()
-]
-
-# Сессионный пул с имитацией реальных браузеров
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 ]
 
 bot = None
@@ -91,106 +78,6 @@ def clean_search_query(text):
 
     cleaned = cleaned.strip(" :-_•")
     return cleaned if len(cleaned) >= 2 else "Закупка"
-
-def fetch_goszakup_lots(query, page=1, limit=5):
-    """Автономный поиск с сессионным сохранением кук и обходом фильтров"""
-    query_str = clean_search_query(query)
-    
-    if not query_str:
-        return {"success": False, "message": "Введите ключевое слово для поиска"}
-
-    cache_key = f"{query_str.lower()}_{page}_{limit}"
-    now = time.time()
-    
-    if cache_key in CACHE:
-        cached_data, timestamp = CACHE[cache_key]
-        if now - timestamp < CACHE_TTL:
-            return {"success": True, "source": "cache", "data": cached_data}
-
-    # 1. Попытка через официальный OWS API (если токен задан)
-    api_token = os.getenv("GOSZAKUP_TOKEN")
-    if api_token:
-        params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
-        headers = {
-            "User-Agent": random.choice(USER_AGENTS),
-            "Authorization": f"Bearer {api_token}"
-        }
-        try:
-            response = requests.get(GOSZAKUP_API_URL, params=params, headers=headers, timeout=8)
-            if response.status_code == 200:
-                raw_data = response.json()
-                items = raw_data.get('items', []) if isinstance(raw_data, dict) else []
-                normalized_results = parse_items_to_lots(items, limit, query_str)
-                if normalized_results:
-                    CACHE[cache_key] = (normalized_results, now)
-                    return {"success": True, "source": "api", "data": normalized_results}
-        except Exception as e:
-            logger.error(f"[OWS API Exception]: {type(e).__name__}")
-
-    # 2. Автономный сессионный скрапинг через Persistent Session
-    try:
-        session = requests.Session()
-        ua = random.choice(USER_AGENTS)
-        session.headers.update({
-            "User-Agent": ua,
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Referer": "https://zakup.gov.kz/ru/search/announce",
-            "X-Requested-With": "XMLHttpRequest"
-        })
-        
-        # Предварительный прогрев сессии для получения кук Cloudflare
-        session.get("https://zakup.gov.kz/ru/search/announce", timeout=5)
-        
-        search_url = f"https://zakup.gov.kz/api/search?query={requests.utils.quote(query_str)}&page={page}"
-        res = session.get(search_url, timeout=7)
-        
-        if res.status_code == 200:
-            pub_data = res.json()
-            items = []
-            if isinstance(pub_data, dict):
-                items = pub_data.get('items', []) or pub_data.get('data', []) or pub_data.get('records', [])
-            elif isinstance(pub_data, list):
-                items = pub_data
-
-            normalized_results = parse_items_to_lots(items, limit, query_str)
-            if normalized_results:
-                CACHE[cache_key] = (normalized_results, now)
-                return {"success": True, "source": "autonomous_scraper", "data": normalized_results}
-    except Exception as e:
-        logger.error(f"[Autonomous Scraper Exception]: {type(e).__name__}")
-
-    # 3. Фирменный fallback с прямой ссылкой
-    portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query_str)}"
-    return {
-        "success": False, 
-        "no_token": True, 
-        "query": query_str,
-        "redirect_url": portal_search_url,
-        "message": "Автоматический поиск по API временно недоступен. Используйте официальный портал."
-    }
-
-def parse_items_to_lots(items, limit, default_query):
-    normalized = []
-    for item in items[:limit]:
-        if not isinstance(item, dict):
-            continue
-        lot_id = item.get('id') or item.get('announcementId') or item.get('trd_buy_id') or random.randint(100000, 999999)
-        number = item.get('number') or item.get('anno_number') or item.get('number_anno') or 'б/н'
-        name = item.get('name') or item.get('name_ru') or item.get('title') or default_query
-        organizer = item.get('organizerName') or item.get('organizer_name_ru') or item.get('organizer_name') or 'Государственное учреждение'
-        try:
-            amount = float(item.get('sum', 0) or item.get('total_sum', 0) or 0)
-        except (ValueError, TypeError):
-            amount = 0.0
-        status = item.get('status') or item.get('status_name_ru') or 'Приём заявок'
-        url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
-
-        normalized.append({
-            "id": lot_id, "number": number, "name": name,
-            "organizer": organizer, "amount": amount, "status": status, "url": url
-        })
-    return normalized
 
 if bot:
     def get_main_keyboard():
@@ -320,51 +207,20 @@ if bot:
             return
 
         clean_q = clean_search_query(text)
-        result = fetch_goszakup_lots(clean_q, page=1, limit=5)
-
-        if not result.get("success"):
-            if result.get("no_token"):
-                redirect_url = result.get("redirect_url")
-                inline = types.InlineKeyboardMarkup()
-                inline.add(types.InlineKeyboardButton("🔗 Открыть zakup.gov.kz", url=redirect_url))
-                
-                msg_text = (
-                    f"ℹ️ Автоматический поиск через API временно недоступен.\n\n"
-                    f"• Запрос: *{text}*\n"
-                    f"Вы можете выполнить поиск вручную на официальном портале госзакупок:"
-                )
-                if "все новые лоты" in text_lower or "госзакупки" in text_lower:
-                    msg_text = (
-                        f"ℹ️ Автоматическая подборка лотов временно недоступна.\n\n"
-                        f"Пожалуйста, просмотрите актуальные объявления на официальной странице вручную:"
-                    )
-                
-                bot.send_message(message.chat.id, msg_text, parse_mode="Markdown", reply_markup=inline)
-            else:
-                bot.send_message(message.chat.id, f"⚠️ {result.get('message', 'Не удалось получить данные.')}")
-            return
-
-        lots = result.get("data", [])
-        if not lots:
-            bot.send_message(message.chat.id, f"📭 По запросу «{clean_q}» актуальных лотов не найдено.")
-            return
-
-        bot.send_message(message.chat.id, f"📋 **Найдено актуальных лотов ({len(lots)}):**", parse_mode="Markdown")
+        portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(clean_q)}"
         
-        for idx, lot in enumerate(lots, 1):
-            msg = (
-                f"**{idx}. Лот #{lot['id']}**\n"
-                f"📌 **{lot['name']}**\n"
-                f"💰 **Сумма:** {lot['amount']:,.2f} ₸\n"
-                f"🏛 **Заказчик:** {lot['organizer']}\n"
-                f"📊 **Статус:** {lot['status']}"
-            )
-            inline = types.InlineKeyboardMarkup()
-            if lot.get('url'):
-                inline.add(types.InlineKeyboardButton("🔗 Открыть первоисточник", url=lot['url']))
-            inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
-            
-            bot.send_message(message.chat.id, msg, parse_mode="Markdown", reply_markup=inline)
+        inline = types.InlineKeyboardMarkup()
+        inline.add(types.InlineKeyboardButton("🔗 Открыть zakup.gov.kz", url=portal_search_url))
+        inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
+        
+        bot.send_message(
+            message.chat.id,
+            f"ℹ️ Автоматический поиск через API временно защищен порталом госзакупок.\n\n"
+            f"• Запрос: *{clean_q}*\n"
+            f"Нажмите кнопку ниже для быстрого просмотра результатов:",
+            parse_mode="Markdown",
+            reply_markup=inline
+        )
 
 @app.route('/')
 def serve_index():
@@ -376,33 +232,13 @@ def search_tenders():
         return jsonify({'status': 'ok'}), 200
 
     raw_query = request.args.get('q', '').strip()
-    try:
-        page = int(request.args.get('page', 1))
-        if page < 1:
-            page = 1
-    except ValueError:
-        page = 1
-
-    result = fetch_goszakup_lots(raw_query, page=page, limit=10)
-    
-    if result.get("success"):
-        return jsonify({
-            "success": True, 
-            "source": result.get("source"), 
-            "total": len(result.get("data", [])), 
-            "data": result.get("data", [])
-        }), 200
-    else:
-        if result.get("no_token"):
-            return jsonify({
-                "success": False,
-                "no_token": True,
-                "message": "Автоматический поиск по API временно недоступен. Используйте официальный портал.",
-                "redirect_url": result.get("redirect_url")
-            }), 200
-            
-        status_code = 400 if "короткий" in result.get("message", "") or "Введите" in result.get("message", "") else 502
-        return jsonify({"success": False, "message": result.get("message")}), status_code
+    portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(raw_query)}"
+    return jsonify({
+        "success": False,
+        "no_token": True,
+        "message": "Автоматический поиск по API временно недоступен. Используйте официальный портал.",
+        "redirect_url": portal_search_url
+    }), 200
 
 @app.route('/webhook', methods=['POST'])
 def webhook_handler():
