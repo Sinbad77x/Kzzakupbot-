@@ -121,7 +121,7 @@ def fetch_goszakup_lots(query, page=1, limit=5):
             "Authorization": f"Bearer {api_token}"
         }
         try:
-            response = requests.get(GOSZAKUP_API_URL, params=params, headers=headers, timeout=10)
+            response = requests.get(GOSZAKUP_API_URL, params=params, headers=headers, timeout=8)
             if response.status_code == 200:
                 raw_data = response.json()
                 items = raw_data.get('items', []) if isinstance(raw_data, dict) else []
@@ -150,26 +150,34 @@ def fetch_goszakup_lots(query, page=1, limit=5):
         except Exception as e:
             logger.error(f"[OWS API Exception] {type(e).__name__}")
 
-    # 2. Альтернативный публичный фоллбэк (обход без токена через публичные эндпоинты портала)
+    # 2. Публичный парсинг с эмуляцией заголовков браузера
     try:
         public_search_url = f"https://zakup.gov.kz/api/search?query={requests.utils.quote(query_str)}"
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-        pub_response = requests.get(public_search_url, headers=headers, timeout=5)
+        browser_headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Referer": "https://zakup.gov.kz/ru/search/announce",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+        pub_response = requests.get(public_search_url, headers=browser_headers, timeout=6)
         if pub_response.status_code == 200:
             pub_data = pub_response.json()
-            items = pub_data.get('items', []) or pub_data.get('data', [])
+            items = pub_data.get('items', []) or pub_data.get('data', []) or pub_data.get('records', [])
             if items:
                 normalized_results = []
                 for item in items[:limit]:
-                    lot_id = item.get('id') or item.get('announcementId')
-                    number = item.get('number') or 'б/н'
-                    name = item.get('name') or item.get('name_ru') or query_str
-                    organizer = item.get('organizerName') or 'Государственное учреждение'
+                    if not isinstance(item, dict):
+                        continue
+                    lot_id = item.get('id') or item.get('announcementId') or item.get('trd_buy_id')
+                    number = item.get('number') or item.get('anno_number') or 'б/н'
+                    name = item.get('name') or item.get('name_ru') or item.get('title') or query_str
+                    organizer = item.get('organizerName') or item.get('organizer_name_ru') or 'Государственное учреждение'
                     try:
-                        amount = float(item.get('sum', 0) or 0)
+                        amount = float(item.get('sum', 0) or item.get('total_sum', 0) or 0)
                     except (ValueError, TypeError):
                         amount = 0.0
-                    status = item.get('status') or 'Приём заявок'
+                    status = item.get('status') or item.get('status_name_ru') or 'Приём заявок'
                     url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
 
                     normalized_results.append({
@@ -182,7 +190,7 @@ def fetch_goszakup_lots(query, page=1, limit=5):
     except Exception as e:
         logger.error(f"[Public Fallback Exception] {type(e).__name__}")
 
-    # 3. Финальный fallback с прямой ссылкой на поиск
+    # 3. Резервный переход
     portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query_str)}"
     return {
         "success": False, 
