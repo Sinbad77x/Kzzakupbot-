@@ -284,14 +284,20 @@ if bot:
             if result.get("no_token"):
                 redirect_url = result.get("redirect_url")
                 inline = types.InlineKeyboardMarkup()
-                inline.add(types.InlineKeyboardButton("🔍 Открыть zakup.gov.kz", url=redirect_url))
-                bot.send_message(
-                    message.chat.id, 
+                inline.add(types.InlineKeyboardButton("🔗 Открыть zakup.gov.kz", url=redirect_url))
+                
+                msg_text = (
                     f"ℹ️ Автоматический поиск через OWS API отключен (не задан токен).\n\n"
-                    f"Вы можете выполнить поиск по запросу «*{clean_q}*» на официальном портале:", 
-                    parse_mode="Markdown", 
-                    reply_markup=inline
+                    f"• Запрос: *{text}*\n"
+                    f"Вы можете выполнить поиск вручную на официальном портале госзакупок:"
                 )
+                if "все новые лоты" in text_lower or "госзакупки" in text_lower:
+                    msg_text = (
+                        f"ℹ️ Автоматическая подборка лотов отключена (не задан токен OWS).\n\n"
+                        f"Пожалуйста, просмотрите актуальные объявления на официальной странице вручную:"
+                    )
+                
+                bot.send_message(message.chat.id, msg_text, parse_mode="Markdown", reply_markup=inline)
             else:
                 bot.send_message(message.chat.id, f"⚠️ {result.get('message', 'Не удалось получить данные.')}")
             return
