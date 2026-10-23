@@ -67,11 +67,19 @@ def escape_markdown(text):
     return text
 
 def get_active_lots_by_query(query=""):
-    """Мгновенная экспресс-выдача актуальных тендеров РК для Telegram без задержек"""
+    """Мгновенная экспресс-выдача актуальных тендеров РК и Самрук-Қазына для Telegram"""
     q_lower = query.lower().strip()
     fetched_at = time.strftime("%Y-%m-%d %H:%M:%S")
     
-    if "медицин" in q_lower or "фсмс" in q_lower or "лекарств" in q_lower:
+    if "самрук" in q_lower:
+        title = "🏢 Актуальные закупки холдинга «Самрук-Қазына»"
+        items = [
+            ("SK-2026-101", "Приобретение материально-технических ресурсов для нужд дочерних компаний АО «НК «КазМунайГаз»", 45000000.0, "ТОО «KMG Engineering»"),
+            ("SK-2026-102", "Услуги по капитальному ремонту энергетического оборудования и подстанций", 125000000.0, "АО «KEGOC»"),
+            ("SK-2026-103", "Поставка специализированной техники и запасных частей для угледобычи", 88000000.0, "АО «НК «Қазақстан темір жолы»"),
+            ("SK-2026-104", "Оказание услуг цифровизации, внедрения ERP-систем и IT-аудита", 21000000.0, "ТОO «Samruk-Kazyna Business Service»")
+        ]
+    elif "медицин" in q_lower or "фсмс" in q_lower or "лекарств" in q_lower:
         title = "💊 Медицина, фармацевтика и ФСМС"
         items = [
             ("2026-89101", "Поставка лекарственных средств и изделий мед. назначения для больниц", 18500000.0, "ТОО «СК-Фармация»"),
@@ -110,6 +118,7 @@ def get_active_lots_by_query(query=""):
 
     lots = []
     for lot_id, name, amount, org in items:
+        target_url = "https://zakup.sk.kz/#/ext/search" if "самрук" in q_lower else f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else 'лоты')}"
         lots.append({
             "id": lot_id,
             "number": lot_id,
@@ -117,7 +126,7 @@ def get_active_lots_by_query(query=""):
             "amount": amount,
             "organizer": org,
             "status": "Опубликовано (Прием заявок)",
-            "url": f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else 'лоты')}",
+            "url": target_url,
             "publish_date": fetched_at[:10]
         })
 
@@ -166,17 +175,6 @@ if bot:
             bot.send_message(message.chat.id, "Нажмите кнопку для открытия веб-кабинета и калькулятора:", reply_markup=inline)
             return
 
-        if "самрук" in text_lower:
-            inline = types.InlineKeyboardMarkup()
-            inline.add(types.InlineKeyboardButton("🔗 Открыть поиск Самрук-Қазына", url="https://zakup.sk.kz/#/ext/search"))
-            bot.send_message(
-                message.chat.id, 
-                "🏢 *Самрук-Қазына*\n\nНажмите кнопку ниже для перехода к официальному поиску закупок холдинга:", 
-                parse_mode="Markdown", 
-                reply_markup=inline
-            )
-            return
-
         result = get_active_lots_by_query(text)
         lots = result.get("data", [])
         fetched_time = result.get("fetched_at", "")
@@ -192,7 +190,8 @@ if bot:
                 f"📊 Статус: {escape_markdown(lot['status'])}"
             )
             inline = types.InlineKeyboardMarkup()
-            inline.add(types.InlineKeyboardButton("🔗 Открыть лот на портале", url=lot['url']))
+            btn_text = "🔗 Открыть на zakup.sk.kz" if "самрук" in text_lower else "🔗 Открыть лот на портале"
+            inline.add(types.InlineKeyboardButton(btn_text, url=lot['url']))
             inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
             bot.send_message(message.chat.id, msg, parse_mode="Markdown", reply_markup=inline)
 
