@@ -33,10 +33,11 @@ ADMIN_USER_IDS = [
     int(x.strip()) for x in RAW_ADMIN_IDS.split(",") if x.strip().isdigit()
 ]
 
+# Сессионный пул с имитацией реальных браузеров
 USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 ]
 
 bot = None
@@ -92,7 +93,7 @@ def clean_search_query(text):
     return cleaned if len(cleaned) >= 2 else "Закупка"
 
 def fetch_goszakup_lots(query, page=1, limit=5):
-    """Поиск тендеров с обходом блокировок через прокси-слой"""
+    """Автономный поиск с сессионным сохранением кук и обходом фильтров"""
     query_str = clean_search_query(query)
     
     if not query_str:
@@ -106,7 +107,7 @@ def fetch_goszakup_lots(query, page=1, limit=5):
         if now - timestamp < CACHE_TTL:
             return {"success": True, "source": "cache", "data": cached_data}
 
-    # 1. Попытка через OWS API (если задан токен)
+    # 1. Попытка через официальный OWS API (если токен задан)
     api_token = os.getenv("GOSZAKUP_TOKEN")
     if api_token:
         params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
@@ -124,39 +125,42 @@ def fetch_goszakup_lots(query, page=1, limit=5):
                     CACHE[cache_key] = (normalized_results, now)
                     return {"success": True, "source": "api", "data": normalized_results}
         except Exception as e:
-            logger.error(f"[OWS API Exception] {type(e).__name__}")
+            logger.error(f"[OWS API Exception]: {type(e).__name__}")
 
-    # 2. Прямой парсинг через ротируемые прокси-шлюзы (Bypass Cloudflare)
-    target_url = f"https://zakup.gov.kz/api/search?query={requests.utils.quote(query_str)}"
-    proxy_gateways = [
-        f"https://api.allorigins.win/raw?url={requests.utils.quote(target_url)}",
-        f"https://corsproxy.io/?{requests.utils.quote(target_url)}"
-    ]
+    # 2. Автономный сессионный скрапинг через Persistent Session
+    try:
+        session = requests.Session()
+        ua = random.choice(USER_AGENTS)
+        session.headers.update({
+            "User-Agent": ua,
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Referer": "https://zakup.gov.kz/ru/search/announce",
+            "X-Requested-With": "XMLHttpRequest"
+        })
+        
+        # Предварительный прогрев сессии для получения кук Cloudflare
+        session.get("https://zakup.gov.kz/ru/search/announce", timeout=5)
+        
+        search_url = f"https://zakup.gov.kz/api/search?query={requests.utils.quote(query_str)}&page={page}"
+        res = session.get(search_url, timeout=7)
+        
+        if res.status_code == 200:
+            pub_data = res.json()
+            items = []
+            if isinstance(pub_data, dict):
+                items = pub_data.get('items', []) or pub_data.get('data', []) or pub_data.get('records', [])
+            elif isinstance(pub_data, list):
+                items = pub_data
 
-    for gateway_url in proxy_gateways:
-        try:
-            headers = {"User-Agent": random.choice(USER_AGENTS)}
-            res = requests.get(gateway_url, headers=headers, timeout=7)
-            if res.status_code == 200:
-                try:
-                    pub_data = res.json()
-                except Exception:
-                    continue
-                
-                items = []
-                if isinstance(pub_data, dict):
-                    items = pub_data.get('items', []) or pub_data.get('data', []) or pub_data.get('records', [])
-                elif isinstance(pub_data, list):
-                    items = pub_data
+            normalized_results = parse_items_to_lots(items, limit, query_str)
+            if normalized_results:
+                CACHE[cache_key] = (normalized_results, now)
+                return {"success": True, "source": "autonomous_scraper", "data": normalized_results}
+    except Exception as e:
+        logger.error(f"[Autonomous Scraper Exception]: {type(e).__name__}")
 
-                normalized_results = parse_items_to_lots(items, limit, query_str)
-                if normalized_results:
-                    CACHE[cache_key] = (normalized_results, now)
-                    return {"success": True, "source": "proxy_bypass", "data": normalized_results}
-        except Exception as e:
-            logger.error(f"[Proxy Gateway Exception] {type(e).__name__}")
-
-    # 3. Запасной прямой вариант (Fallback)
+    # 3. Фирменный fallback с прямой ссылкой
     portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query_str)}"
     return {
         "success": False, 
