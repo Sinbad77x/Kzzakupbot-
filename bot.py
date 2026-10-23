@@ -201,14 +201,19 @@ if bot:
             bot.send_message(
                 message.chat.id, 
                 "📊 **Площадка ETS-Тендер**\n\nАвтоматический поиск недоступен. Нажмите кнопку ниже для перехода на сайт.",
-                parse_mode="Markdown",
-                reply_markup=inline
+                parse_mode="Markdown"
             )
             return
 
         clean_q = clean_search_query(text)
-        portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(clean_q)}"
         
+        if clean_q == "Закупка" or "все новые лоты" in text_lower or "госзакупки" in text_lower:
+            portal_search_url = "https://zakup.gov.kz/ru/search/announce"
+            display_title = "Все актуальные лоты Госзакупок"
+        else:
+            portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(clean_q)}"
+            display_title = f"Запрос: {clean_q}"
+
         inline = types.InlineKeyboardMarkup()
         inline.add(types.InlineKeyboardButton("🔗 Открыть zakup.gov.kz", url=portal_search_url))
         inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
@@ -216,7 +221,7 @@ if bot:
         bot.send_message(
             message.chat.id,
             f"ℹ️ Автоматический поиск через API временно защищен порталом госзакупок.\n\n"
-            f"• Запрос: *{clean_q}*\n"
+            f"• {display_title}\n"
             f"Нажмите кнопку ниже для быстрого просмотра результатов:",
             parse_mode="Markdown",
             reply_markup=inline
