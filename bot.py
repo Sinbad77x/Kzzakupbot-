@@ -139,7 +139,7 @@ if bot:
             inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
             bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
         else:
-            bot.send_message(message.chat.id, f"🔍 Запрос «{message.text}» принят. Воспользуйтесь поискам на веб-портале.")
+            bot.send_message(message.chat.id, f"🔍 Запрос «{message.text}» принят. Воспользуйтесь поиском на веб-портале.")
 
     def send_lots_list(chat_id, lots, header_text):
         bot.send_message(chat_id, header_text, parse_mode="Markdown")
@@ -160,7 +160,6 @@ if bot:
 # ==============================================================================
 @app.route('/')
 def serve_index():
-    """Явная и безопасная отдача главная страницы index.html"""
     return send_from_directory('.', 'index.html')
 
 @app.route('/api/search', methods=['GET', 'OPTIONS'])
