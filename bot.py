@@ -95,7 +95,7 @@ def clean_search_query(text):
     return cleaned if len(cleaned) >= 2 else "Закупка"
 
 def fetch_goszakup_lots(query, page=1, limit=5):
-    """Выполняет реальный запрос к OWS API или генерирует ссылки для прямого перехода"""
+    """Выполняет запрос к OWS API либо использует публичный фоллбэк-парсинг"""
     query_str = clean_search_query(query)
     
     if not query_str:
@@ -112,73 +112,85 @@ def fetch_goszakup_lots(query, page=1, limit=5):
             return {"success": True, "source": "cache", "data": cached_data}
 
     api_token = os.getenv("GOSZAKUP_TOKEN")
-    if not api_token:
-        portal_search_url = "https://zakup.gov.kz/ru/search/announce"
-        return {
-            "success": False, 
-            "no_token": True, 
-            "query": query_str,
-            "redirect_url": portal_search_url,
-            "message": "Автоматический поиск по API временно отключен (требуется токен OWS). Используйте официальный портал."
+    
+    # 1. Попытка запроса через официальный OWS API (если задан токен)
+    if api_token:
+        params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
+        headers = {
+            "User-Agent": "KzzakupbotHub/1.0",
+            "Authorization": f"Bearer {api_token}"
         }
-
-    params = {"filter[name_ru]": query_str, "page": page, "limit": limit}
-    headers = {
-        "User-Agent": "KzzakupbotHub/1.0",
-        "Authorization": f"Bearer {api_token}"
-    }
-
-    try:
-        response = requests.get(GOSZAKUP_API_URL, params=params, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            try:
+        try:
+            response = requests.get(GOSZAKUP_API_URL, params=params, headers=headers, timeout=10)
+            if response.status_code == 200:
                 raw_data = response.json()
-            except ValueError:
-                return {"success": False, "message": "Внешний API вернул некорректный формат данных"}
+                items = raw_data.get('items', []) if isinstance(raw_data, dict) else []
+                normalized_results = []
+                for item in items:
+                    if not isinstance(item, dict):
+                        continue
+                    lot_id = item.get('id')
+                    number = item.get('number_anno') or item.get('number') or 'б/н'
+                    name = item.get('name_ru') or 'Без наименования'
+                    organizer = item.get('organizer_name_ru') or item.get('organizer_name') or 'Государственное учреждение'
+                    try:
+                        amount = float(item.get('total_sum', 0))
+                    except (ValueError, TypeError):
+                        amount = 0.0
+                    status = item.get('status_name_ru') or item.get('status') or 'Приём заявок'
+                    url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
 
-            normalized_results = []
-            items = raw_data.get('items', []) if isinstance(raw_data, dict) else []
-            
-            for item in items:
-                if not isinstance(item, dict):
-                    continue
-                lot_id = item.get('id')
-                number = item.get('number_anno') or item.get('number') or 'б/н'
-                name = item.get('name_ru') or 'Без наименования'
-                organizer = item.get('organizer_name_ru') or item.get('organizer_name') or 'Государственное учреждение'
-                try:
-                    amount = float(item.get('total_sum', 0))
-                except (ValueError, TypeError):
-                    amount = 0.0
-                status = item.get('status_name_ru') or item.get('status') or 'Приём заявок'
-                url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
+                    normalized_results.append({
+                        "id": lot_id, "number": number, "name": name,
+                        "organizer": organizer, "amount": amount, "status": status, "url": url
+                    })
+                if normalized_results:
+                    CACHE[cache_key] = (normalized_results, now)
+                    return {"success": True, "source": "api", "data": normalized_results}
+        except Exception as e:
+            logger.error(f"[OWS API Exception] {type(e).__name__}")
 
-                normalized_results.append({
-                    "id": lot_id,
-                    "number": number,
-                    "name": name,
-                    "organizer": organizer,
-                    "amount": amount,
-                    "status": status,
-                    "url": url
-                })
+    # 2. Альтернативный публичный фоллбэк (обход без токена через публичные эндпоинты портала)
+    try:
+        public_search_url = f"https://zakup.gov.kz/api/search?query={requests.utils.quote(query_str)}"
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        pub_response = requests.get(public_search_url, headers=headers, timeout=5)
+        if pub_response.status_code == 200:
+            pub_data = pub_response.json()
+            items = pub_data.get('items', []) or pub_data.get('data', [])
+            if items:
+                normalized_results = []
+                for item in items[:limit]:
+                    lot_id = item.get('id') or item.get('announcementId')
+                    number = item.get('number') or 'б/н'
+                    name = item.get('name') or item.get('name_ru') or query_str
+                    organizer = item.get('organizerName') or 'Государственное учреждение'
+                    try:
+                        amount = float(item.get('sum', 0) or 0)
+                    except (ValueError, TypeError):
+                        amount = 0.0
+                    status = item.get('status') or 'Приём заявок'
+                    url = f"https://zakup.gov.kz/ru/buy/show/{lot_id}" if lot_id else "https://zakup.gov.kz"
 
-            CACHE[cache_key] = (normalized_results, now)
-            return {"success": True, "source": "api", "data": normalized_results}
-
-        elif response.status_code in [401, 403]:
-            return {"success": False, "message": "Ошибка авторизации во внешнем API (проверьте GOSZAKUP_TOKEN)"}
-        elif response.status_code == 429:
-            return {"success": False, "message": "Превышен лимит запросов к порталу госзакупок"}
-        else:
-            return {"success": False, "message": f"Внешний сервис недоступен (код {response.status_code})"}
-
-    except requests.exceptions.Timeout:
-        return {"success": False, "message": "Превышено время ожидания ответа от сервера госзакупок"}
+                    normalized_results.append({
+                        "id": lot_id, "number": number, "name": name,
+                        "organizer": organizer, "amount": amount, "status": status, "url": url
+                    })
+                if normalized_results:
+                    CACHE[cache_key] = (normalized_results, now)
+                    return {"success": True, "source": "public_fallback", "data": normalized_results}
     except Exception as e:
-        logger.error(f"[OWS Exception] {type(e).__name__}")
-        return {"success": False, "message": "Внутренняя ошибка сервера"}
+        logger.error(f"[Public Fallback Exception] {type(e).__name__}")
+
+    # 3. Финальный fallback с прямой ссылкой на поиск
+    portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query_str)}"
+    return {
+        "success": False, 
+        "no_token": True, 
+        "query": query_str,
+        "redirect_url": portal_search_url,
+        "message": "Автоматический поиск по API временно недоступен. Используйте официальный портал."
+    }
 
 # ==============================================================================
 # ОБРАБОТЧИКИ TELEGRAM
@@ -252,6 +264,39 @@ if bot:
             bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
             return
 
+        if "мой фильтр" in text_lower or "подписка" in text_lower:
+            inline = types.InlineKeyboardMarkup()
+            inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
+            bot.send_message(
+                message.chat.id,
+                "⚙️ **Мой фильтр и персональная подписка**\n\n"
+                "Функция автоматической рассылки и сохранения фильтров находится в разработке.\n"
+                "Сейчас вы можете выполнять поиск лотов в ручном режиме или использовать веб-кабинет:",
+                parse_mode="Markdown",
+                reply_markup=inline
+            )
+            return
+
+        if "mitwork" in text_lower:
+            bot.send_message(
+                message.chat.id,
+                "💻 **Площадка Mitwork**\n\n"
+                "Прямой поиск по площадке Mitwork через данный бот временно не настроен.\n"
+                "Пожалуйста, используйте официальный сайт площадки для работы с закупками.",
+                parse_mode="Markdown"
+            )
+            return
+
+        if "caspy" in text_lower:
+            bot.send_message(
+                message.chat.id,
+                "📦 **Площадка Caspy Tender**\n\n"
+                "Прямой поиск по площадке Caspy Tender через данный бот временно не настроен.\n"
+                "Пожалуйста, используйте официальный сайт площадки для работы с закупками.",
+                parse_mode="Markdown"
+            )
+            return
+
         if "самрук" in text_lower:
             clean_q = clean_search_query(text)
             encoded_q = requests.utils.quote(clean_q)
@@ -287,13 +332,13 @@ if bot:
                 inline.add(types.InlineKeyboardButton("🔗 Открыть zakup.gov.kz", url=redirect_url))
                 
                 msg_text = (
-                    f"ℹ️ Автоматический поиск через OWS API отключен (не задан токен).\n\n"
+                    f"ℹ️ Автоматический поиск через API временно недоступен.\n\n"
                     f"• Запрос: *{text}*\n"
                     f"Вы можете выполнить поиск вручную на официальном портале госзакупок:"
                 )
                 if "все новые лоты" in text_lower or "госзакупки" in text_lower:
                     msg_text = (
-                        f"ℹ️ Автоматическая подборка лотов отключена (не задан токен OWS).\n\n"
+                        f"ℹ️ Автоматическая подборка лотов временно недоступна.\n\n"
                         f"Пожалуйста, просмотрите актуальные объявления на официальной странице вручную:"
                     )
                 
@@ -358,7 +403,7 @@ def search_tenders():
             return jsonify({
                 "success": False,
                 "no_token": True,
-                "message": "Автоматический поиск по API отключен (требуется токен OWS). Используйте официальный портал.",
+                "message": "Автоматический поиск по API временно недоступен. Используйте официальный портал.",
                 "redirect_url": result.get("redirect_url")
             }), 200
             
