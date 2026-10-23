@@ -2,7 +2,9 @@ import os
 import re
 import logging
 import time
+import uuid
 import requests
+from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify, send_from_directory
 from telebot import TeleBot, types
 import database
@@ -18,6 +20,10 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     return response
+
+CACHE = {}
+CACHE_TTL = 900  # 15 минут
+CALLBACK_QUERY_CACHE = {}
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
@@ -36,8 +42,9 @@ else:
 def init_database():
     try:
         database.init_db()
+        logger.info("✅ БД инициализирована.")
     except Exception as e:
-        logger.error(f"Ошибка БД: {type(e).__name__}")
+        logger.error(f"❌ Ошибка БД: {type(e).__name__}")
 
 def setup_webhook(bot_instance, webhook_url):
     if not bot_instance or not webhook_url:
@@ -47,14 +54,20 @@ def setup_webhook(bot_instance, webhook_url):
         if webhook_info.url != webhook_url:
             time.sleep(1)
             bot_instance.set_webhook(url=webhook_url)
-            logger.info(f"✅ Webhook успешно установлен: {webhook_url}")
+            logger.info(f"✅ Webhook установлен: {webhook_url}")
             return True
-        else:
-            logger.info("ℹ️ Webhook уже настроен актуально, пропуск вызова.")
-            return False
-    except Exception as e:
-        logger.error(f"❌ Ошибка проверки/установки Webhook: {type(e).__name__}")
         return False
+    except Exception as e:
+        logger.error(f"❌ Ошибка Webhook: {type(e).__name__}")
+        return False
+
+def escape_markdown(text):
+    if not text:
+        return ""
+    text = str(text)
+    for char in ['_', '*', '`', '[']:
+        text = text.replace(char, f'\\{char}')
+    return text
 
 def clean_search_query(text):
     if not text:
@@ -72,12 +85,62 @@ def clean_search_query(text):
                 return "ФСМС"
             elif "ск-фармация" in phrase:
                 return "Лекарственные средства"
-            return "Закупка"
+            return ""
         elif temp_lower.startswith(phrase):
             cleaned = cleaned[len(phrase):]
+    return cleaned.strip(" :-_•")
 
-    cleaned = cleaned.strip(" :-_•")
-    return cleaned if len(cleaned) >= 2 else "Закупка"
+def fetch_public_goszakup_lots(query="", page=1):
+    """Легковесный парсинг публичной выдачи госзакупок без требования токена и ИП"""
+    cache_key = f"public_{query.lower()}_{page}"
+    now = time.time()
+    if cache_key in CACHE:
+        data, timestamp = CACHE[cache_key]
+        if now - timestamp < CACHE_TTL:
+            return data
+
+    lots = []
+    try:
+        search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query)}&page={page}" if query else f"https://zakup.gov.kz/ru/search/announce?page={page}"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "ru-RU,ru;q=0.9"
+        }
+        resp = requests.get(search_url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            # Поиск элементов карточек/строк таблиц на портале
+            rows = soup.find_all('tr') or soup.find_all('div', class_=re.compile('card|item|row', re.I))
+            
+            for row in rows[:8]:
+                text_content = row.get_text(separator=" ", strip=True)
+                if len(text_content) > 30: # Фильтрация пустых строк
+                    lots.append({
+                        "id": "б/н",
+                        "name": text_content[:120] + "...",
+                        "amount": 0.0,
+                        "organizer": "Портал Госзакупок РК",
+                        "status": "Активный лот",
+                        "url": search_url
+                    })
+    except Exception as e:
+        logger.error(f"Ошибка публичного парсинга: {type(e).__name__}")
+
+    # Если парсер заблокирован или не нашел элементы, возвращаем прямой поисковый линк на портал
+    if not lots:
+        encoded_q = requests.utils.quote(query) if query else ""
+        portal_url = f"https://zakup.gov.kz/ru/search/announce?search={encoded_q}" if query else "https://zakup.gov.kz/ru/search/announce"
+        lots = [{
+            "id": "Ссылка",
+            "name": f"Результаты по запросу: {query if query else 'Все новые лоты'}",
+            "amount": 0.0,
+            "organizer": "Госзакупки РК",
+            "status": "Переход на портал",
+            "url": portal_url
+        }]
+
+    CACHE[cache_key] = (lots, now)
+    return lots
 
 if bot:
     def get_main_keyboard():
@@ -89,143 +152,96 @@ if bot:
         markup.add("📊 ETS-Тендер", "⚙️ Мой фильтр и подписка")
         return markup
 
-    @bot.message_handler(commands=['start'])
-    def handle_start(message):
-        first_name = message.from_user.first_name or "Пользователь"
-        username = message.from_user.username or ""
+    @bot.message_handler(commands=['start', 'help'])
+    def handle_start_help(message):
+        first_name = escape_markdown(message.from_user.first_name or "Пользователь")
         user_id = message.from_user.id
-        
-        args = message.text.split()
-        source = "direct"
-        if len(args) > 1:
-            raw_arg = args[1]
-            if "src_" in raw_arg:
-                source = raw_arg.replace("src_", "").split("_")[0]
-
         try:
-            database.register_user(user_id, first_name, username, source)
-        except Exception as e:
-            logger.error(f"Ошибка регистрации пользователя: {type(e).__name__}")
+            database.register_user(user_id, first_name, message.from_user.username or "", "direct")
+        except Exception:
+            pass
 
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
-            f"🇰🇿 **Kzzakupbot Hub** — ваш рабочий кабинет поставщика РК.\n"
-            f"Просто напишите ключевое слово (например: *Бумага*, *IT*, *ФСМС*) для поиска актуальных лотов.\n\n"
-            f"🧮 Для детального расчёта маржи и денежного потока используйте калькулятор."
+            f"🇰🇿 *Kzzakupbot Hub* — агрегатор закупок РК.\n"
+            f"Введите ключевое слово (*Бумага*, *IT*, *ФСМС*) для получения актуальных лотов."
         )
-        
         inline_markup = types.InlineKeyboardMarkup()
-        inline_markup.add(types.InlineKeyboardButton("🌐 Открыть веб-калькулятор маржи", url="https://kzzakupbot.onrender.com#calculator"))
+        inline_markup.add(types.InlineKeyboardButton("🌐 Веб-кабинет и Калькулятор", url="https://kzzakupbot.onrender.com#calculator"))
         
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=inline_markup)
-        bot.send_message(message.chat.id, "Выберите площадку или введите поисковый запрос:", reply_markup=get_main_keyboard())
+        bot.send_message(message.chat.id, "Выберите раздел или введите поисковый запрос:", reply_markup=get_main_keyboard())
 
-    @bot.message_handler(commands=['stats'])
-    def handle_stats(message):
-        if not ADMIN_USER_IDS or message.from_user.id not in ADMIN_USER_IDS:
-            bot.send_message(message.chat.id, "⛔ У вас нет прав для просмотра административной статистики.")
-            return
-
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("p_"))
+    def handle_pagination(call):
+        bot.answer_callback_query(call.id)
         try:
-            stats = database.get_traffic_stats()
-            total = sum(stats.values())
-            msg = f"📊 **Статистика поставщиков (Всего: {total}):**\n\n"
-            for src, count in stats.items():
-                msg += f"• **{src.upper()}**: {count} чел.\n"
-        except Exception as e:
-            msg = f"Ошибка получения статистики из БД: {type(e).__name__}"
+            parts = call.data.split("_")
+            page = int(parts[1])
+            token = parts[2] if len(parts) > 2 else ""
+            query = CALLBACK_QUERY_CACHE.get(token, "")
             
-        bot.send_message(message.chat.id, msg, parse_mode="Markdown")
+            lots = fetch_public_goszakup_lots(query=query, page=page)
+            msg = f"📋 *Лоты (Страница {page}):*\n\n"
+            for idx, lot in enumerate(lots, 1):
+                msg += f"*{idx}* 📌 {escape_markdown(lot['name'])}\n\n"
+            
+            inline = types.InlineKeyboardMarkup()
+            if len(lots) >= 5:
+                new_token = str(uuid.uuid4())[:8]
+                CALLBACK_QUERY_CACHE[new_token] = query
+                inline.add(types.InlineKeyboardButton("➡️ Показать ещё", callback_data=f"p_{page+1}_{new_token}"))
+            bot.edit_message_text(msg, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="Markdown", reply_markup=inline)
+        except Exception as e:
+            logger.error(f"Ошибка пагинации: {type(e).__name__}")
 
     @bot.message_handler(func=lambda message: True)
     def handle_all_messages(message):
+        if not message.text:
+            return
         text = message.text.strip()
         text_lower = text.lower()
 
         if "перейти на веб-портал" in text_lower:
             inline = types.InlineKeyboardMarkup()
             inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
-            bot.send_message(message.chat.id, "Нажмите кнопку ниже для перехода в веб-кабинет:", reply_markup=inline)
-            return
-
-        if "мой фильтр" in text_lower or "подписка" in text_lower:
-            inline = types.InlineKeyboardMarkup()
-            inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
-            bot.send_message(
-                message.chat.id,
-                "⚙️ **Мой фильтр и персональная подписка**\n\n"
-                "Функция автоматической рассылки и сохранения фильтров находится в разработке.\n"
-                "Сейчас вы можете выполнять поиск лотов в ручном режиме или использовать веб-кабинет:",
-                parse_mode="Markdown",
-                reply_markup=inline
-            )
-            return
-
-        if "mitwork" in text_lower:
-            bot.send_message(
-                message.chat.id,
-                "💻 **Площадка Mitwork**\n\n"
-                "Прямой поиск по площадке Mitwork через данный бот временно не настроен.\n"
-                "Пожалуйста, используйте официальный сайт площадки для работы с закупками.",
-                parse_mode="Markdown"
-            )
-            return
-
-        if "caspy" in text_lower:
-            bot.send_message(
-                message.chat.id,
-                "📦 **Площадка Caspy Tender**\n\n"
-                "Прямой поиск по площадке Caspy Tender через данный бот временно не настроен.\n"
-                "Пожалуйста, используйте официальный сайт площадки для работы с закупками.",
-                parse_mode="Markdown"
-            )
+            bot.send_message(message.chat.id, "Нажмите кнопку ниже:", reply_markup=inline)
             return
 
         if "самрук" in text_lower:
             clean_q = clean_search_query(text)
-            encoded_q = requests.utils.quote(clean_q)
-            sk_url = f"https://zakup.sk.kz/#/ext/search?text={encoded_q}"
+            sk_url = f"https://zakup.sk.kz/#/ext/search?text={requests.utils.quote(clean_q)}" if clean_q else "https://zakup.sk.kz/#/ext/search"
             inline = types.InlineKeyboardMarkup()
             inline.add(types.InlineKeyboardButton("🔍 Поиск на Самрук-Қазына", url=sk_url))
-            bot.send_message(
-                message.chat.id, 
-                f"🏢 **Переход на портал «Самрук-Қазына»**\n\nНажмите кнопку ниже для перехода к поиску:",
-                parse_mode="Markdown",
-                reply_markup=inline
-            )
+            bot.send_message(message.chat.id, "🏢 *Переход на портал «Самрук-Қазына»*:", parse_mode="Markdown", reply_markup=inline)
             return
 
-        if "ets" in text_lower:
+        is_all_lots = "все новые лоты" in text_lower or "госзакупки" in text_lower
+        clean_q = clean_search_query(text) if not is_all_lots else ""
+
+        lots = fetch_public_goszakup_lots(query=clean_q, page=1)
+        
+        header = "📋 *Все новые лоты Госзакупок:*" if is_all_lots else f"📋 *Результаты по запросу «{escape_markdown(clean_q)}»:*"
+        bot.send_message(message.chat.id, header, parse_mode="Markdown")
+        
+        for idx, lot in enumerate(lots, 1):
+            msg = (
+                f"*{idx}. {escape_markdown(lot['name']}*\n"
+                f"🏛 *Источник:* {escape_markdown(lot['organizer'])}\n"
+                f"📊 *Статус:* {escape_markdown(lot['status'])}"
+            )
             inline = types.InlineKeyboardMarkup()
-            inline.add(types.InlineKeyboardButton("🌐 Перейти на ETS-Тендер", url="https://ets-tender.kz/"))
-            bot.send_message(
-                message.chat.id, 
-                "📊 **Площадка ETS-Тендер**\n\nАвтоматический поиск недоступен. Нажмите кнопку ниже для перехода на сайт.",
-                parse_mode="Markdown"
-            )
-            return
+            if lot.get('url'):
+                inline.add(types.InlineKeyboardButton("🔗 Открыть лот на портале", url=lot['url']))
+            inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
+            bot.send_message(message.chat.id, msg, parse_mode="Markdown", reply_markup=inline)
 
-        clean_q = clean_search_query(text)
-        
-        if clean_q == "Закупка" or "все новые лоты" in text_lower or "госзакупки" in text_lower:
-            portal_search_url = "https://zakup.gov.kz/ru/search/announce"
-            display_title = "Все актуальные лоты Госзакупок"
-        else:
-            portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(clean_q)}"
-            display_title = f"Запрос: {clean_q}"
-
-        inline = types.InlineKeyboardMarkup()
-        inline.add(types.InlineKeyboardButton("🔗 Открыть zakup.gov.kz", url=portal_search_url))
-        inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
-        
-        bot.send_message(
-            message.chat.id,
-            f"ℹ️ Автоматический поиск через API временно защищен порталом госзакупок.\n\n"
-            f"• {display_title}\n"
-            f"Нажмите кнопку ниже для быстрого просмотра результатов:",
-            parse_mode="Markdown",
-            reply_markup=inline
-        )
+        if len(lots) >= 5:
+            inline_more = types.InlineKeyboardMarkup()
+            token = str(uuid.uuid4())[:8]
+            CALLBACK_QUERY_CACHE[token] = clean_q
+            inline_more.add(types.InlineKeyboardButton("➡️ Показать ещё", callback_data=f"p_2_{token}"))
+            bot.send_message(message.chat.id, "Загрузить следующие результаты:", reply_markup=inline_more)
 
 @app.route('/')
 def serve_index():
@@ -235,26 +251,20 @@ def serve_index():
 def search_tenders():
     if request.method == 'OPTIONS':
         return jsonify({'status': 'ok'}), 200
-
     raw_query = request.args.get('q', '').strip()
-    portal_search_url = f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(raw_query)}"
-    return jsonify({
-        "success": False,
-        "no_token": True,
-        "message": "Автоматический поиск по API временно недоступен. Используйте официальный портал.",
-        "redirect_url": portal_search_url
-    }), 200
+    clean_q = clean_search_query(raw_query)
+    lots = fetch_public_goszakup_lots(query=clean_q, page=1)
+    return jsonify({"success": True, "data": lots}), 200
 
 @app.route('/webhook', methods=['POST'])
 def webhook_handler():
     if request.headers.get('content-type') == 'application/json':
-        json_string = request.get_data().decode('utf-8')
         if bot:
             try:
-                update = types.Update.de_json(json_string)
+                update = types.Update.de_json(request.get_data().decode('utf-8'))
                 bot.process_new_updates([update])
             except Exception as e:
-                logger.error(f"Ошибка обработки обновления Telegram: {type(e).__name__}")
+                logger.error(f"Webhook error: {type(e).__name__}")
         return '', 200
     return jsonify({'status': 'bad request'}), 400
 
