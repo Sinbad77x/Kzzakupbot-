@@ -14,9 +14,10 @@
         .section { margin-bottom: 30px; padding: 20px; background: #fafafa; border: 1px solid #e1e4e8; border-radius: 6px; }
         .section h2 { margin-top: 0; color: #333; font-size: 20px; }
         input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button.action-btn { background: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button.action-btn { background: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
         button.action-btn:hover { background: #004085; }
         .notice { font-size: 13px; color: #666; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .field-warning { font-size: 12px; color: #d9534f; margin-top: -10px; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -29,7 +30,7 @@
 
         <div class="section">
             <h2>Экономика и налоговые допущения</h2>
-            <p>🏛 СНР (упрощенная декларация): базовая ставка 4% (ст. 726 НК РК на 2026 год). Значение является допущением пользователя[span_2](start_span)[span_2](end_span).</p>
+            <p>🏛 СНР на основе упрощенной декларации: базовая ставка 4% (ст. 726 НК РК на 2026 год). В г. Шымкент действует пониженная ставка 2% (Решение маслихата от 28.11.2025 № 30/271-VIII).</p>
         </div>
 
         <div class="section">
@@ -45,40 +46,55 @@
 
         <div class="section">
             <h2>🧮 Калькулятор сделки и финансирования</h2>
-            <p>Предварительная оценка рентабельности и денежного потока (Cash Flow) по нормам НК РК 2026[span_3](start_span)[span_3](end_span).</p>
+            <p>Предварительная оценка рентабельности и денежного потока (Cash Flow) по нормам НК РК 2026.</p>
             
+            <label for="taxRateSelect">Ставка налога СНР (% от выручки):</label>
+            <select id="taxRateSelect" onchange="toggleCustomTaxField(); calculateDeal();">
+                <option value="0.04" selected>4% — Базовая ставка НК РК (ст. 726)</option>
+                <option value="0.02">2% — Пониженная ставка (г. Шымкент, Решение № 30/271-VIII)</option>
+                <option value="custom">Указать свою ставку...</option>
+            </select>
+
+            <div id="customTaxContainer" style="display: none;">
+                <label for="customTaxRate">Ваша ставка налога, %:</label>
+                <input type="number" id="customTaxRate" value="3" step="0.1" min="0" max="100" oninput="calculateDeal()">
+                <div id="customTaxWarning" class="field-warning">Допустимая ставка налога: от 0% до 100%.</div>
+            </div>
+
             <label for="contractSum">Сумма контракта (Выручка), ₸</label>
-            <input type="number" id="contractSum" value="5000000">
+            <input type="number" id="contractSum" value="5000000" oninput="calculateDeal()">
 
             <label for="costGoods">Закупка товара / себестоимость, ₸</label>
-            <input type="number" id="costGoods" value="3500000">
+            <input type="number" id="costGoods" value="3500000" oninput="calculateDeal()">
 
             <label for="costLogistics">Логистика и доставка, ₸</label>
-            <input type="number" id="costLogistics" value="150000">
+            <input type="number" id="costLogistics" value="150000" oninput="calculateDeal()">
 
             <label for="costBG">Комиссия за банковскую гарантию (БГ), ₸</label>
-            <input type="number" id="costBG" value="25000">
+            <input type="number" id="costBG" value="25000" oninput="calculateDeal()">
 
             <label for="depositSum">Обеспечение исполнения договора (залог), ₸</label>
-            <input type="number" id="depositSum" value="250000">
+            <input type="number" id="depositSum" value="250000" oninput="calculateDeal()">
 
             <button class="action-btn" onclick="calculateDeal()">Рассчитать показатели</button>
 
             <div id="calcResults" style="margin-top: 20px; background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 4px;">
+                <p><strong>Исчисляемый налог СНР:</strong> <span id="resTax">0</span> ₸</p>
                 <p><strong>Расчётная прибыль:</strong> <span id="resProfit">0</span> ₸</p>
                 <p><strong>Маржинальность:</strong> <span id="resMargin">0</span>%</p>
                 <p><strong>Пиковая потребность в капитале:</strong> <span id="resCapital">0</span> ₸</p>
             </div>
+            <p class="notice" style="margin-top: 15px;">ℹ️ <strong>Примечание:</strong> Предварительная прибыль рассчитана до вычета обязательных социальных платежей ИП за себя/работников (ОПВ, СО, ВОСМС, ОПВР) и прочих административных расходов.</p>
         </div>
 
         <div class="section">
             <h2>💬 Интеграция с Telegram</h2>
-            <p>Используйте Telegram-бот для быстрого доступа к поиску и управления подписками[span_4](start_span)[span_4](end_span).</p>
+            <p>Используйте Telegram-бот для быстрого доступа к поиску и управления подписками.</p>
             <a href="https://t.me/kzzakupbot" class="btn btn-tg" target="_blank" rel="noopener noreferrer">Открыть @kzzakupbot</a>
         </div>
 
         <footer>
-            <p class="notice">⚠️ Калькулятор выполняет предварительные расчеты. Пользователь самостоятельно проверяет условия закупки и налоговые обязательства[span_5](start_span)[span_5](end_span). Финансовые значения не сохраняются на внешних серверах[span_6](start_span)[span_6](end_span).</p>
+            <p class="notice">⚠️ Калькулятор выполняет предварительные расчеты. Пользователь самостоятельно проверяет условия закупки и налоговые обязательства. Финансовые значения не сохраняются на внешних серверах.</p>
         </footer>
     </div>
 
@@ -118,23 +134,57 @@
             }
         });
 
-        function calculateDeal() {
-            const revenue = parseFloat(document.getElementById('contractSum').value) || 0;
-            const goods = parseFloat(document.getElementById('costGoods').value) || 0;
-            const logistics = parseFloat(document.getElementById('costLogistics').value) || 0;
-            const bg = parseFloat(document.getElementById('costBG').value) || 0;
-            const deposit = parseFloat(document.getElementById('depositSum').value) || 0;
+        function toggleCustomTaxField() {
+            const select = document.getElementById('taxRateSelect');
+            const container = document.getElementById('customTaxContainer');
+            if (select.value === 'custom') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
 
+        function getEffectiveTaxRate() {
+            const select = document.getElementById('taxRateSelect');
+            const warningEl = document.getElementById('customTaxWarning');
+            if (warningEl) warningEl.style.display = 'none';
+
+            if (select.value === 'custom') {
+                const inputVal = document.getElementById('customTaxRate').value;
+                let parsedVal = parseFloat(inputVal);
+                if (isNaN(parsedVal) || parsedVal < 0 || parsedVal > 100) {
+                    if (warningEl) warningEl.style.display = 'block';
+                    parsedVal = Math.max(0, Math.min(100, isNaN(parsedVal) ? 0 : parsedVal));
+                }
+                return parsedVal / 100;
+            }
+            return parseFloat(select.value) || 0.04;
+        }
+
+        function calculateDeal() {
+            const revenue = Math.max(0, parseFloat(document.getElementById('contractSum').value) || 0);
+            const goods = Math.max(0, parseFloat(document.getElementById('costGoods').value) || 0);
+            const logistics = Math.max(0, parseFloat(document.getElementById('costLogistics').value) || 0);
+            const bg = Math.max(0, parseFloat(document.getElementById('costBG').value) || 0);
+            const deposit = Math.max(0, parseFloat(document.getElementById('depositSum').value) || 0);
+
+            const taxRate = getEffectiveTaxRate();
             const directCosts = goods + logistics + bg;
-            const tax = revenue * 0.04; // СНР 4% на 2026 год
+            const tax = revenue * taxRate;
             const profit = revenue - directCosts - tax;
             const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
             const peakCapital = goods + deposit;
 
-            document.getElementById('resProfit').innerText = profit.toLocaleString('ru-RU');
-            document.getElementById('resMargin').innerText = margin.toFixed(1);
-            document.getElementById('resCapital').innerText = peakCapital.toLocaleString('ru-RU');
+            document.getElementById('resTax').innerText = tax.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+            document.getElementById('resProfit').innerText = profit.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+            document.getElementById('resMargin').innerText = isFinite(margin) ? margin.toFixed(1) : "0.0";
+            document.getElementById('resCapital').innerText = peakCapital.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            toggleCustomTaxField();
+            calculateDeal();
+        });
     </script>
 </body>
 </html>
