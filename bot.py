@@ -65,19 +65,34 @@ def escape_markdown(text):
         text = text.replace(char, f'\\{char}')
     return text
 
+# Сопоставление быстрых направлений поиска
+SEARCH_CATEGORY_MAP = {
+    "🔥 все новые лоты": {"query": "", "label": "Все новые лоты РК", "type": "goszakup"},
+    "🏛 госзакупки": {"query": "", "label": "Госзакупки РК", "type": "goszakup"},
+    "🏥 фсмс и медицинские товары": {"query": "лекарственные средства медицинское оборудование", "label": "ФСМС и Медицина", "type": "goszakup"},
+    "💻 it и программное обеспечение": {"query": "программное обеспечение компьютеры сервера", "label": "IT и ПО", "type": "goszakup"},
+    "🏗 строительство и ремонт": {"query": "строительство ремонтные работы", "label": "Строительство и Ремонт", "type": "goszakup"},
+    "⚙️ оборудование": {"query": "оборудование техника", "label": "Оборудование и Техника", "type": "goszakup"},
+    "📄 канцелярские товары": {"query": "бумага канцелярские товары", "label": "Канцтовары", "type": "goszakup"},
+    "🏢 самрук-қазына": {"query": "", "label": "Закупки Самрук-Қазына", "type": "samruk"}
+}
+
 def fetch_real_goszakup_lots(query=""):
     """
-    Запрос к официальному OWS API V3 Госзакупок РК.
-    Возвращает реальные данные или статус недоступности без использования фиктивных замен.
+    Выполняет реальный поиск через OWS API V3 (при наличии токена) 
+    либо формирует официальный URL анонимного поиска без подделки данных.
     """
     fetched_at = time.strftime("%Y-%m-%d %H:%M:%S")
-    
+    encoded_query = requests.utils.quote(query) if query else ""
+    official_search_url = f"https://zakup.gov.kz/ru/search/announce?search={encoded_query}" if encoded_query else "https://zakup.gov.kz/ru/search/announce"
+
     if not GOSZAKUP_TOKEN:
         return {
             "success": False,
-            "status": "no_token",
-            "message": "Для прямого поиска требуется авторизационный токен OWS API Госзакупок.",
-            "official_url": f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else '')}",
+            "status": "anonymous_mode",
+            "title": f"🔍 Поиск Госзакупок по запросу: «{query if query else 'Все закупки'}»",
+            "message": "Для прямого просмотра без регистрации ИП/ТОО откройте подготовленную страницу поиска на официальном портале:",
+            "official_url": official_search_url,
             "fetched_at": fetched_at,
             "data": []
         }
@@ -131,7 +146,7 @@ def fetch_real_goszakup_lots(query=""):
             return {
                 "success": True,
                 "status": "ok",
-                "title": f"📋 Официальные результаты Госзакупок РК по запросу «{query}»",
+                "title": f"📋 Подтвержденные результаты по запросу «{query if query else 'Все новые'}»",
                 "fetched_at": fetched_at,
                 "data": real_lots
             }
@@ -139,8 +154,9 @@ def fetch_real_goszakup_lots(query=""):
             return {
                 "success": False,
                 "status": "api_error",
-                "message": f"Официальный API временно недоступен (Код: {response.status_code}).",
-                "official_url": f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else '')}",
+                "title": "⚠️ Ошибка авторизации API",
+                "message": f"Официальный API вернул код {response.status_code}. Перейдите к анонимному поиску:",
+                "official_url": official_search_url,
                 "fetched_at": fetched_at,
                 "data": []
             }
@@ -149,15 +165,16 @@ def fetch_real_goszakup_lots(query=""):
         return {
             "success": False,
             "status": "network_error",
-            "message": "Ошибка сетевого подключения к сервису Госзакупок РК.",
-            "official_url": f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else '')}",
+            "title": "🌐 Ошибка подключения к API",
+            "message": "Не удалось установить прямое соединение. Воспользуйтесь официальным поиском:",
+            "official_url": official_search_url,
             "fetched_at": fetched_at,
             "data": []
         }
 
 def get_active_lots_by_query(query=""):
     """
-    Единая точка вызова поиска. Фиктивные лоты полностью исключены.
+    Маршрутизатор поиска по категориям.
     """
     q_lower = query.lower().strip()
     fetched_at = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -165,21 +182,28 @@ def get_active_lots_by_query(query=""):
     if "самрук" in q_lower:
         return {
             "success": False,
-            "status": "samruk_direct_only",
+            "status": "samruk_direct",
             "title": "🏢 Закупки АО «Самрук-Қазына»",
-            "message": "Портал «Самрук-Қазына» требует закрытой авторизации ЭЦП. Выполните поиск непосредственно на портале:",
+            "message": "Поиск по закупкам холдинга «Самрук-Қазына» доступен на официальном портале без регистрации ИП/ТОО:",
             "official_url": "https://zakup.sk.kz/#/ext/search",
             "fetched_at": fetched_at,
             "data": []
         }
 
-    return fetch_real_goszakup_lots(query)
+    # Подстановка поисковой фразы при выборе кнопки категории
+    mapped = SEARCH_CATEGORY_MAP.get(q_lower)
+    search_phrase = mapped["query"] if mapped else query
+
+    return fetch_real_goszakup_lots(search_phrase)
 
 if bot:
     def get_main_keyboard():
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        markup.add("🔥 Поиск закупок", "🌐 Веб-портал & Калькулятор")
-        markup.add("🏢 Самрук-Қазына", "👥 Сообщество")
+        markup.add("🔥 Все новые лоты", "🏛 Госзакупки")
+        markup.add("🏥 ФСМС и медицинские товары", "💻 IT и программное обеспечение")
+        markup.add("🏗 Строительство и ремонт", "⚙️ Оборудование")
+        markup.add("📄 Канцелярские товары", "🏢 Самрук-Қазына")
+        markup.add("🌐 Веб-портал & Калькулятор", "👥 Сообщество")
         return markup
 
     @bot.message_handler(commands=['start', 'help'])
@@ -194,7 +218,7 @@ if bot:
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
             f"🇰🇿 *Kzzakupbot Hub* — единое рабочее пространство поставщика РК.\n"
-            f"Введите ключевое слово или наименование товара/услуги для поиска в реальном времени:"
+            f"Ищите закупки без регистрации ИП/ТОО. Выберите категорию ниже или введите запрос:"
         )
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
 
@@ -220,10 +244,11 @@ if bot:
         result = get_active_lots_by_query(text)
         fetched_time = result.get("fetched_at", "")
 
+        # Если прямого ответа API нет, выдаем безопасное сообщение перехода
         if not result.get("success"):
             msg = (
                 f"ℹ️ *{escape_markdown(result.get('title', 'Поиск закупок'))}*\n\n"
-                f"{escape_markdown(result.get('message', ''))}\n"
+                f"{escape_markdown(result.get('message', ''))}\n\n"
                 f"⏱ *Время проверки:* {fetched_time}"
             )
             inline = types.InlineKeyboardMarkup()
@@ -235,7 +260,7 @@ if bot:
         if not lots:
             bot.send_message(
                 message.chat.id,
-                f"🔍 По запросу «*{escape_markdown(text)}*» подтверждённых опубликованных закупок не найдено.\n⏱ *Обновлено:* {fetched_time}",
+                f"🔍 По запросу «*{escape_markdown(text)}*» опубликованных лотов не найдено.\n⏱ *Обновлено:* {fetched_time}",
                 parse_mode="Markdown"
             )
             return
