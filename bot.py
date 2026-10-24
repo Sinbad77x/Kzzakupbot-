@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder=None)
 def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
 CALLBACK_QUERY_CACHE = {}
@@ -77,7 +77,7 @@ def get_active_lots_by_query(query=""):
             ("SK-2026-101", "Приобретение материально-технических ресурсов для нужд дочерних компаний АО «НК «КазМунайГаз»", 45000000.0, "ТОО «KMG Engineering»"),
             ("SK-2026-102", "Услуги по капитальному ремонту энергетического оборудования и подстанций", 125000000.0, "АО «KEGOC»"),
             ("SK-2026-103", "Поставка специализированной техники и запасных частей для угледобычи", 88000000.0, "АО «НК «Қазақстан темір жолы»"),
-            ("SK-2026-104", "Оказание услуг цифровизации, внедрения ERP-систем и IT-аудита", 21000000.0, "ТОO «Samruk-Kazyna Business Service»")
+            ("SK-2026-104", "Оказание услуг цифровизации, внедрения ERP-систем и IT-аудита", 21000000.0, "ТОО «Samruk-Kazyna Business Service»")
         ]
     elif "медицин" in q_lower or "фсмс" in q_lower or "лекарств" in q_lower:
         title = "💊 Медицина, фармацевтика и ФСМС"
@@ -143,7 +143,7 @@ if bot:
         markup.add("🔥 Все новые лоты", "🌐 Веб-портал & Калькулятор")
         markup.add("💊 Медицина (ФСМС)", "💻 IT и техника")
         markup.add("🏗 Строительство", "🍎 Продукты питания")
-        markup.add("🏢 Самрук-Қазына", "⚙️ Мой фильтр")
+        markup.add("🏢 Самрук-Қазына", "👥 Сообщество")
         return markup
 
     @bot.message_handler(commands=['start', 'help'])
@@ -157,7 +157,7 @@ if bot:
 
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
-            f"🇰🇿 *Kzzakupbot Hub* — мгновенный агрегатор тендеров РК.\n"
+            f"🇰🇿 *Kzzakupbot Hub* — единое рабочее пространство поставщика РК.\n"
             f"Выберите категорию ниже или введите любое ключевое слово для поиска лотов:"
         )
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
@@ -173,6 +173,12 @@ if bot:
             inline = types.InlineKeyboardMarkup()
             inline.add(types.InlineKeyboardButton("🌐 Открыть Kzzakupbot Hub", url="https://kzzakupbot.onrender.com"))
             bot.send_message(message.chat.id, "Нажмите кнопку для открытия веб-кабинета и калькулятора:", reply_markup=inline)
+            return
+
+        if "сообществ" in text_lower:
+            inline = types.InlineKeyboardMarkup()
+            inline.add(types.InlineKeyboardButton("👥 Открыть сообщество поставщиков", url="https://kzzakupbot.onrender.com/#community-section"))
+            bot.send_message(message.chat.id, "💬 Обсуждения, вопросы и опыт участников рынка:", reply_markup=inline)
             return
 
         result = get_active_lots_by_query(text)
@@ -206,6 +212,117 @@ def search_tenders():
     raw_query = request.args.get('q', '').strip()
     result = get_active_lots_by_query(raw_query)
     return jsonify(result), 200
+
+# --- API СООБЩЕСТВА ПОСТАВЩИКОВ ---
+
+VALID_COMMUNITY_CATEGORIES = [
+    "Госзакупки", "Samruk-Kazyna", "Коммерческие тендеры", 
+    "Банковские гарантии", "Налоги и бухгалтерия", "Логистика", 
+    "Опыт поставщиков", "Другие вопросы"
+]
+
+LAST_POST_TIMES = {}
+RATE_LIMIT_SECONDS = 30
+
+@app.route('/api/community/topics', methods=['GET'])
+def api_get_community_topics():
+    try:
+        search = request.args.get('q', '').strip()
+        category = request.args.get('category', '').strip()
+        sort = request.args.get('sort', 'newest').strip()
+        
+        try:
+            limit = int(request.args.get('limit', 10))
+            page = int(request.args.get('page', 1))
+        except ValueError:
+            limit, page = 10, 1
+            
+        limit = max(1, min(limit, 50))
+        page = max(1, page)
+        offset = (page - 1) * limit
+
+        topics = database.get_published_topics(
+            search=search, category=category, limit=limit, offset=offset, sort=sort
+        )
+        return jsonify({
+            "success": True,
+            "page": page,
+            "limit": limit,
+            "topics": topics
+        }), 200
+    except Exception as e:
+        logger.error(f"Error in GET /api/community/topics: {type(e).__name__}")
+        return jsonify({"success": False, "message": "Ошибка сервера при получении тем"}), 500
+
+@app.route('/api/community/topics', methods=['POST'])
+def api_post_community_topic():
+    try:
+        if not request.is_json:
+            return jsonify({"success": False, "message": "Ожидается формат JSON"}), 400
+
+        data = request.json
+        title = str(data.get('title', '')).strip()
+        content = str(data.get('content', '')).strip()
+        category = str(data.get('category', '')).strip()
+
+        if len(title) < 10 or len(title) > 150:
+            return jsonify({"success": False, "message": "Заголовок должен содержать от 10 до 150 символов."}), 400
+        if len(content) < 20 or len(content) > 2000:
+            return jsonify({"success": False, "message": "Текст должен содержать от 20 до 2000 символов."}), 400
+        if category not in VALID_COMMUNITY_CATEGORIES:
+            return jsonify({"success": False, "message": "Указана недопустимая категория."}), 400
+
+        client_ip = request.remote_addr or "unknown"
+        now = time.time()
+        if client_ip in LAST_POST_TIMES:
+            elapsed = now - LAST_POST_TIMES[client_ip]
+            if elapsed < RATE_LIMIT_SECONDS:
+                wait_sec = int(RATE_LIMIT_SECONDS - elapsed)
+                return jsonify({"success": False, "message": f"Слишком частые публикации. Подождите {wait_sec} сек."}), 429
+
+        author_name = "Проверенный поставщик РК"
+        author_id = f"ip_{client_ip[:10]}"
+
+        topic_id = database.add_topic(
+            title=title, content=content, category=category, 
+            author_name=author_name, author_id=author_id
+        )
+        
+        LAST_POST_TIMES[client_ip] = now
+
+        return jsonify({
+            "success": True,
+            "message": "Тема успешно создана и отправлена на модерацию.",
+            "topic_id": topic_id
+        }), 201
+    except Exception as e:
+        logger.error(f"Error in POST /api/community/topics: {type(e).__name__}")
+        return jsonify({"success": False, "message": "Ошибка сервера при создании темы"}), 500
+
+@app.route('/api/community/report/<int:topic_id>', methods=['POST'])
+def api_report_community_topic(topic_id):
+    try:
+        topic = database.get_topic_by_id(topic_id)
+        if not topic or topic['status'] != 'published':
+            return jsonify({"success": False, "message": "Тема не найдена."}), 404
+
+        data = request.json or {}
+        reason = str(data.get('reason', '')).strip()
+        if len(reason) < 5 or len(reason) > 300:
+            return jsonify({"success": False, "message": "Причина жалобы должна быть от 5 до 300 символов."}), 400
+
+        client_ip = request.remote_addr or "unknown"
+        database.add_report(topic_id=topic_id, reason=reason, reporter_ip=client_ip)
+
+        return jsonify({
+            "success": True,
+            "message": "Жалоба успешно зарегистрирована и передана модератору."
+        }), 200
+    except Exception as e:
+        logger.error(f"Error in POST /api/community/report: {type(e).__name__}")
+        return jsonify({"success": False, "message": "Ошибка сервера при отправке жалобы"}), 500
+
+# --- WEBHOOK ---
 
 @app.route('/webhook', methods=['POST'])
 def webhook_handler():
