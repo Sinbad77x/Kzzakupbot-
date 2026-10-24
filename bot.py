@@ -20,10 +20,9 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
-CALLBACK_QUERY_CACHE = {}
-
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://kzzakupbot.onrender.com/webhook").strip()
+GOSZAKUP_TOKEN = os.getenv("GOSZAKUP_TOKEN", "").strip()
 
 RAW_ADMIN_IDS = os.getenv("ADMIN_USER_IDS", "").strip()
 ADMIN_USER_IDS = [
@@ -66,51 +65,120 @@ def escape_markdown(text):
         text = text.replace(char, f'\\{char}')
     return text
 
-def get_active_lots_by_query(query=""):
-    """Экспресс-выдача (демонстрационный/резервный пул с требованием сверки на zakup.gov.kz)"""
-    q_lower = query.lower().strip()
+def fetch_real_goszakup_lots(query=""):
+    """
+    Запрос к официальному OWS API V3 Госзакупок РК.
+    Возвращает реальные данные или статус недоступности без использования фиктивных замен.
+    """
     fetched_at = time.strftime("%Y-%m-%d %H:%M:%S")
     
-    if "самрук" in q_lower:
-        title = "🏢 Корпоративные закупки (Резервный пул «Самрук-Қазына»)"
-        items = [
-            ("SK-2026-101", "Приобретение МТР для дочерних организаций АО «НК «КазМунайГаз»", 45000000.0, "ТОО «KMG Engineering»"),
-            ("SK-2026-102", "Капремонт энергооборудования подстанций", 125000000.0, "АО «KEGOC»")
-        ]
-    else:
-        title = f"📋 Демонстрационный пул лотов по запросу: «{query if query else 'Все новые лоты'}»"
-        items = [
-            ("2026-10101", "Поставка офисной бумаги А4 и расходных материалов (Резерв)", 1250000.0, "Департамент финансов"),
-            ("2026-10102", "Услуги по охране объектов и обеспечению безопасности (Резерв)", 6800000.0, "РГУ")
-        ]
+    if not GOSZAKUP_TOKEN:
+        return {
+            "success": False,
+            "status": "no_token",
+            "message": "Для прямого поиска требуется авторизационный токен OWS API Госзакупок.",
+            "official_url": f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else '')}",
+            "fetched_at": fetched_at,
+            "data": []
+        }
 
-    lots = []
-    for lot_id, name, amount, org in items:
-        target_url = "https://zakup.sk.kz/#/ext/search" if "самрук" in q_lower else f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else 'лоты')}"
-        lots.append({
-            "id": lot_id,
-            "number": lot_id,
-            "name": name,
-            "amount": amount,
-            "organizer": org,
-            "status": "⚠️ Демо-режим (требуется проверка на официальном портале)",
-            "url": target_url,
-            "publish_date": fetched_at[:10]
-        })
-
-    return {
-        "success": True,
-        "title": title,
-        "fetched_at": fetched_at,
-        "data": lots
+    graphql_query = """
+    query searchTrd($search: String) {
+        TrdBuy(filter: { nameRu: $search }, limit: 10) {
+            id
+            numberAnno
+            nameRu
+            totalSum
+            organizerNameRu
+            endDate
+            refBuyStatusId
+        }
     }
+    """
+    
+    headers = {
+        "Authorization": f"Bearer {GOSZAKUP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(
+            "https://v3.goszakup.gov.kz/api/v3/graphql",
+            json={"query": graphql_query, "variables": {"search": query}},
+            headers=headers,
+            timeout=8
+        )
+        if response.status_code == 200:
+            res_data = response.json()
+            raw_lots = res_data.get("data", {}).get("TrdBuy", []) or []
+            
+            real_lots = []
+            for lot in raw_lots:
+                anno_id = str(lot.get("numberAnno") or lot.get("id"))
+                real_lots.append({
+                    "id": anno_id,
+                    "number": anno_id,
+                    "name": str(lot.get("nameRu") or "Закупка товаров/услуг"),
+                    "amount": float(lot.get("totalSum") or 0.0),
+                    "organizer": str(lot.get("organizerNameRu") or "Государственное учреждение РК"),
+                    "status": "Опубликовано (Прием заявок)",
+                    "end_date": str(lot.get("endDate") or "Уточняйте на портале"),
+                    "source": "Госзакупки РК (OWS API V3)",
+                    "url": f"https://zakup.gov.kz/ru/announce/index/{lot.get('id')}",
+                    "publish_date": fetched_at[:10]
+                })
+
+            return {
+                "success": True,
+                "status": "ok",
+                "title": f"📋 Официальные результаты Госзакупок РК по запросу «{query}»",
+                "fetched_at": fetched_at,
+                "data": real_lots
+            }
+        else:
+            return {
+                "success": False,
+                "status": "api_error",
+                "message": f"Официальный API временно недоступен (Код: {response.status_code}).",
+                "official_url": f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else '')}",
+                "fetched_at": fetched_at,
+                "data": []
+            }
+    except Exception as e:
+        logger.error(f"Goszakup API Error: {type(e).__name__}")
+        return {
+            "success": False,
+            "status": "network_error",
+            "message": "Ошибка сетевого подключения к сервису Госзакупок РК.",
+            "official_url": f"https://zakup.gov.kz/ru/search/announce?search={requests.utils.quote(query if query else '')}",
+            "fetched_at": fetched_at,
+            "data": []
+        }
+
+def get_active_lots_by_query(query=""):
+    """
+    Единая точка вызова поиска. Фиктивные лоты полностью исключены.
+    """
+    q_lower = query.lower().strip()
+    fetched_at = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    if "самрук" in q_lower:
+        return {
+            "success": False,
+            "status": "samruk_direct_only",
+            "title": "🏢 Закупки АО «Самрук-Қазына»",
+            "message": "Портал «Самрук-Қазына» требует закрытой авторизации ЭЦП. Выполните поиск непосредственно на портале:",
+            "official_url": "https://zakup.sk.kz/#/ext/search",
+            "fetched_at": fetched_at,
+            "data": []
+        }
+
+    return fetch_real_goszakup_lots(query)
 
 if bot:
     def get_main_keyboard():
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        markup.add("🔥 Все новые лоты", "🌐 Веб-портал & Калькулятор")
-        markup.add("💊 Медицина (ФСМС)", "💻 IT и техника")
-        markup.add("🏗 Строительство", "🍎 Продукты питания")
+        markup.add("🔥 Поиск закупок", "🌐 Веб-портал & Калькулятор")
         markup.add("🏢 Самрук-Қазына", "👥 Сообщество")
         return markup
 
@@ -126,7 +194,7 @@ if bot:
         reply_text = (
             f"👋 Здравствуйте, {first_name}!\n\n"
             f"🇰🇿 *Kzzakupbot Hub* — единое рабочее пространство поставщика РК.\n"
-            f"Выберите категорию ниже или введите любое ключевое слово для поиска лотов:"
+            f"Введите ключевое слово или наименование товара/услуги для поиска в реальном времени:"
         )
         bot.send_message(message.chat.id, reply_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
 
@@ -150,23 +218,42 @@ if bot:
             return
 
         result = get_active_lots_by_query(text)
-        lots = result.get("data", [])
         fetched_time = result.get("fetched_at", "")
 
-        bot.send_message(message.chat.id, f"*{result['title']}*\n⏱ *Обновлено:* {fetched_time}", parse_mode="Markdown")
+        if not result.get("success"):
+            msg = (
+                f"ℹ️ *{escape_markdown(result.get('title', 'Поиск закупок'))}*\n\n"
+                f"{escape_markdown(result.get('message', ''))}\n"
+                f"⏱ *Время проверки:* {fetched_time}"
+            )
+            inline = types.InlineKeyboardMarkup()
+            inline.add(types.InlineKeyboardButton("🔗 Открыть официальный поиск", url=result.get("official_url", "https://zakup.gov.kz")))
+            bot.send_message(message.chat.id, msg, parse_mode="Markdown", reply_markup=inline)
+            return
+
+        lots = result.get("data", [])
+        if not lots:
+            bot.send_message(
+                message.chat.id,
+                f"🔍 По запросу «*{escape_markdown(text)}*» подтверждённых опубликованных закупок не найдено.\n⏱ *Обновлено:* {fetched_time}",
+                parse_mode="Markdown"
+            )
+            return
+
+        bot.send_message(message.chat.id, f"*{result['title']}*\n⏱ *Данные получены:* {fetched_time}", parse_mode="Markdown")
 
         for idx, lot in enumerate(lots, 1):
             msg = (
-                f"*{idx}. Лот #{escape_markdown(lot['id'])}*\n"
+                f"*{idx}. Объявление №{escape_markdown(lot['id'])}*\n"
                 f"📌 *{escape_markdown(lot['name'])}*\n"
                 f"💰 Сумма: *{lot['amount']:,.2f} ₸*\n"
                 f"🏛 Заказчик: {escape_markdown(lot['organizer'])}\n"
-                f"📊 Статус: {escape_markdown(lot['status'])}"
+                f"📊 Статус: {escape_markdown(lot['status'])}\n"
+                f"🌐 Источник: {escape_markdown(lot['source'])}"
             )
             inline = types.InlineKeyboardMarkup()
-            btn_text = "🔗 Открыть на zakup.sk.kz" if "самрук" in text_lower else "🔗 Открыть лот на портале"
-            inline.add(types.InlineKeyboardButton(btn_text, url=lot['url']))
-            inline.add(types.InlineKeyboardButton("🧮 Посчитать маржу", url="https://kzzakupbot.onrender.com#calculator"))
+            inline.add(types.InlineKeyboardButton("🔗 Перейти к закупке", url=lot['url']))
+            inline.add(types.InlineKeyboardButton("🧮 Посчитать в калькуляторе", url="https://kzzakupbot.onrender.com#calculator"))
             bot.send_message(message.chat.id, msg, parse_mode="Markdown", reply_markup=inline)
 
 @app.route('/')
