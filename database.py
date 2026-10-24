@@ -54,6 +54,17 @@ def init_db():
     conn.commit()
     conn.close()
 
+def register_user(user_id, first_name, username, source):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    cursor.execute('''
+        INSERT OR IGNORE INTO users (user_id, first_name, username, reg_date)
+        VALUES (?, ?, ?, ?)
+    ''', (user_id, first_name, username, now))
+    conn.commit()
+    conn.close()
+
 def add_topic(title, content, category, author_name, author_id):
     conn = get_db_connection()
     cursor = conn.cursor()
