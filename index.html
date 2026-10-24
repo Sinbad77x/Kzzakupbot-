@@ -35,7 +35,7 @@
         
         <!-- Навигация -->
         <ul class="nav nav-pills justify-content-center mb-4 gap-2 flex-wrap">
-            <li class="nav-item"><a class="nav-link active" href="#search-section">🔍 Поиск лотов</a></li>
+            <li class="nav-item"><a class="nav-link active" href="#search-section">🔍 Поиск закуп</a></li>
             <li class="nav-item"><a class="nav-link" href="#platforms-section">🏛 Площадки</a></li>
             <li class="nav-item"><a class="nav-link" href="#kaspi-section">🛒 Kaspi Магазин</a></li>
             <li class="nav-item"><a class="nav-link" href="#banks-section">🏦 Банковские гарантии</a></li>
@@ -44,20 +44,20 @@
             <li class="nav-item"><a class="nav-link" href="#calculator">🧮 Калькулятор</a></li>
         </ul>
 
-        <!-- 1. Секция поиска лотов -->
+        <!-- 1. Секция поиска лотов (Реальный поиск) -->
         <div class="row mb-5" id="search-section">
             <div class="col-lg-10 mx-auto">
                 <div class="card p-4 shadow-sm">
                     <h3 class="mb-3 text-primary">🔍 Поиск актуальных закупок РК</h3>
-                    <p class="text-muted small">Введите ключевое слово (например: <em>медицина</em>, <em>IT</em>, <em>строительство</em>, <em>самрук</em>) для мгновенного получения лотов:</p>
+                    <p class="text-muted small">Введите ключевое слово для запроса к официальному источнику:</p>
                     
                     <div class="input-group mb-3">
-                        <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Введите запрос или категорию...">
-                        <button class="btn btn-primary px-4 fw-bold" type="button" onclick="performSearch()">Найти лоты</button>
+                        <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Например: бумага, медицинское оборудование...">
+                        <button class="btn btn-primary px-4 fw-bold" type="button" onclick="performSearch()">Найти закупки</button>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span id="results-count" class="fw-bold text-secondary">Введите запрос для поиска лотов</span>
+                        <span id="results-count" class="fw-bold text-secondary">Введите запрос для поиска</span>
                     </div>
 
                     <div id="results-container"></div>
@@ -74,7 +74,7 @@
                         <div class="card platform-card h-100 p-3">
                             <h5 class="card-title text-primary">Государственные закупки РК</h5>
                             <p class="card-text small text-muted">Основной официальный портал государственных закупок Республики Казахстан.</p>
-                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-success">Работает (Экспресс-агрегатор)</span></p>
+                            <p class="small mb-2"><strong>Доступ:</strong> <span class="badge bg-success">Подтвержденные данные (API)</span></p>
                             <a href="https://zakup.gov.kz" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть портал</a>
                         </div>
                     </div>
@@ -82,7 +82,7 @@
                         <div class="card platform-card h-100 p-3">
                             <h5 class="card-title text-primary">Samruk-Kazyna</h5>
                             <p class="card-text small text-muted">Корпоративные закупки холдинга «Самрук-Қазына» (нефтегаз, энергетика, транспорт).</p>
-                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-warning text-dark">Только переход (Требует ЭЦП)</span></p>
+                            <p class="small mb-2"><strong>Доступ:</strong> <span class="badge bg-warning text-dark">Прямой переход (Требует ЭЦП)</span></p>
                             <a href="https://zakup.sk.kz/#/ext/search" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть zakup.sk.kz</a>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                         <div class="card platform-card h-100 p-3">
                             <h5 class="card-title text-primary">СК-Фармация</h5>
                             <p class="card-text small text-muted">Единый дистрибьютор по закупке лекарственных средств и медицинских изделий.</p>
-                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-secondary">Переход на официальный ресурс</span></p>
+                            <p class="small mb-2"><strong>Доступ:</strong> <span class="badge bg-secondary">Переход на официальный ресурс</span></p>
                             <a href="https://www.sk-pharmacy.kz" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть sk-pharmacy.kz</a>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
                         <div class="card platform-card h-100 p-3">
                             <h5 class="card-title text-primary">Mitwork (ЭТП)</h5>
                             <p class="card-text small text-muted">Электронная торговая площадка для корпоративных и коммерческих закупок.</p>
-                            <p class="small mb-2"><strong>Статус интеграции:</strong> <span class="badge bg-secondary">Переход на официальный ресурс</span></p>
+                            <p class="small mb-2"><strong>Доступ:</strong> <span class="badge bg-secondary">Переход на официальный ресурс</span></p>
                             <a href="https://mitwork.kz" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">🌐 Открыть mitwork.kz</a>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
             <div class="col-lg-10 mx-auto">
                 <div class="card kaspi-card p-4 shadow-sm bg-white">
                     <h3 class="mb-3 text-danger">🛒 Kaspi Магазин — Канал коммерческих продаж</h3>
-                    <p class="text-muted">Используйте Kaspi Магазин как дополнительный мощный канал сбыта товаров, расширения клиентской базы и диверсификации бизнеса за пределами государственных тендеров.</p>
+                    <p class="text-muted">Используйте Kaspi Магазин как дополнительный канал сбыта товаров и диверсификации бизнеса за пределами госзакупок.</p>
                     <div class="d-flex gap-3 flex-wrap mt-3">
                         <a href="https://kaspi.kz/shop/merchant/registration/" target="_blank" class="btn btn-danger fw-bold">📝 Регистрация продавца на Kaspi</a>
                         <a href="https://guide.kaspi.kz/partner/ru/shop/conditions" target="_blank" class="btn btn-outline-dark">📖 Условия для партнёров Kaspi</a>
@@ -124,7 +124,7 @@
         <div class="row mb-5" id="banks-section">
             <div class="col-lg-10 mx-auto">
                 <h3 class="mb-3 text-dark">🏦 Банковские гарантии и финансирование тендеров</h3>
-                <p class="text-muted small mb-4">Сравните условия ведущих банков Казахстана по выпуску тендерных гарантий и обеспечению исполнения контрактов:</p>
+                <p class="text-muted small mb-4">Сравните условия ведущих банков Казахстана по выпуску тендерных гарантий:</p>
 
                 <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
                     <div class="col">
@@ -151,7 +151,7 @@
                 </div>
 
                 <div class="card p-3 shadow-sm overflow-auto">
-                    <h5 class="text-secondary mb-3">📊 Сравнительная матрица банковских гарантий (на октябрь 2026 г.)</h5>
+                    <h5 class="text-secondary mb-3">📊 Сравнительная матрица банковских гарантий (октябрь 2026)</h5>
                     <table class="table table-bordered table-striped align-middle small">
                         <thead class="table-dark">
                             <tr>
@@ -170,9 +170,9 @@
                             <tr>
                                 <td><strong>BCC</strong></td>
                                 <td>Тендерная / Исполнение</td>
-                                <td>Индивидуальный лимитный расчет</td>
-                                <td>От 0.5% до 2% (мин. фикс.)</td>
-                                <td>Без залога (бланковый) или депозит</td>
+                                <td>Индивидуальный расчет</td>
+                                <td>От 0.5% до 2%</td>
+                                <td>Без залога или депозит</td>
                                 <td>Регистрация от 6 месяцев</td>
                                 <td>От 1 рабочего дня</td>
                                 <td>Госзакупки, Самрук</td>
@@ -182,8 +182,8 @@
                                 <td><strong>Halyk Bank</strong></td>
                                 <td>Все виды гарантий</td>
                                 <td>По кредитному комитету</td>
-                                <td>По тарифам корпоративного бизнеса</td>
-                                <td>Зависит от суммы (требуется покрытие)</td>
+                                <td>По тарифам банка</td>
+                                <td>Требуется покрытие</td>
                                 <td>Бизнес от 6–12 месяцев</td>
                                 <td>1–3 рабочих дня</td>
                                 <td>Все ЭТП РК</td>
@@ -192,10 +192,10 @@
                             <tr>
                                 <td><strong>Freedom Bank</strong></td>
                                 <td>Цифровые бланковые</td>
-                                <td>Онлайн-лимиты портфеля</td>
-                                <td>Экспресс от 1% / Уточнять</td>
-                                <td>Без залога (бланковые онлайн)</td>
-                                <td>По цифровому экспресс-скорингу</td>
+                                <td>Онлайн-лимиты</td>
+                                <td>Экспресс от 1%</td>
+                                <td>Без залога (бланковые)</td>
+                                <td>По экспресс-скорингу</td>
                                 <td>От 5 минут до 1 дня</td>
                                 <td>Госзакупки, Самрук</td>
                                 <td><a href="https://bankffin.kz/ru/guarantees" target="_blank">Сайт</a></td>
@@ -206,11 +206,11 @@
             </div>
         </div>
 
-        <!-- 5. Секция: Бесплатное обучение и база знаний -->
+        <!-- 5. Секция: Бесплатное обучение -->
         <div class="row mb-5" id="education-section">
             <div class="col-lg-10 mx-auto">
                 <h3 class="mb-3 text-dark">🎓 Бесплатное обучение и база знаний поставщика</h3>
-                <p class="text-muted small mb-4">Официальные образовательные программы, государственные каталоги поддержки и инструкции по закупкам:</p>
+                <p class="text-muted small mb-4">Официальные образовательные программы и каталоги поддержки:</p>
 
                 <div class="row row-cols-1 row-cols-md-2 g-4">
                     <div class="col">
@@ -219,7 +219,7 @@
                                 <h5 class="card-title text-purple mb-0">Фонд «Даму» — «Іскер аймақ»</h5>
                                 <span class="badge bg-success">Бесплатный курс</span>
                             </div>
-                            <p class="card-text small text-muted">Финансы, Cash Flow, бюджетирование, юридические основы бизнеса, договоры, продажи и цифровизация.</p>
+                            <p class="card-text small text-muted">Финансы, Cash Flow, бюджетирование, юридические основы бизнеса, договоры, продажи.</p>
                             <a href="https://damu.kz/ru/programmi/trainings/business_learning" target="_blank" class="btn btn-outline-dark btn-sm mt-auto">📚 Начать обучение</a>
                         </div>
                     </div>
@@ -227,9 +227,9 @@
                         <div class="card edu-card h-100 p-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title text-purple mb-0">«Правительство для бизнеса»</h5>
-                                <span class="badge bg-primary">Гос. услуги и каталог</span>
+                                <span class="badge bg-primary">Гос. услуги</span>
                             </div>
-                            <p class="card-text small text-muted">Регистрация бизнеса, получение ЭЦП, бухгалтерия, бизнес-планы и консультационная помощь.</p>
+                            <p class="card-text small text-muted">Регистрация бизнеса, ЭЦП, бухгалтерия, бизнес-планы и консультации.</p>
                             <a href="https://services.atameken.kz/" target="_blank" class="btn btn-outline-dark btn-sm mt-auto">🏛 Открыть портал услуг</a>
                         </div>
                     </div>
@@ -237,20 +237,20 @@
                         <div class="card edu-card h-100 p-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title text-purple mb-0">Фонд «Даму» — «Арманнан іске»</h5>
-                                <span class="badge bg-warning text-dark">Набор по расписанию</span>
+                                <span class="badge bg-warning text-dark">По расписанию</span>
                             </div>
                             <p class="card-text small text-muted">Программа поддержки и развития предпринимательских инициатив.</p>
-                            <a href="https://damu.kz/ru/programmi/trainings/armannan-iske" target="_blank" class="btn btn-outline-dark btn-sm mt-auto">🔎 Проверить статус набора</a>
+                            <a href="https://damu.kz/ru/programmi/trainings/armannan-iske" target="_blank" class="btn btn-outline-dark btn-sm mt-auto">🔎 Проверить статус</a>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card edu-card h-100 p-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title text-purple mb-0">НПП «Атамекен»</h5>
-                                <span class="badge bg-info text-dark">Бесплатные мероприятия</span>
+                                <span class="badge bg-info text-dark">Мероприятия</span>
                             </div>
-                            <p class="card-text small text-muted">Актуальные бесплатные семинары, вебинары и консультации для предпринимателей.</p>
-                            <a href="https://atameken.kz/" target="_blank" class="btn btn-outline-dark btn-sm mt-auto">📅 Расписание мероприятий</a>
+                            <p class="card-text small text-muted">Бесплатные семинары, вебинары и консультации для предпринимателей.</p>
+                            <a href="https://atameken.kz/" target="_blank" class="btn btn-outline-dark btn-sm mt-auto">📅 Расписание</a>
                         </div>
                     </div>
                 </div>
@@ -265,12 +265,11 @@
                         <h3 class="text-dark mb-0">👥 Сообщество поставщиков</h3>
                         <button class="btn btn-warning fw-bold" data-bs-toggle="modal" data-bs-target="#newTopicModal">➕ Создать тему</button>
                     </div>
-                    <p class="text-muted small mb-4">Обсуждение закупок, обмен опытом, вопросы по налогам, банковским гарантиям и логистике Казахстана.</p>
+                    <p class="text-muted small mb-4">Обсуждение закупок, налоги, банковские гарантии и логистика.</p>
 
-                    <!-- Фильтры категорий и поиск -->
                     <div class="row mb-3 g-2">
                         <div class="col-md-8">
-                            <input type="text" id="community-search" class="form-control" placeholder="🔍 Поиск по темам сообщества..." oninput="filterCommunityTopics()">
+                            <input type="text" id="community-search" class="form-control" placeholder="🔍 Поиск по темам..." oninput="filterCommunityTopics()">
                         </div>
                         <div class="col-md-4">
                             <select id="category-filter" class="form-select" onchange="filterCommunityTopics()">
@@ -287,7 +286,6 @@
                         </div>
                     </div>
 
-                    <!-- Список тем -->
                     <div id="community-topics-list">
                         <div class="text-center py-4 text-muted">Загрузка тем сообщества...</div>
                     </div>
@@ -295,12 +293,12 @@
             </div>
         </div>
 
-        <!-- 7. Секция расширенного калькулятора сделки -->
+        <!-- 7. Секция калькулятора -->
         <div class="row mb-5" id="calculator">
             <div class="col-lg-10 mx-auto">
                 <div class="card calculator-card p-4 shadow-sm">
                     <h3 class="mb-3 text-success">🧮 Расширенный калькулятор сделки и Cash Flow</h3>
-                    <p class="text-muted small">Оценка рентабельности, пиковой потребности в капитале и влияния банковских гарантий с учётом норм НК РК 2026.</p>
+                    <p class="text-muted small">Оценка рентабельности и пиковой потребности в капитале (НК РК 2026).</p>
                     
                     <form id="calc-form">
                         <div class="row">
@@ -334,20 +332,20 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Обеспечение исполнения договора (возвратный залог), ₸</label>
+                                <label class="form-label">Обеспечение исполнения (возвратный залог), ₸</label>
                                 <input type="number" id="deposit-amount" class="form-control" value="250000" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Срок задержки оплаты заказчиком (дней):</label>
+                                <label class="form-label">Срок задержки оплаты (дней):</label>
                                 <input type="number" id="delay-days" class="form-control" value="30" required>
                             </div>
                         </div>
 
-                        <button type="button" class="btn btn-success w-100 btn-lg fw-bold shadow-sm" onclick="calculateFinances()">Рассчитать показатели сделки</button>
+                        <button type="button" class="btn btn-success w-100 btn-lg fw-bold shadow-sm" onclick="calculateFinances()">Рассчитать показатели</button>
                     </form>
 
                     <div id="calc-results" class="mt-4 p-4 bg-light rounded border">
-                        <h5 class="text-success mb-3">📊 Финансовые результаты и потребность в капитале:</h5>
+                        <h5 class="text-success mb-3">📊 Финансовые результаты:</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <ul class="list-unstyled mb-0">
@@ -358,16 +356,16 @@
                             </div>
                             <div class="col-md-6">
                                 <ul class="list-unstyled mb-0">
-                                    <li class="mb-2">Временно заблокированные средства: <strong id="res-deposit">250 000 ₸ (возвратный)</strong></li>
+                                    <li class="mb-2">Заблокированные средства: <strong id="res-deposit">250 000 ₸ (возвратный)</strong></li>
                                     <li class="mb-2">Пиковый оборотный капитал: <strong id="res-capital" class="text-danger">3 925 000 ₸</strong></li>
-                                    <li class="mb-2">Оценка кассового разрыва: <strong id="res-cashflow">Без задержки</strong></li>
+                                    <li class="mb-2">Оценка кассового разрыва: <strong id="res-cashflow">Кассовый разрыв до 30 дн.</strong></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
                     <p class="text-muted small mt-3 mb-0">
-                        ℹ️ <strong>Примечание:</strong> Расчет носит предварительный характер. Возвратное обеспечение учитывается в потребности капитала, но не уменьшает чистую прибыль. Не учтены обязательные соц. платежи ИП за себя/работников (ОПВ, СО, ВОСМС, ОПВР) и административные расходы.
+                        ℹ️ <strong>Примечание:</strong> Предварительный расчет. Без учета обязательных соц. платежей ИП (ОПВ, СО, ВОСМС, ОПВР) и админ. расходов.
                     </p>
                 </div>
             </div>
@@ -400,14 +398,14 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Заголовок темы:</label>
-                            <input type="text" id="topic-title" class="form-control" placeholder="Краткая суть вопроса (от 10 символов)" required>
+                            <input type="text" id="topic-title" class="form-control" placeholder="Суть вопроса (от 10 символов)" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Текст обсуждения:</label>
-                            <textarea id="topic-content" class="form-control" rows="4" placeholder="Подробности, контекст, вопрос (от 20 символов)..." required></textarea>
+                            <textarea id="topic-content" class="form-control" rows="4" placeholder="Подробности и контекст (от 20 символов)..." required></textarea>
                         </div>
                         <div class="alert alert-warning small">
-                            ⚠️ <strong>Правила сообщества:</strong> Запрещен спам, реклама, разглашение ЭЦП, персональных данных и антиконкурентные сговоры. Все темы проходят модерацию.
+                            ⚠️ <strong>Правила:</strong> Запрещен спам, ЭЦП, персональные данные и сговоры. Все темы модерируются.
                         </div>
                         <button type="button" class="btn btn-primary w-100 fw-bold" onclick="createTopic()">Опубликовать тему</button>
                     </form>
@@ -420,14 +418,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Функция поиска по подтвержденным официальным источникам
         async function performSearch() {
             const queryInput = document.getElementById('search-input');
             const query = queryInput ? queryInput.value.trim() : '';
             const resultsContainer = document.getElementById('results-container');
             const resultsCount = document.getElementById('results-count');
 
-            if (resultsCount) resultsCount.innerText = "⏳ Загрузка актуальных лотов...";
-            if (resultsContainer) resultsContainer.innerHTML = '<div class="text-center py-3 text-muted">Поиск актуальных тендеров...</div>';
+            if (resultsCount) resultsCount.innerText = "⏳ Запрос к официальному источнику...";
+            if (resultsContainer) resultsContainer.innerHTML = '<div class="text-center py-3 text-muted">Поиск подтвержденных закупок...</div>';
 
             try {
                 const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -435,14 +434,18 @@
 
                 if (result.success && Array.isArray(result.data)) {
                     const lots = result.data;
-                    const total = result.total !== undefined ? result.total : lots.length;
                     
                     if (resultsCount) {
-                        resultsCount.innerText = `Найдено лотов: ${total} (Обновлено: ${result.fetched_at || 'только что'})`;
+                        resultsCount.innerText = `Найдено официально объявленных лотов: ${lots.length} (Обновлено: ${result.fetched_at || 'только что'})`;
                     }
 
                     if (lots.length === 0) {
-                        resultsContainer.innerHTML = '<div class="alert alert-warning">Активных лотов по вашему запросу не найдено.</div>';
+                        resultsContainer.innerHTML = `
+                            <div class="alert alert-info">
+                                ℹ️ По запросу «<strong>${escapeHtml(query)}</strong>» подтвержденных опубликованных закупок не найдено.
+                                <br><a href="https://zakup.gov.kz/ru/search/announce?search=${encodeURIComponent(query)}" target="_blank" class="alert-link mt-2 d-inline-block">🔗 Открыть поиск на zakup.gov.kz</a>
+                            </div>
+                        `;
                         return;
                     }
 
@@ -451,25 +454,33 @@
                         html += `
                             <div class="card mb-3 shadow-sm border-start border-primary border-4">
                                 <div class="card-body">
-                                    <h5 class="card-title text-primary">#${idx + 1}. Лот #${lot.id}</h5>
-                                    <p class="card-text fw-bold mb-1">${lot.name}</p>
-                                    <p class="mb-1 text-muted small">🏛 Заказчик: ${lot.organizer}</p>
-                                    <p class="mb-1">💰 Сумма: <strong>${lot.amount ? lot.amount.toLocaleString('ru-RU') + ' ₸' : 'Договорная'}</strong></p>
-                                    <p class="mb-2"><span class="badge bg-warning text-dark">${lot.status}</span></p>
-                                    <a href="${lot.url}" target="_blank" class="btn btn-outline-primary btn-sm">🔗 Открыть лот на портале</a>
-                                    <a href="#calculator" onclick="fillCalculatorFromLot(${lot.amount || 0})" class="btn btn-outline-success btn-sm ms-2">🧮 Посчитать в калькуляторе</a>
+                                    <h5 class="card-title text-primary">#${idx + 1}. Закупка №${lot.id}</h5>
+                                    <p class="card-text fw-bold mb-1">${escapeHtml(lot.name)}</p>
+                                    <p class="mb-1 text-muted small">🏛 Заказчик: ${escapeHtml(lot.organizer)}</p>
+                                    <p class="mb-1">💰 Сумма: <strong>${lot.amount ? lot.amount.toLocaleString('ru-RU') + ' ₸' : 'Уточнять на портале'}</strong></p>
+                                    <p class="mb-1 small text-secondary">🌐 Источник: ${escapeHtml(lot.source || 'Официальный портал')}</p>
+                                    <p class="mb-2"><span class="badge bg-success">${escapeHtml(lot.status)}</span></p>
+                                    <a href="${lot.url}" target="_blank" class="btn btn-outline-primary btn-sm">🔗 Открыть на официальном портале</a>
+                                    <a href="#calculator" onclick="fillCalculatorFromLot(${lot.amount || 0})" class="btn btn-outline-success btn-sm ms-2">🧮 Рассчитать в калькуляторе</a>
                                 </div>
                             </div>
                         `;
                     });
                     resultsContainer.innerHTML = html;
                 } else {
-                    if (resultsCount) resultsCount.innerText = "Поиск временно недоступен";
-                    if (resultsContainer) resultsContainer.innerHTML = `<div class="alert alert-danger">${result.message || 'Ошибка загрузки данных'}</div>`;
+                    // Честное информирование без подстановки фиктивных данных
+                    if (resultsCount) resultsCount.innerText = "Прямой поиск недоступен";
+                    resultsContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            <h5>ℹ️ ${escapeHtml(result.title || 'Информация об источнике')}</h5>
+                            <p class="mb-2">${escapeHtml(result.message || 'Для прямого доступа перейдите на официальный ресурс:')}</p>
+                            <a href="${result.official_url || 'https://zakup.gov.kz'}" target="_blank" class="btn btn-primary btn-sm fw-bold">🔗 Открыть официальный поиск</a>
+                        </div>
+                    `;
                 }
             } catch (e) {
                 if (resultsCount) resultsCount.innerText = "Ошибка соединения";
-                if (resultsContainer) resultsContainer.innerHTML = '<div class="alert alert-danger">Не удалось подключиться к серверу.</div>';
+                if (resultsContainer) resultsContainer.innerHTML = '<div class="alert alert-danger">Не удалось связаться с сервером.</div>';
             }
         }
 
